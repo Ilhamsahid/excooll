@@ -29,13 +29,13 @@
                 📊 Kehadiran Saya
             </button>
             <button class="profile-dropdown-item">
-                🏆 Prestasi
+                🏆 Kegiatan saya
             </button>
             <div class="profile-dropdown-divider"></div>
             <button class="profile-dropdown-item">
                 ⚙️ Pengaturan
             </button>
-            <button class="profile-dropdown-item danger" onclick="logout()">
+            <button class="profile-dropdown-item danger" onclick="showLogoutConfirmation()">
                 🚪 Keluar
             </button>
         </div>

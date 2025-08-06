@@ -24,21 +24,22 @@
             </div>
 
             <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label" for="studentGrade">Tingkat Kelas</label>
-                    <select id="studentGrade" class="form-select" required>
-                        <option value="">Pilih Kelas</option>
-                        <option value="10">Kelas 10</option>
-                        <option value="11">Kelas 11</option>
-                        <option value="12">Kelas 12</option>
-                    </select>
-                    <div class="validation-message">Tingkat kelas harus dipilih</div>
+                <div class="form-group float-label">
+                    <input type="text" name="" id="" class="form-input"  placeholder=" " required>
+                    <label class="form-label" for="studentGrade">Kelas</label>
+                    <div class="validation-message">Kelas Harus diisi</div>
                 </div>
                 <div class="form-group float-label">
                     <input type="tel" id="studentPhone" class="form-input" placeholder=" " required>
                     <label class="form-label" for="studentPhone">Nomor Telepon</label>
                     <div class="validation-message">Nomor telepon harus diisi</div>
                 </div>
+            </div>
+
+            <div class="form-group float-label">
+                <input type="text" id="emergencyContact" class="form-input" placeholder=" " required>
+                <label class="form-label" for="emergencyContact">Alamat</label>
+                <div class="validation-message">Alamat harus diisi</div>
             </div>
 
             <div class="form-group">
@@ -54,26 +55,8 @@
                     placeholder="Pengalaman atau keterampilan relevan yang ingin Anda bagikan..."></textarea>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="availability">Ketersediaan Waktu</label>
-                <select id="availability" class="form-select" required>
-                    <option value="">Pilih Ketersediaan</option>
-                    <option value="weekdays">Hanya Hari Kerja</option>
-                    <option value="weekends">Hanya Akhir Pekan</option>
-                    <option value="both">Hari Kerja dan Akhir Pekan</option>
-                    <option value="flexible">Jadwal Fleksibel</option>
-                </select>
-                <div class="validation-message">Ketersediaan waktu harus dipilih</div>
-            </div>
-
-            <div class="form-group float-label">
-                <input type="text" id="emergencyContact" class="form-input" placeholder=" " required>
-                <label class="form-label" for="emergencyContact">Kontak Darurat</label>
-                <div class="validation-message">Kontak darurat harus diisi</div>
-            </div>
-
             <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 1.5rem;">
-                ✨ Kirim Aplikasi
+                ✨ Submit
             </button>
         </form>
     </div>

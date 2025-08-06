@@ -12,7 +12,13 @@ class EkskulService
         $this->repository = $repository;
     }
 
-    public function getAllWithCount(){
+    public function getAllWithCount()
+    {
         return $this->repository->getAllWithPembinaAndCount();
+    }
+
+    public function getEkskulByEkskulUser($ekskulId)
+    {
+        return $this->repository->getEkskulByEkskulIdFromUser($ekskulId);
     }
 }

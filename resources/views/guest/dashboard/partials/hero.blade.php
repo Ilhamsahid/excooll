@@ -6,7 +6,7 @@
             <p class="fade-in">Temukan dan bergabunglah dengan kegiatan ekstrakurikuler yang menakjubkan di sekolahmu.
                 Kembangkan keterampilan, buat teman baru, dan ciptakan kenangan yang tak terlupakan.</p>
             <div class="hero-buttons fade-in">
-                <button class="btn btn-primary" onclick="openModal('registerModal')">
+                <button class="btn btn-primary" id="hero" onclick="openModal('registerModal')">
                     🚀 Bergabung Sebagai Siswa
                 </button>
                 <a href="#activities" class="btn btn-secondary">

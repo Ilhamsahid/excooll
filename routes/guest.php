@@ -12,4 +12,9 @@ Route::get('/', function () {
 Route::get('/ekstrasmexa', [GuestController::class, 'index']);
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/logout', [AuthController::class, 'logout']);
+Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::get('/json/{true}', [GuestController::class, 'getUserEkskul']);
+Route::get('/csrf-token', function () {
+    return ['csrf_token' => csrf_token()];
+});

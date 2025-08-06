@@ -11,7 +11,7 @@
         <button class="btn btn-secondary" onclick="openModal('loginModal')">Masuk</button>
         <button class="btn btn-primary" onclick="openModal('registerModal')">Daftar</button>
     </div>
-    @include('guest.dashboard.partials.data.profile')
+    @include('guest.dashboard.partials.profile-dropdown')
     <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Buka menu">☰</button>
 </nav>
 <div class="mobile-nav" id="mobileNav">

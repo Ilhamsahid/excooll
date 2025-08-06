@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ekskul_user', function (Blueprint $table) {
+        Schema::create('nisns', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('ekskul_id')->constrained('ekskuls')->onDelete('cascade');
-            $table->string('alasan');
+            $table->string('nisn');
             $table->timestamps();
         });
     }
@@ -25,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ekskul_user');
+        Schema::dropIfExists('nisns');
     }
 };

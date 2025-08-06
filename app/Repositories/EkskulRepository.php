@@ -11,4 +11,8 @@ class EkskulRepository implements EkskulRepositoryInterface
     public function getAllWithPembinaAndCount(): collection{
         return Ekskul::with('pembina')->withCount('siswa')->get();
     }
+
+    public function getEkskulByEkskulIdFromUser($ekskulId): collection{
+        return Ekskul::with('pembina')->withCount('siswa')->whereIn('id', $ekskulId)->get();
+    }
 }

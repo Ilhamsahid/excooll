@@ -12,8 +12,12 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
     protected $table = 'users';
 
-    protected $fillable = ['name', 'email', 'password', 'role'];
+    protected $fillable = ['name', 'email', 'password', 'role', 'created_at'];
 
+    public function siswaProfile()
+    {
+        return $this->hasOne(SiswaProfile::class);
+    }
     # Relasi: User(siswa) memiliki banyak ekskul
     public function ekskuls(){
         return $this->belongsToMany(Ekskul::class, 'ekskul_user');

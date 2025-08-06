@@ -22,7 +22,7 @@ function showNotification(title, message, type = "success", duration = 4000) {
     else if (type === "info") icon = "ℹ️";
 
     notification.innerHTML = `
-                <div class="notification-content">
+                <div class="notif-content">
                     <span class="notification-icon">${icon}</span>
                     <div class="notification-text">
                         <div class="notification-title">${title}</div>
@@ -175,13 +175,30 @@ function clearFormValidation(modalId) {
 
 // Close modal when clicking outside
 window.onclick = function (event) {
-    if (event.target.classList.contains("modal")) {
+    if (
+        event.target.classList.contains("modal") ||
+        event.target.classList.contains("modal-profile")
+    ) {
         const modalId = event.target.id;
         event.target.classList.remove("active");
         document.body.style.overflow = "auto";
         clearFormValidation(modalId);
     }
 };
+
+function handleClickOutside(event) {
+    const profileTrigger = document.querySelector(".profile-trigger");
+    const profileDropdown = document.getElementById("profileDropdown");
+
+    if (profileTrigger && profileDropdown) {
+        if (
+            !profileTrigger.contains(event.target) &&
+            !profileDropdown.contains(event.target)
+        ) {
+            closeProfileDropdown();
+        }
+    }
+}
 
 // FAQ Toggle
 function toggleFAQ(button) {
@@ -209,20 +226,37 @@ function toggleFAQ(button) {
 
 // Form validation
 function validateInput(input) {
-    const isValid = input.value.trim() !== "";
+    const isRequired = input.hasAttribute("required");
     const message = input.parentElement.querySelector(".validation-message");
+    const value = input.value.trim();
 
-    if (!isValid && input.hasAttribute("required")) {
+    // Validasi kosong
+    if (isRequired && value === "") {
         input.classList.add("invalid");
         input.classList.remove("valid");
+        if (message)
+            message.textContent =
+                message.dataset.empty || "Field ini wajib diisi";
         if (message) message.classList.add("show");
         return false;
-    } else if (input.hasAttribute("required")) {
-        input.classList.remove("invalid");
-        input.classList.add("valid");
-        if (message) message.classList.remove("show");
-        return true;
     }
+
+    // Validasi angka khusus NISN
+    if (input.id === "registerNisn") {
+        if (!/^\d+$/.test(value)) {
+            // kalau bukan angka
+            input.classList.add("invalid");
+            input.classList.remove("valid");
+            if (message) message.textContent = "NISN harus berupa angka";
+            if (message) message.classList.add("show");
+            return false;
+        }
+    }
+
+    // Lolos semua validasi
+    input.classList.remove("invalid");
+    input.classList.add("valid");
+    if (message) message.classList.remove("show");
     return true;
 }
 
@@ -246,7 +280,7 @@ function showLoginRequired() {
 }
 
 // Load More Items Function
-function loadMoreItems(section) {
+async function loadMoreItems(section) {
     const state = paginationState[section];
     if (state.isLoading) return;
 
@@ -261,12 +295,25 @@ function loadMoreItems(section) {
     spinner.style.display = "inline-block";
     loadMoreBtn.disabled = true;
 
+    let responseEkskul = window.currentUser
+        ? await fetch("/json/true", {
+              headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRF-TOKEN": document
+                      .querySelector('meta[name="csrf-token"]')
+                      .getAttribute("content"),
+              },
+          })
+        : "";
+
+    let dataEkskul = window.currentUser ? await responseEkskul.json() : "";
+
     // Simulate loading delay
     setTimeout(() => {
         state.currentPage++;
 
         if (section === "activities") {
-            loadActivities();
+            loadActivities(dataEkskul);
         } else if (section === "announcements") {
             loadAnnouncements();
         } else if (section === "recentActivities") {
@@ -308,58 +355,309 @@ function createSkeletonCard() {
 }
 
 // Load Activities with pagination
-function loadActivities() {
+// function loadActivities(ekskulUser) {
+//     if (window.currentUser) {
+//         index = 0;
+//         for (let i = 0; i < sampleActivities.length; i++) {
+//             if (index < ekskulUser.length && sampleActivities[i].id == ekskulUser[index].id) {
+//                 sampleActivities[i] = -1;
+//                 index += 1;
+//             }
+//         }
+
+//         temp = [];
+//         for (let i = 0; i < ekskulUser.length; i++) {
+//             temp[i] = sampleActivities[i];
+//             sampleActivities[i] = ekskulUser[i];
+//         }
+
+//         tmp = [];
+//         index = 0;
+//         for (let i = 0; i < sampleActivities.length; i++) {
+//             if (i > ekskulUser.length - 1) {
+//                 tmp[index] = sampleActivities[i];
+//                 index++;
+//             }
+//         }
+
+//         newActivity = temp;
+
+//         index = 0;
+//         length = newActivity.length;
+//         while (index < tmp.length) {
+//             newActivity[length] = tmp[index];
+//             length++;
+//             index++;
+//         }
+
+//         index = 0;
+//         length = ekskulUser.length;
+//         while (index < newActivity.length) {
+//             sampleActivities[length] = newActivity[index];
+//             length++;
+//             index++;
+//         }
+//     }
+//     const grid = document.getElementById("activitiesGrid");
+//     const state = paginationState.activities;
+//     const startIndex = 0;
+//     const endIndex = state.currentPage * state.itemsPerPage;
+//     const itemsToShow = sampleActivities.slice(startIndex, endIndex);
+//     const totalItems = sampleActivities.length;
+
+//     // Clear existing cards
+//     grid.innerHTML = "";
+
+//         console.log(sampleActivities);
+//     // Add cards with staggered animation
+//     itemsToShow.forEach((activity, index) => {
+//         const card = document.createElement("div");
+//         card.className = "card";
+
+//         let buttonClass = window.currentUser
+//             ? "btn btn-primary"
+//             : "btn btn-disabled";
+//         let buttonText = window.currentUser
+//             ? "✨ Bergabung dengan Kegiatan"
+//             : "🔒 Login untuk Bergabung";
+//         let buttonAction = window.currentUser
+//             ? `joinActivity(${activity.id}, '${activity.nama}')`
+//             : `showLoginRequired()`;
+
+//         if (activity == ekskulUser[index]) {
+//             buttonClass = "btn btn-success";
+//             buttonText = "Kelola Ekskul Saya";
+//             buttonAction = "";
+//         }
+
+//         if (activity != -1) {
+//             card.innerHTML = `
+//                     <div class="card-header">
+//                         <div>
+//                             <h3 class="card-title">${activity.nama}</h3>
+//                         </div>
+//                         <span class="badge badge-success">Aktif</span>
+//                     </div>
+//                     <p class="card-description">${activity.deskripsi}</p>
+//                     <div class="card-meta">
+//                         <span>👨‍🏫 ${activity.pembina.name}</span>
+//                         <span>👥 ${activity.siswa_count} anggota</span>
+//                     </div>
+//                     <div class="card-actions">
+//                         <button class="${buttonClass}" style="width: 100%;" onclick="${buttonAction}">
+//                             ${buttonText}
+//                         </button>
+//                     </div>
+//                 `;
+
+//             // Add staggered animation
+//             setTimeout(() => {
+//                 card.classList.add("show");
+//             }, index * 100);
+
+//             grid.appendChild(card);
+//         }
+//     });
+
+//     // Update counter
+//     const counter = document.getElementById("activitiesCounter");
+//     counter.textContent = `Menampilkan ${Math.min(
+//         endIndex,
+//         totalItems
+//     )} dari ${totalItems} kegiatan`;
+
+//     // Show/hide load more button
+//     const loadMoreBtn = document.getElementById("loadMoreActivities");
+//     if (endIndex < totalItems) {
+//         loadMoreBtn.style.display = "flex";
+//     } else {
+//         loadMoreBtn.style.display = "none";
+//     }
+// }
+
+// MAP
+// function loadActivities(ekskulUser) {
+//     if (window.currentUser) {
+//         const ekskulUserIds = ekskulUser.map((a) => a.id);
+//         const filteredActivities = sampleActivities.filter(
+//             (a) => !ekskulUserIds.includes(a.id)
+//         );
+
+//         // Gabungkan ekskulUser di awal list
+//         sampleActivities = [...ekskulUser, ...filteredActivities];
+//     }
+
+//     const grid = document.getElementById("activitiesGrid");
+//     const state = paginationState.activities;
+//     const startIndex = 0;
+//     const endIndex = state.currentPage * state.itemsPerPage;
+//     const itemsToShow = sampleActivities.slice(startIndex, endIndex);
+//     const totalItems = sampleActivities.length;
+
+//     grid.innerHTML = "";
+
+//     itemsToShow.forEach((activity, index) => {
+//         const card = document.createElement("div");
+//         card.className = "card";
+
+//         let isUserActivity = window.currentUser && ekskulUser.some((a) => a.id === activity.id);
+
+//         let buttonClass = isUserActivity
+//             ? "btn btn-success"
+//             : window.currentUser
+//             ? "btn btn-primary"
+//             : "btn btn-disabled";
+
+//         let buttonText = isUserActivity
+//             ? "Kelola Ekskul Saya"
+//             : window.currentUser
+//             ? "✨ Bergabung dengan Kegiatan"
+//             : "🔒 Login untuk Bergabung";
+
+//         let buttonAction = isUserActivity
+//             ? ""
+//             : window.currentUser
+//             ? `joinActivity(${activity.id}, '${activity.nama}')`
+//             : `showLoginRequired()`;
+
+//         card.innerHTML = `
+//             <div class="card-header">
+//                 <div>
+//                     <h3 class="card-title">${activity.nama}</h3>
+//                 </div>
+//                 <span class="badge badge-success">Aktif</span>
+//             </div>
+//             <p class="card-description">${activity.deskripsi}</p>
+//             <div class="card-meta">
+//                 <span>👨‍🏫 ${activity.pembina.name}</span>
+//                 <span>👥 ${activity.siswa_count} anggota</span>
+//             </div>
+//             <div class="card-actions">
+//                 <button class="${buttonClass}" style="width: 100%;" onclick="${buttonAction}">
+//                     ${buttonText}
+//                 </button>
+//             </div>
+//         `;
+
+//         setTimeout(() => {
+//             card.classList.add("show");
+//         }, index * 100);
+
+//         grid.appendChild(card);
+//     });
+
+//     // Update counter
+//     const counter = document.getElementById("activitiesCounter");
+//     counter.textContent = `Menampilkan ${Math.min(endIndex, totalItems)} dari ${totalItems} kegiatan`;
+
+//     // Show/hide load more button
+//     const loadMoreBtn = document.getElementById("loadMoreActivities");
+//     loadMoreBtn.style.display = endIndex < totalItems ? "flex" : "none";
+// }
+
+// FOR
+function loadActivities(ekskulUser) {
+    if (window.currentUser) {
+        const ekskulUserIds = [];
+        for (let i = 0; i < ekskulUser.length; i++) {
+            ekskulUserIds.push(ekskulUser[i].id);
+        }
+
+        const otherActivities = [];
+        for (let i = 0; i < sampleActivities.length; i++) {
+            let isUserActivity = false;
+            for (let j = 0; j < ekskulUserIds.length; j++) {
+                if (sampleActivities[i].id === ekskulUserIds[j]) {
+                    isUserActivity = true;
+                    break;
+                }
+            }
+            if (!isUserActivity) {
+                otherActivities.push(sampleActivities[i]);
+            }
+        }
+
+        // Gabungkan: ekskulUser di depan, lainnya di belakang
+        sampleActivities = [];
+        for (let i = 0; i < ekskulUser.length; i++) {
+            sampleActivities.push(ekskulUser[i]);
+        }
+        for (let i = 0; i < otherActivities.length; i++) {
+            sampleActivities.push(otherActivities[i]);
+        }
+    }
+
     const grid = document.getElementById("activitiesGrid");
     const state = paginationState.activities;
     const startIndex = 0;
     const endIndex = state.currentPage * state.itemsPerPage;
-    const itemsToShow = sampleActivities.slice(startIndex, endIndex);
+    const itemsToShow = [];
     const totalItems = sampleActivities.length;
 
-    // Clear existing cards
+    for (let i = startIndex; i < endIndex && i < totalItems; i++) {
+        itemsToShow.push(sampleActivities[i]);
+    }
+
+    // Clear grid
     grid.innerHTML = "";
 
-    // Add cards with staggered animation
-    itemsToShow.forEach((activity, index) => {
+    for (let i = 0; i < itemsToShow.length; i++) {
+        const activity = itemsToShow[i];
         const card = document.createElement("div");
         card.className = "card";
 
-        const buttonClass = window.isLoggedIn
+        // Cek apakah activity ini milik user
+        let isMyEkskul = false;
+        for (let j = 0; j < ekskulUser.length; j++) {
+            if (activity.id === ekskulUser[j].id) {
+                isMyEkskul = true;
+                break;
+            }
+        }
+
+        let buttonClass = isMyEkskul
+            ? "btn btn-success"
+            : window.currentUser
             ? "btn btn-primary"
             : "btn btn-disabled";
-        const buttonText = window.isLoggedIn
+
+        let buttonText = isMyEkskul
+            ? "Kelola Ekskul Saya"
+            : window.currentUser
             ? "✨ Bergabung dengan Kegiatan"
             : "🔒 Login untuk Bergabung";
-        const buttonAction = window.isLoggedIn
+
+        let buttonAction = isMyEkskul
+            ? ""
+            : window.currentUser
             ? `joinActivity(${activity.id}, '${activity.nama}')`
             : `showLoginRequired()`;
 
         card.innerHTML = `
-                    <div class="card-header">
-                        <div>
-                            <h3 class="card-title">${activity.nama}</h3>
-                        </div>
-                        <span class="badge badge-success">Aktif</span>
-                    </div>
-                    <p class="card-description">${activity.deskripsi}</p>
-                    <div class="card-meta">
-                        <span>👨‍🏫 ${activity.pembina.name}</span>
-                        <span>👥 ${activity.siswa_count} anggota</span>
-                    </div>
-                    <div class="card-actions">
-                        <button class="${buttonClass}" style="width: 100%;" onclick="${buttonAction}">
-                            ${buttonText}
-                        </button>
-                    </div>
-                `;
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">${activity.nama}</h3>
+                </div>
+                <span class="badge badge-success">Aktif</span>
+            </div>
+            <p class="card-description">${activity.deskripsi}</p>
+            <div class="card-meta">
+                <span>👨‍🏫 ${activity.pembina.name}</span>
+                <span>👥 ${activity.siswa_count} anggota</span>
+            </div>
+            <div class="card-actions">
+                <button class="${buttonClass}" style="width: 100%;" onclick="${buttonAction}">
+                    ${buttonText}
+                </button>
+            </div>
+        `;
 
-        // Add staggered animation
         setTimeout(() => {
             card.classList.add("show");
-        }, index * 100);
+        }, i * 100);
 
         grid.appendChild(card);
-    });
+    }
 
     // Update counter
     const counter = document.getElementById("activitiesCounter");
@@ -370,11 +668,7 @@ function loadActivities() {
 
     // Show/hide load more button
     const loadMoreBtn = document.getElementById("loadMoreActivities");
-    if (endIndex < totalItems) {
-        loadMoreBtn.style.display = "flex";
-    } else {
-        loadMoreBtn.style.display = "none";
-    }
+    loadMoreBtn.style.display = endIndex < totalItems ? "flex" : "none";
 }
 
 // Load Announcements with pagination
@@ -501,34 +795,85 @@ function loadRecentActivities() {
 
 // Join Activity Function
 function joinActivity(activityId, activityName) {
-    document.getElementById("selectedActivity").value = activityName;
+    document
+        .getElementById("selectedActivity")
+        .setAttribute("value", activityName);
+    document
+        .getElementById("studentName")
+        .setAttribute("value", window.currentUser.name);
+    document
+        .getElementById("studentEmail")
+        .setAttribute("value", window.currentUser.email);
+
     openModal("joinActivityModal");
 }
 
 function updateUIProfile() {
+    document.getElementById("hero").style.display = "none";
     const isMobile = window.innerWidth <= 768; // bisa kamu sesuaikan breakpoint-nya
 
     document.getElementById("guestNav").style.display = "none";
-    document.getElementById("profileNav").style.display = isMobile ? "none" : "flex";
+    document.getElementById("profileNav").style.display = isMobile
+        ? "none"
+        : "flex";
 
     if (!isMobile) {
         const name = window.currentUser.name ?? "User";
         const role = window.currentUser.role ?? "-";
         const email = window.currentUser.email ?? "-";
 
-        document.getElementById("userAvatar").textContent = name.charAt(0).toUpperCase();
+        document.getElementById("userAvatar").textContent = name
+            .charAt(0)
+            .toUpperCase();
         document.getElementById("userName").textContent = name;
         document.getElementById("userRole").textContent = role;
-        document.getElementById("dropdownAvatar").textContent = name.charAt(0).toUpperCase();
+        document.getElementById("dropdownAvatar").textContent = name
+            .charAt(0)
+            .toUpperCase();
         document.getElementById("dropdownName").textContent = name;
         document.getElementById("dropdownEmail").textContent = email;
         document.getElementById("dropdownRole").textContent = role;
     }
 }
 
+function switchProfileTab(tabName) {
+    // Remove active class from all tabs and contents
+    document.querySelectorAll(".profile-tab").forEach((tab) => {
+        tab.classList.remove("active");
+    });
+    document.querySelectorAll(".profile-tab-content").forEach((content) => {
+        content.classList.remove("active");
+    });
+
+    // Add active class to clicked tab and corresponding content
+    event.target.classList.add("active");
+    const tabContent = document.getElementById(tabName + "Tab");
+    if (tabContent) {
+        tabContent.classList.add("active");
+    }
+}
+
 function toggleProfileDropdown() {
     const dropdown = document.getElementById("profileDropdown");
-    dropdown.classList.toggle("show");
+    const isShowing = dropdown.classList.contains("show");
+
+    // Close other dropdowns
+    closeAllDropdowns();
+
+    if (!isShowing) {
+        dropdown.classList.add("show");
+        // Add click outside listener
+        setTimeout(() => {
+            document.addEventListener("click", handleClickOutside);
+        }, 0);
+    }
+}
+
+function closeAllDropdowns() {
+    document.querySelectorAll(".profile-dropdown").forEach((dropdown) => {
+        dropdown.classList.remove("show");
+    });
+    document.removeEventListener("click", handleClickOutside);
 }
 
 function closeProfileDropdown() {
@@ -536,10 +881,189 @@ function closeProfileDropdown() {
     dropdown.classList.remove("show");
 }
 
+function handleClickOutside(event) {
+    const profileTrigger = document.querySelector(".profile-trigger");
+    const profileDropdown = document.getElementById("profileDropdown");
+
+    if (profileTrigger && profileDropdown) {
+        if (
+            !profileTrigger.contains(event.target) &&
+            !profileDropdown.contains(event.target)
+        ) {
+            closeProfileDropdown();
+        }
+    }
+}
+
+function markAllNotificationsAsRead() {
+    // Animate notification items
+    document
+        .querySelectorAll(".notification-item.unread")
+        .forEach((item, index) => {
+            setTimeout(() => {
+                item.classList.remove("unread");
+                item.style.transform = "scale(0.98)";
+                setTimeout(() => {
+                    item.style.transform = "scale(1)";
+                }, 150);
+            }, index * 100);
+        });
+
+    // Hide notification badge with animation
+    const badge = document.getElementById("notificationBadge");
+    if (badge) {
+        badge.style.transform = "scale(0)";
+        setTimeout(() => {
+            badge.style.display = "none";
+        }, 300);
+    }
+
+    showNotification(
+        "Berhasil!",
+        "Semua notifikasi telah ditandai sebagai dibaca.",
+        "success",
+        2000
+    );
+}
+
+function showLogoutConfirmation() {
+    closeProfileDropdown();
+    openModal("logoutModal");
+}
+
+async function getNewCsrfToken() {
+    let res = await fetch("/csrf-token");
+    let data = await res.json();
+    document
+        .querySelector('meta[name="csrf-token"]')
+        .setAttribute("content", data.csrf_token);
+}
+
+function toggleGuestNav() {
+    const isMobile = window.innerWidth <= 768;
+    document.getElementById("guestNav").style.display = isMobile ? "none" : "flex";
+}
+
+async function confirmLogout() {
+    // Show loading state on button
+    const logoutBtn = document.querySelector("#logoutModal .btn-danger");
+    const originalText = logoutBtn.innerHTML;
+    logoutBtn.innerHTML = '<span class="loading-spinner"></span> Keluar...';
+    logoutBtn.disabled = true;
+
+    let response = await fetch("/logout", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "X-CSRF-TOKEN": document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute("content"),
+        },
+        credentials: "include", // penting kalau pakai session Laravel
+    });
+
+    let data = await response.json();
+
+    if (data.status === "success") {
+        isLoggedIn = false;
+        currentUser = null;
+        await getNewCsrfToken();
+        closeModal("logoutModal");
+        document.getElementById("hero").style.display = "flex";
+        document.getElementById("profileNav").style.display = "none";
+        toggleGuestNav();
+        showNotification(
+            "Berhasil Keluar!",
+            "Anda telah berhasil keluar dari sistem. Terima kasih telah menggunakan EkstraKu!",
+            "info"
+        );
+
+        logoutBtn.innerHTML = originalText;
+        logoutBtn.disabled = false;
+
+        loadActivities(window.ekskulsUser);
+
+        // Scroll to top with smooth animation
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+        alert("Gagal logout: " + data.message);
+    }
+}
+
+function formatTanggalIndo(datetime) {
+    const date = new Date(datetime);
+    const bulanIndo = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ];
+
+    const tanggal = date.getUTCDate();
+    const bulan = bulanIndo[date.getUTCMonth()];
+    const tahun = date.getUTCFullYear();
+
+    return `${tanggal} ${bulan} ${tahun}`;
+}
+
 function openProfileModal() {
     closeProfileDropdown();
     openModal("profileModal");
     loadProfileData();
+    loadActivityCardProfile();
+}
+
+function loadProfileData() {
+    // profile detail
+    document.getElementById("profileName").textContent =
+        window.currentUser.name;
+    document.getElementById("profileEmail").textContent =
+        window.currentUser.email;
+    document.getElementById("profileRole").textContent =
+        window.currentUser.role;
+    document.getElementById("countActivities").textContent =
+        window.currentUser.ekskuls.length;
+    document.getElementById("totalActivities").textContent =
+        window.currentUser.ekskuls.length;
+
+    document.getElementById('profileFullName').textContent = 
+        window.currentUser.name
+    document.getElementById('profileEmailValue').textContent = 
+        window.currentUser.email
+    document.getElementById('classProfile').textContent = 
+        window.currentUser.siswa_profile.kelas ?? '-'
+    document.getElementById('nis').textContent = 
+        window.currentUser.siswa_profile.nisn ?? '-'
+    document.getElementById('date').textContent = 
+        formatTanggalIndo(window.currentUser.siswa_profile.created_at) ?? '-'
+}
+
+function loadActivityCardProfile() {
+    const grid = document.getElementById("activitiesTab");
+    const itemsToShow = window.ekskulsUser;
+
+    grid.innerHTML = "";
+
+    itemsToShow.forEach((activity) => {
+        const card = document.createElement("div");
+        card.className = "activity-card";
+
+        card.innerHTML = `
+            <div class="activity-card-header">
+                <div class="activity-card-title">${activity.nama}</div>
+                <div class="activity-status">Aktif</div>
+            </div>
+            <div class="activity-card-meta">
+                <span>👨‍🏫 ${activity.pembina.name}</span>
+                <span>📅 Bergabung: 15 Jan 2024</span>
+                <span>👥 ${activity.siswa_count} Anggota</span>
+            </div>
+            <div class="activity-card-description">
+                ${activity.deskripsi}
+            </div>
+        `;
+
+        grid.appendChild(card);
+    });
 }
 
 // Form Handlers
@@ -571,12 +1095,25 @@ document
                     .querySelector('meta[name="csrf-token"]')
                     .getAttribute("content"),
             },
+            credentials: "include",
             body: JSON.stringify({ email, password }),
         });
 
         let data = await response.json();
 
         if (data.status == "success") {
+            await getNewCsrfToken();
+
+            let responseEkskul = await fetch("/json/true", {
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute("content"),
+                },
+            });
+
+            let dataEkskul = await responseEkskul.json();
             window.currentUser = data.user;
             // Simulate login
             showNotification(
@@ -589,7 +1126,7 @@ document
             e.target.reset();
             clearFormValidation("loginModal");
 
-            loadActivities();
+            loadActivities(dataEkskul);
 
             updateUIProfile();
         } else {
@@ -607,18 +1144,22 @@ document
 
 document
     .getElementById("registerForm")
-    .addEventListener("submit", function (e) {
+    .addEventListener("submit", async function (e) {
         e.preventDefault();
 
         if (!validateForm(this)) {
             return;
         }
 
+        const inputs = document.querySelectorAll("#registerForm input");
         const name = document.getElementById("registerName").value;
+        const nisn = document.getElementById("registerNisn").value;
         const email = document.getElementById("registerEmail").value;
         const password = document.getElementById("registerPassword").value;
         const confirmPassword =
             document.getElementById("confirmPassword").value;
+
+        const nisnInput = document.getElementById("registerNisn");
 
         if (password !== confirmPassword) {
             showNotification(
@@ -636,8 +1177,39 @@ document
             '<span class="loading-spinner"></span> Membuat akun...';
         submitBtn.disabled = true;
 
-        // Simulate registration
-        setTimeout(() => {
+        let response = await fetch("/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"),
+            },
+            body: JSON.stringify({
+                name,
+                nisn,
+                email,
+                password,
+            }),
+        });
+
+        let data = await response.json();
+
+        console.log(data.user)
+
+        if (data.status == "success") {
+            let responseEkskul = await fetch("/json/true", {
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute("content"),
+                },
+            });
+
+            let dataEkskul = await responseEkskul.json();
+
+            window.currentUser = data.user;
             showNotification(
                 "Pendaftaran Berhasil!",
                 `🎉 Selamat datang di EkstraKu, ${name}! Akun Anda telah berhasil dibuat. Sekarang Anda dapat menjelajahi dan bergabung dengan kegiatan!`
@@ -647,7 +1219,28 @@ document
             submitBtn.disabled = false;
             e.target.reset();
             clearFormValidation("registerModal");
-        }, 2000);
+
+            loadActivities(dataEkskul); // atau redirect ke halaman dashboard jika perlu
+
+            updateUIProfile();
+        } else {
+            if(data.status == 'nisnError'){
+                nisnInput.classList.add('invalid')
+                const validationMessage = nisnInput
+                .closest(".form-group")
+                .querySelector(".validation-message");
+                validationMessage.textContent = data.message;
+                validationMessage.classList.add('show')
+            }else{
+                inputs.forEach((input) => {
+                    input.classList.add("invalid");
+                });
+            }
+
+            document.getElementById("errorForm").style.display = "flex";
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
     });
 
 document
@@ -702,15 +1295,17 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
 // Initialize
 document.addEventListener("DOMContentLoaded", function () {
     loadTheme();
-    loadActivities();
+    loadActivities(window.ekskulsUser);
     loadAnnouncements();
     loadRecentActivities();
+    toggleGuestNav();
+    window.addEventListener("resize", toggleGuestNav);
 
     if (window.currentUser) {
         updateUIProfile(); // panggil SEKALI saat awal
     }
 
-    window.addEventListener('resize', () => {
+    window.addEventListener("resize", () => {
         if (window.currentUser) {
             updateUIProfile();
         }

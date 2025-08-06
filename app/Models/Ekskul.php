@@ -11,7 +11,7 @@ class Ekskul extends Model
     
     protected $table = 'ekskuls';
 
-    protected $fillable = ['nama', 'deskripsi', 'pembina_id'];
+    protected $fillable = ['nama', 'deskripsi', 'pembina_id', 'created_at'];
 
     # Relasi: ekskul dimiliki oleh pembina dari user
     public function pembina(){

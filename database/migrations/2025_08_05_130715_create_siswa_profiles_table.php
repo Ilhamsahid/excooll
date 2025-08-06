@@ -11,11 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ekskul_user', function (Blueprint $table) {
+        Schema::create('siswa_profiles', function (Blueprint $table) {
             $table->id();
+
+            // Relasi ke tabel users
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('ekskul_id')->constrained('ekskuls')->onDelete('cascade');
-            $table->string('alasan');
+
+            // Data spesifik siswa
+            $table->string('nisn', 10)->unique(); // 10 digit NISN
+            $table->string('kelas', 50)->nullable();
+            $table->string('alamat')->nullable();
+            $table->string('no_telephone', 15)->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ekskul_user');
+        Schema::dropIfExists('siswa_profiles');
     }
 };

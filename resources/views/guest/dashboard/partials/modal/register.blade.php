@@ -11,6 +11,11 @@
                 <div class="validation-message">Nama lengkap harus diisi</div>
             </div>
             <div class="form-group float-label">
+                <input type="text" id="registerNisn" class="form-input" placeholder=" " required>
+                <label class="form-label" for="registerNisn">NISN</label>
+                <div class="validation-message">NISN harus diisi</div>
+            </div>
+            <div class="form-group float-label">
                 <input type="email" id="registerEmail" class="form-input" placeholder=" " required>
                 <label class="form-label" for="registerEmail">Alamat Email</label>
                 <div class="validation-message">Email harus diisi</div>

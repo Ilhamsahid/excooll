@@ -11,11 +11,13 @@
 <body>
     @yield('content')
     <script>
-        const sampleActivities = @json($ekskuls);
+        let sampleActivities = @json($ekskuls);
         const sampleAnnouncements = @json($announcements);
         const sampleRecentActivities = @json($recentActivities);
-        window.isLoggedIn = @json(Auth::user()) ? true : false;
-        window.currentUser = @json(Auth::user());
+        window.isLoggedIn = @json($user) ? true : false;
+        window.currentUser = @json($user);
+        window.ekskulsUser = @json($ekskulsUser);
+        console.log(window.currentUser);
     </script>
     <script src="{{ asset('scripts/guest.js') }}"></script>
 </body>
