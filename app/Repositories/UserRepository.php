@@ -12,4 +12,8 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::with('ekskuls', 'siswaProfile')->where('id', Auth::user()->id)->first() ?? '';
     }
+
+    public function createUser($arr){
+        return User::create($arr);
+    }
 }

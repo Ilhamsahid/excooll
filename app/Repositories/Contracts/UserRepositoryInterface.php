@@ -7,4 +7,6 @@ use Illuminate\Support\Collection;
 interface UserRepositoryInterface
 {
     public function getUserWithEkskul();
+
+    public function createUser($arr);
 }

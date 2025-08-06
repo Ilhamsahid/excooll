@@ -50,40 +50,21 @@ class AuthController extends Controller
 
     public function register(Request $request, UserService $userService)
     {
-        $cekNisn = Nisn::where('nisn', $request->nisn)->first();
+        try{
+            $user = $userService->registerNewSiswa($request);
 
-        if(!$cekNisn){
+            Auth::login($user);
+
             return response()->json([
-                'status' => 'nisnError',
-                'message' => 'NISN ini tidak ditemukan.',
+                'status' => 'success',
+                'message' => 'Registrasi berhasil',
+                'user' => $userService->getUserWithEkskul(),
             ]);
-        }
-
-        if(SiswaProfile::where('nisn', $request->nisn)->first()){
+        } catch (\Exception $e) {
             return response()->json([
-                'status' => 'nisnError',
-                'message' => 'Nisn ini sudah dipakai oleh siswa tertentu',
-            ]);
+                'status'  => 'nisnError',
+                'message' => $e->getMessage(),
+            ], 400);
         }
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => 'siswa',
-            'password' => Hash::make($request->password),
-        ]);
-
-        SiswaProfile::create([
-            'user_id' => $user->id,
-            'nisn' => $request->nisn,
-        ]);
-
-        Auth::login($user);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Registrasi berhasil',
-            'user' => $userService->getUserWithEkskul(),
-        ]);
     }
 }
