@@ -585,7 +585,7 @@ function createSkeletonCard() {
 
 // FOR
 function loadActivities(ekskulUser) {
-    if (window.currentUser) {
+    if (window.currentUser && ekskulUser != null) {
         const ekskulUserIds = [];
         for (let i = 0; i < ekskulUser.length; i++) {
             ekskulUserIds.push(ekskulUser[i].id);
@@ -646,13 +646,17 @@ function loadActivities(ekskulUser) {
         let buttonClass = isMyEkskul
             ? "btn btn-success"
             : window.currentUser
-            ? "btn btn-primary"
+            ? ekskulUser.length >= 3
+            ? "btn btn-disabled"
+            : "btn btn-primary"
             : "btn btn-disabled";
 
         let buttonText = isMyEkskul
             ? "Kelola Ekskul Saya"
             : window.currentUser
-            ? "✨ Bergabung dengan Kegiatan"
+            ? ekskulUser.length >= 3
+            ? "🔒 Akses Terbatas"
+            : "✨ Bergabung dengan Kegiatan"
             : "🔒 Login untuk Bergabung";
 
         let buttonAction = isMyEkskul
@@ -824,6 +828,9 @@ function loadRecentActivities() {
 // Join Activity Function
 function joinActivity(activityId, activityName) {
     document
+        .getElementById("idEkskul")
+        .setAttribute("value", activityId);
+    document
         .getElementById("selectedActivity")
         .setAttribute("value", activityName);
     document
@@ -994,7 +1001,7 @@ async function confirmLogout() {
     let data = await response.json();
 
     if (data.status === "success") {
-        isLoggedIn = false;
+        window.ekskulsUser = [];
         currentUser = null;
         await getNewCsrfToken();
         closeModal("logoutModal");
@@ -1273,16 +1280,20 @@ document
 
 document
     .getElementById("joinActivityForm")
-    .addEventListener("submit", function (e) {
+    .addEventListener("submit", async function (e) {
         e.preventDefault();
 
         if (!validateForm(this)) {
             return;
         }
 
+        const activityId = document.getElementById("idEkskul").value;
         const activityName = document.getElementById("selectedActivity").value;
         const studentName = document.getElementById("studentName").value;
         const studentEmail = document.getElementById("studentEmail").value;
+        const studentClass = document.getElementById("classStudent").value;
+        const studentTelephone = document.getElementById("studentPhone").value;
+        const studentAddress = document.getElementById("studentAddress").value;
         const whyJoin = document.getElementById("whyJoin").value;
 
         // Add loading state
@@ -1292,6 +1303,26 @@ document
             '<span class="loading-spinner"></span> Mengirim...';
         submitBtn.disabled = true;
 
+        let response = await fetch('/join-ekskul',{
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                "X-CSRF-TOKEN": document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"),
+            },
+            body: JSON.stringify({
+                ekskulId: activityId,
+                studentName,
+                studentEmail,
+                whyJoin,
+            })
+        });
+
+        let data = await response.json();
+
+        console.log (data);
         // Simulate join activity
         setTimeout(() => {
             showNotification(
