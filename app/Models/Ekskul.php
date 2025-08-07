@@ -20,7 +20,9 @@ class Ekskul extends Model
 
     # Relasi: ekskul dimiliki banyak siswa dari user
     public function siswa(){
-        return $this->belongsToMany(User::class, 'ekskul_user');
+        return $this->belongsToMany(User::class, 'ekskul_user')
+            ->withPivot('status')
+            ->withTimestamps();
     }
 
     # Relasi: ekskul memiliki banyak kegiatan

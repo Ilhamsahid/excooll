@@ -18,9 +18,12 @@ class User extends Authenticatable
     {
         return $this->hasOne(SiswaProfile::class);
     }
+
     # Relasi: User(siswa) memiliki banyak ekskul
     public function ekskuls(){
-        return $this->belongsToMany(Ekskul::class, 'ekskul_user');
+        return $this->belongsToMany(Ekskul::class, 'ekskul_user')
+            ->withPivot('alasan')
+            ->withTimestamps();
     }
 
     # Relasi: User(pembina) mengelola banyak ekskul 
