@@ -6,6 +6,7 @@ use App\Models\Nisn;
 use App\Models\SiswaProfile;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserService 
@@ -49,5 +50,24 @@ class UserService
         ]);
 
         return $user;
+    }
+
+    public function addSiswaProfile(Request $request, $user){
+        $user->update([
+            'name' => $request->studentName,
+            'email' => $request->studentEmail,
+        ]);
+
+        $user->save();
+
+        $siswaProfile = SiswaProfile::where('user_id', $user->id)->first();
+
+        $siswaProfile->update([
+            'kelas' => $request->studentClass,
+            'alamat' => $request->studentAddress,
+            'no_telephone'=> $request->studentTelephone
+        ]);
+
+        $siswaProfile->save();
     }
 }

@@ -272,6 +272,69 @@ body {
     align-items: center;
 }
 
+.error-modal .modal-content {
+    max-width: 500px;
+}
+
+.error-modal-body {
+    padding: var(--space-xl);
+    text-align: center;
+}
+
+.error-icon {
+    width: 4rem;
+    height: 4rem;
+    background: var(--error-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-2xl);
+    margin: 0 auto var(--space-lg);
+    color: var(--error);
+}
+
+.error-title {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+}
+
+.error-message {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2xl);
+    line-height: 1.6;
+}
+
+.error-actions {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.modal-error-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-xl) var(--space-xl) var(--space-lg);
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-error-content {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-2xl);
+    width: 100%;
+    max-width: 900px;
+    box-shadow: var(--shadow-2xl);
+    margin: auto;
+    animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: calc(100vh - 2rem);
+    overflow: hidden;
+    position: relative;
+}
+
 .theme-toggle {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -650,7 +713,6 @@ body {
         opacity: 1;
     }
 }
-
 
 .modal-profile-header {
     display: flex;

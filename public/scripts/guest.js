@@ -224,13 +224,13 @@ function toggleFAQ(button) {
     }
 }
 
-function getKelas(kelas, jurusan, jumlahKelas){
-    arr = []
+function getKelas(kelas, jurusan, jumlahKelas) {
+    arr = [];
 
-    for(let i = 0; i < kelas.length; i++){
-        for(let j = 0; j < jurusan.length ; j++){
-            for(let k = 0; k < jumlahKelas[j]; k++){
-                arr.push(kelas[i] + ' ' + jurusan[j] + ' ' + (k + 1))
+    for (let i = 0; i < kelas.length; i++) {
+        for (let j = 0; j < jurusan.length; j++) {
+            for (let k = 0; k < jumlahKelas[j]; k++) {
+                arr.push(kelas[i] + " " + jurusan[j] + " " + (k + 1));
             }
         }
     }
@@ -256,26 +256,39 @@ function validateInput(input) {
     }
 
     // Validasi angka khusus NISN
-    if (input.id === "registerNisn" || input.id === 'studentPhone') {
-        console.log(input.id)
+    if (input.id === "registerNisn" || input.id === "studentPhone") {
+        console.log(input.id);
         if (!/^\d+$/.test(value)) {
             // kalau bukan angka
             input.classList.add("invalid");
             input.classList.remove("valid");
-            if (message) message.textContent = input.id === "registerNisn" ? "NISN harus berupa angka" : 'Nomor Telepon harus angka';
+            if (message)
+                message.textContent =
+                    input.id === "registerNisn"
+                        ? "NISN harus berupa angka"
+                        : "Nomor Telepon harus angka";
             if (message) message.classList.add("show");
             return false;
         }
     }
 
-    if(input.id === 'classStudent'){
-        const allowed = getKelas(['X', 'XI', 'XII'], ['RPL', 'BD', 'MP', 'AK', 'LP'], [2, 4, 4, 3, 2]);
-        const inputc = document.getElementById("classStudent").value.trim().toUpperCase();
+    if (input.id === "classStudent") {
+        const allowed = getKelas(
+            ["X", "XI", "XII"],
+            ["RPL", "BD", "MP", "AK", "LP"],
+            [2, 4, 4, 3, 2]
+        );
+        const inputc = document
+            .getElementById("classStudent")
+            .value.trim()
+            .toUpperCase();
 
         if (!allowed.includes(inputc)) {
             input.classList.add("invalid");
             input.classList.remove("valid");
-            if (message) message.textContent = "Pastikan Kelas benar dan ada contoh: X RPL 1, XI RPL 1, XII RPL 1";
+            if (message)
+                message.textContent =
+                    "Pastikan Kelas benar dan ada contoh: X RPL 1, XI RPL 1, XII RPL 1";
             if (message) message.classList.add("show");
             return false;
         }
@@ -628,6 +641,12 @@ function loadActivities(ekskulUser) {
 
     // Clear grid
     grid.innerHTML = "";
+    const title = document.getElementById("errorTitle");
+    const message = document.getElementById("errorMessage");
+
+    title.textContent = "Batas Maksimal Ekskul";
+    message.textContent =
+        "Kamu hanya bisa mengikuti maksimal 3 ekskul. Silakan keluar dari salah satu ekskul sebelum bergabung ke yang baru.";
 
     for (let i = 0; i < itemsToShow.length; i++) {
         const activity = itemsToShow[i];
@@ -647,22 +666,24 @@ function loadActivities(ekskulUser) {
             ? "btn btn-success"
             : window.currentUser
             ? ekskulUser.length >= 3
-            ? "btn btn-disabled"
-            : "btn btn-primary"
+                ? "btn btn-disabled"
+                : "btn btn-primary"
             : "btn btn-disabled";
 
         let buttonText = isMyEkskul
             ? "Kelola Ekskul Saya"
             : window.currentUser
             ? ekskulUser.length >= 3
-            ? "🔒 Akses Terbatas"
-            : "✨ Bergabung dengan Kegiatan"
+                ? "🔒 Akses Terbatas"
+                : "✨ Bergabung dengan Kegiatan"
             : "🔒 Login untuk Bergabung";
 
         let buttonAction = isMyEkskul
             ? ""
             : window.currentUser
-            ? `joinActivity(${activity.id}, '${activity.nama}')`
+            ? ekskulUser.length >= 3
+                ? `openModal('errorModal')`
+                : `joinActivity(${activity.id}, '${activity.nama}')`
             : `showLoginRequired()`;
 
         card.innerHTML = `
@@ -827,9 +848,7 @@ function loadRecentActivities() {
 
 // Join Activity Function
 function joinActivity(activityId, activityName) {
-    document
-        .getElementById("idEkskul")
-        .setAttribute("value", activityId);
+    document.getElementById("idEkskul").setAttribute("value", activityId);
     document
         .getElementById("selectedActivity")
         .setAttribute("value", activityName);
@@ -839,6 +858,18 @@ function joinActivity(activityId, activityName) {
     document
         .getElementById("studentEmail")
         .setAttribute("value", window.currentUser.email);
+    document
+        .getElementById("classStudent")
+        .setAttribute("value", window.currentUser.siswa_profile.kelas ?? "");
+    document
+        .getElementById("studentPhone")
+        .setAttribute(
+            "value",
+            window.currentUser.siswa_profile.no_telephone ?? ""
+        );
+    document
+        .getElementById("studentAddress")
+        .setAttribute("value", window.currentUser.siswa_profile.alamat ?? "");
 
     openModal("joinActivityModal");
 }
@@ -976,7 +1007,9 @@ async function getNewCsrfToken() {
 
 function toggleGuestNav() {
     const isMobile = window.innerWidth <= 768;
-    document.getElementById("guestNav").style.display = isMobile ? "none" : "flex";
+    document.getElementById("guestNav").style.display = isMobile
+        ? "none"
+        : "flex";
 }
 
 async function confirmLogout() {
@@ -1029,8 +1062,18 @@ async function confirmLogout() {
 function formatTanggalIndo(datetime) {
     const date = new Date(datetime);
     const bulanIndo = [
-        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember",
     ];
 
     const tanggal = date.getUTCDate();
@@ -1060,21 +1103,36 @@ function loadProfileData() {
     document.getElementById("totalActivities").textContent =
         window.currentUser.ekskuls.length;
 
-    document.getElementById('profileFullName').textContent = 
-        window.currentUser.name
-    document.getElementById('profileEmailValue').textContent = 
-        window.currentUser.email
-    document.getElementById('classProfile').textContent = 
-        window.currentUser.siswa_profile.kelas ?? '-'
-    document.getElementById('nis').textContent = 
-        window.currentUser.siswa_profile.nisn ?? '-'
-    document.getElementById('date').textContent = 
-        formatTanggalIndo(window.currentUser.siswa_profile.created_at) ?? '-'
+    document.getElementById("profileFullName").textContent =
+        window.currentUser.name;
+    document.getElementById("profileEmailValue").textContent =
+        window.currentUser.email;
+    document.getElementById("classProfile").textContent =
+        window.currentUser.siswa_profile.kelas ?? "-";
+    document.getElementById("nis").textContent =
+        window.currentUser.siswa_profile.nisn ?? "-";
+    document.getElementById("date").textContent =
+        formatTanggalIndo(window.currentUser.siswa_profile.created_at) ?? "-";
+
+    document.getElementById("telephone-info").textContent =
+        window.currentUser.siswa_profile.no_telephone ?? "-";
+    document.getElementById("alamat-info").textContent =
+        window.currentUser.siswa_profile.alamat ?? "-";
 }
 
-function loadActivityCardProfile() {
+async function loadActivityCardProfile() {
     const grid = document.getElementById("activitiesTab");
-    const itemsToShow = window.ekskulsUser;
+    let responseEkskul = await fetch("/json/true", {
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute("content"),
+        },
+    });
+
+    let dataEkskul = await responseEkskul.json();
+    const itemsToShow = dataEkskul;
 
     grid.innerHTML = "";
 
@@ -1230,7 +1288,7 @@ document
 
         let data = await response.json();
 
-        console.log(data.user)
+        console.log(data.user);
 
         if (data.status == "success") {
             let responseEkskul = await fetch("/json/true", {
@@ -1259,14 +1317,14 @@ document
 
             updateUIProfile();
         } else {
-            if(data.status == 'nisnError'){
-                nisnInput.classList.add('invalid')
+            if (data.status == "nisnError") {
+                nisnInput.classList.add("invalid");
                 const validationMessage = nisnInput
-                .closest(".form-group")
-                .querySelector(".validation-message");
+                    .closest(".form-group")
+                    .querySelector(".validation-message");
                 validationMessage.textContent = data.message;
-                validationMessage.classList.add('show')
-            }else{
+                validationMessage.classList.add("show");
+            } else {
                 inputs.forEach((input) => {
                     input.classList.add("invalid");
                 });
@@ -1303,7 +1361,7 @@ document
             '<span class="loading-spinner"></span> Mengirim...';
         submitBtn.disabled = true;
 
-        let response = await fetch('/join-ekskul',{
+        let response = await fetch("/join-ekskul", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -1316,15 +1374,29 @@ document
                 ekskulId: activityId,
                 studentName,
                 studentEmail,
+                studentTelephone,
+                studentClass,
+                studentAddress,
                 whyJoin,
-            })
+            }),
         });
 
         let data = await response.json();
 
-        console.log (data);
-        // Simulate join activity
-        setTimeout(() => {
+        console.log(data);
+        if (data.status == "success") {
+            window.currentUser = data.user;
+            let responseEkskul = await fetch("/json/true", {
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute("content"),
+                },
+            });
+
+            let dataEkskul = await responseEkskul.json();
+
             showNotification(
                 "Aplikasi Berhasil Dikirim!",
                 `🎉 Aplikasi berhasil dikirim untuk ${activityName}! Mentor kami akan meninjau aplikasi Anda dan menghubungi dalam 2-3 hari kerja. Bersiaplah untuk memulai perjalanan bersama kami!`
@@ -1334,7 +1406,18 @@ document
             submitBtn.disabled = false;
             e.target.reset();
             clearFormValidation("joinActivityModal");
-        }, 2000);
+
+            loadActivities(dataEkskul);
+            updateUIProfile();
+        } else {
+            document.getElementById("errorTitle").textContent = data.title;
+            document.getElementById("errorMessage").textContent = data.message;
+            openModal("errorModal");
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            e.target.reset();
+            clearFormValidation("joinActivityModal");
+        }
     });
 
 // Smooth scrolling for navigation links

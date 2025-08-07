@@ -6,6 +6,7 @@
         </div>
         <form id="joinActivityForm">
             <div class="form-group float-label">
+                <input type="hidden" id="idEkskul" class="form-input" readonly>
                 <input type="text" id="selectedActivity" class="form-input" readonly>
                 <label class="form-label" for="selectedActivity">Kegiatan yang Dipilih</label>
             </div>
@@ -37,7 +38,7 @@
             </div>
 
             <div class="form-group float-label">
-                <input type="text" id="emergencyContact" class="form-input" placeholder=" " required>
+                <input type="text" id="studentAddress" class="form-input" placeholder=" " required>
                 <label class="form-label" for="emergencyContact">Alamat</label>
                 <div class="validation-message">Alamat harus diisi</div>
             </div>
@@ -54,7 +55,6 @@
                 <textarea id="previousExperience" class="form-textarea"
                     placeholder="Pengalaman atau keterampilan relevan yang ingin Anda bagikan..."></textarea>
             </div>
-
             <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 1.5rem;">
                 ✨ Submit
             </button>

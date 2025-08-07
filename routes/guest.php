@@ -11,9 +11,11 @@ Route::get('/', function () {
 
 Route::get('/ekstrasmexa', [GuestController::class, 'index']);
 
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/join-ekskul', [EkskulController::class,'joinEkskul']);
+
 Route::get('/json/{true}', [GuestController::class, 'getUserEkskul']);
 Route::get('/csrf-token', function () {
     return ['csrf_token' => csrf_token()];

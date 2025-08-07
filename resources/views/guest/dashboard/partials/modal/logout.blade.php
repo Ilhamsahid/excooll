@@ -5,7 +5,7 @@
             <button class="close-btn" onclick="closeModal('logoutModal')" aria-label="Tutup">&times;</button>
         </div>
         <div class="logout-modal-body">
-            <div class="logout-icon">🚪</div>
+            <div class="logout-icon">⚠️</div>
             <div class="logout-title">Apakah Anda yakin ingin keluar?</div>
             <div class="logout-message">
                 Anda akan keluar dari sistem EkstraKu dan perlu masuk lagi untuk mengakses fitur-fitur yang memerlukan

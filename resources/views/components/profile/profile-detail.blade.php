@@ -56,15 +56,11 @@
             <div class="profile-info-title">📞 Kontak & Alamat</div>
             <div class="profile-info-item">
                 <span class="profile-info-label">Nomor Telepon</span>
-                <span class="profile-info-value">+62 812-3456-7890</span>
+                <span class="profile-info-value" id="telephone-info">+62 812-3456-7890</span>
             </div>
             <div class="profile-info-item">
                 <span class="profile-info-label">Alamat</span>
-                <span class="profile-info-value">Jl. Pendidikan No. 123, Jakarta</span>
-            </div>
-            <div class="profile-info-item">
-                <span class="profile-info-label">Kontak Darurat</span>
-                <span class="profile-info-value">+62 811-2345-6789</span>
+                <span class="profile-info-value" id="alamat-info">Jl. Pendidikan No. 123, Jakarta</span>
             </div>
             <div class="profile-info-item">
                 <span class="profile-info-label">Status</span>
