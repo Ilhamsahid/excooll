@@ -25,7 +25,7 @@
 
             <div class="form-row">
                 <div class="form-group float-label">
-                    <input type="text" name="" id="" class="form-input"  placeholder=" " required>
+                    <input type="text" name="" id="classStudent" class="form-input"  placeholder=" " required>
                     <label class="form-label" for="studentGrade">Kelas</label>
                     <div class="validation-message">Kelas Harus diisi</div>
                 </div>
