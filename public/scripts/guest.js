@@ -224,6 +224,20 @@ function toggleFAQ(button) {
     }
 }
 
+function getKelas(kelas, jurusan, jumlahKelas){
+    arr = []
+
+    for(let i = 0; i < kelas.length; i++){
+        for(let j = 0; j < jurusan.length ; j++){
+            for(let k = 0; k < jumlahKelas[j]; k++){
+                arr.push(kelas[i] + ' ' + jurusan[j] + ' ' + (k + 1))
+            }
+        }
+    }
+
+    return arr;
+}
+
 // Form validation
 function validateInput(input) {
     const isRequired = input.hasAttribute("required");
@@ -242,12 +256,26 @@ function validateInput(input) {
     }
 
     // Validasi angka khusus NISN
-    if (input.id === "registerNisn") {
+    if (input.id === "registerNisn" || input.id === 'studentPhone') {
+        console.log(input.id)
         if (!/^\d+$/.test(value)) {
             // kalau bukan angka
             input.classList.add("invalid");
             input.classList.remove("valid");
-            if (message) message.textContent = "NISN harus berupa angka";
+            if (message) message.textContent = input.id === "registerNisn" ? "NISN harus berupa angka" : 'Nomor Telepon harus angka';
+            if (message) message.classList.add("show");
+            return false;
+        }
+    }
+
+    if(input.id === 'classStudent'){
+        const allowed = getKelas(['X', 'XI', 'XII'], ['RPL', 'BD', 'MP', 'AK', 'LP'], [2, 4, 4, 3, 2]);
+        const inputc = document.getElementById("classStudent").value.trim().toUpperCase();
+
+        if (!allowed.includes(inputc)) {
+            input.classList.add("invalid");
+            input.classList.remove("valid");
+            if (message) message.textContent = "Pastikan Kelas benar dan ada contoh: X RPL 1, XI RPL 1, XII RPL 1";
             if (message) message.classList.add("show");
             return false;
         }
