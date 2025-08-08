@@ -860,16 +860,16 @@ function joinActivity(activityId, activityName) {
         .setAttribute("value", window.currentUser.email);
     document
         .getElementById("classStudent")
-        .setAttribute("value", window.currentUser.siswa_profile.kelas ?? "");
+        .setAttribute("value", window.currentUser?.siswa_profile?.kelas ?? "");
     document
         .getElementById("studentPhone")
         .setAttribute(
             "value",
-            window.currentUser.siswa_profile.no_telephone ?? ""
+            window.currentUser?.siswa_profile?.no_telephone ?? ""
         );
     document
         .getElementById("studentAddress")
-        .setAttribute("value", window.currentUser.siswa_profile.alamat ?? "");
+        .setAttribute("value", window.currentUser?.siswa_profile?.alamat ?? "");
 
     openModal("joinActivityModal");
 }
@@ -1131,16 +1131,16 @@ function loadProfileData() {
     document.getElementById("profileEmailValue").textContent =
         window.currentUser.email;
     document.getElementById("classProfile").textContent =
-        window.currentUser.siswa_profile.kelas ?? "-";
+        window.currentUser?.siswa_profile?.kelas ?? "-";
     document.getElementById("nis").textContent =
-        window.currentUser.siswa_profile.nisn ?? "-";
+        window.currentUser?.siswa_profile?.nisn ?? "-";
     document.getElementById("date").textContent =
         formatTanggalIndo(window.currentUser.siswa_profile.created_at) ?? "-";
 
     document.getElementById("telephone-info").textContent =
-        window.currentUser.siswa_profile.no_telephone ?? "-";
+        window.currentUser?.siswa_profile?.no_telephone ?? "-"
     document.getElementById("alamat-info").textContent =
-        window.currentUser.siswa_profile.alamat ?? "-";
+        window.currentUser?.siswa_profile?.alamat ?? "-";
 }
 
 async function loadActivityCardProfile() {

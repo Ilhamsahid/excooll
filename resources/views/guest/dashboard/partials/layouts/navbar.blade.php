@@ -2,7 +2,7 @@
     <div class="logo">EkstraKu</div>
     <div class="nav-links">
         <a href="#home" class="nav-link">Beranda</a>
-        <a href="#activities" class="nav-link">Kegiatan</a>
+        <a href="#ekskuls" class="nav-link">Kegiatan</a>
         <a href="#announcements" class="nav-link">Pengumuman</a>
         <a href="#about" class="nav-link">Tentang</a>
     </div>
@@ -38,7 +38,7 @@
         </div>
         <div class="mobile-nav-links">
             <a href="#home" class="mobile-nav-link" onclick="closeMobileMenu()">🏠 Beranda</a>
-            <a href="#activities" class="mobile-nav-link" onclick="closeMobileMenu()">🎯 Kegiatan</a>
+            <a href="#ekskuls" class="mobile-nav-link" onclick="closeMobileMenu()">🎯 Kegiatan</a>
             <a href="#announcements" class="mobile-nav-link" onclick="closeMobileMenu()">📢 Pengumuman</a>
             <a href="#about" class="mobile-nav-link" onclick="closeMobileMenu()">ℹ️ Tentang</a>
         </div>
