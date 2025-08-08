@@ -5,9 +5,9 @@
             <span class="bottom-nav-icon">🏠</span>
             <span>Beranda</span>
         </a>
-        <a href="#activities" class="bottom-nav-link" data-section="activities">
+        <a href="#ekskuls" class="bottom-nav-link" data-section="ekskuls">
             <span class="bottom-nav-icon">🎯</span>
-            <span>Kegiatan</span>
+            <span>Ekskul</span>
         </a>
         <a href="#announcements" class="bottom-nav-link" data-section="announcements">
             <span class="bottom-nav-icon">📢</span>
@@ -17,7 +17,7 @@
             <span class="bottom-nav-icon">ℹ️</span>
             <span>Tentang</span>
         </a>
-        <a href="#" class="bottom-nav-link" onclick="openModal('loginModal'); return false;">
+        <a href="#" class="bottom-nav-link" id="accountBtn" onclick="openModal('loginModal'); return false;">
             <span class="bottom-nav-icon">👤</span>
             <span>Akun</span>
         </a>

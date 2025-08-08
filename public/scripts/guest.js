@@ -902,6 +902,28 @@ function updateUIProfile() {
     }
 }
 
+function updateMobileUIProfile() {
+    if (!window.currentUser) {
+        document.getElementById("loginButton").style.display = "block";
+        document.getElementById("registerButton").style.display = "block";
+        document.getElementById("logoutButton").style.display = "none";
+
+        document
+            .getElementById("accountBtn")
+            .setAttribute("onclick", "openModal('loginModal')");
+        document.getElementById("mobileUserSection").style.display = "none";
+    } else {
+        document.getElementById("loginButton").style.display = "none";
+        document.getElementById("registerButton").style.display = "none";
+        document.getElementById("logoutButton").style.display = "block";
+
+        document
+            .getElementById("accountBtn")
+            .setAttribute("onclick", "openProfileModal()");
+        document.getElementById("mobileUserSection").style.display = "grid";
+    }
+}
+
 function switchProfileTab(tabName) {
     // Remove active class from all tabs and contents
     document.querySelectorAll(".profile-tab").forEach((tab) => {
@@ -1054,6 +1076,7 @@ async function confirmLogout() {
 
         // Scroll to top with smooth animation
         window.scrollTo({ top: 0, behavior: "smooth" });
+        updateMobileUIProfile();
     } else {
         alert("Gagal logout: " + data.message);
     }
@@ -1222,6 +1245,7 @@ document
             loadActivities(dataEkskul);
 
             updateUIProfile();
+            updateMobileUIProfile();
         } else {
             inputs.forEach((input) => {
                 input.classList.add("invalid");
@@ -1445,6 +1469,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (window.currentUser) {
         updateUIProfile(); // panggil SEKALI saat awal
+        updateMobileUIProfile();
     }
 
     window.addEventListener("resize", () => {
@@ -1507,27 +1532,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Update active nav link based on scroll position
 function updateActiveNavLink() {
-    const sections = document.querySelectorAll("section[id]");
-    const scrollPosition = window.scrollY + 200;
+    const links = document.querySelectorAll(".bottom-nav-link");
+    let activeLink = null;
 
-    sections.forEach((section) => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.offsetHeight;
-        const sectionId = section.getAttribute("id");
+    links.forEach((link) => {
+        const sectionId = link.dataset.section;
+        if (sectionId === 'none') return;
 
-        if (
-            scrollPosition >= sectionTop &&
-            scrollPosition < sectionTop + sectionHeight
-        ) {
-            document.querySelectorAll(".bottom-nav-link").forEach((link) => {
-                link.classList.remove("active");
-                if (link.getAttribute("data-section") === sectionId) {
-                    link.classList.add("active");
-                }
-            });
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= 200 && rect.bottom >= 200) {
+            activeLink = link;
         }
     });
+
+    links.forEach((link) => {
+        link.classList.toggle("active", link === activeLink);
+    });
 }
+
 
 // Close mobile menu when clicking outside
 document.addEventListener("click", function (event) {

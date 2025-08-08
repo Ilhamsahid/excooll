@@ -1,6 +1,6 @@
 <!-- Activities Section -->
-<section class="section">
-    <div class="section-header" id="activities">
+<section class="section" id="ekskuls">
+    <div class="section-header" >
         <h2 class="section-title">Kegiatan Ekstrakurikuler</h2>
         <div class="section-counter" id="activitiesCounter">
             Menampilkan 6 dari 15 kegiatan
