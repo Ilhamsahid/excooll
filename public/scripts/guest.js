@@ -108,6 +108,7 @@ function loadTheme() {
         });
         if (mobileThemeIcon) mobileThemeIcon.textContent = "☀️";
     } else {
+        document.body.setAttribute("data-theme", "light"); // tambahin ini
         themeToggles.forEach((toggle) => {
             if (toggle.textContent.includes("Ganti")) {
                 toggle.innerHTML = "<span>🌙</span> Ganti Tema";
@@ -644,9 +645,14 @@ function loadActivities(ekskulUser) {
     const title = document.getElementById("errorTitle");
     const message = document.getElementById("errorMessage");
 
-    title.textContent = "Batas Maksimal Ekskul";
+    title.textContent =
+        window.currentUser?.role != "admin"
+            ? "Batas Maksimal Ekskul"
+            : "Akses Ditolak";
     message.textContent =
-        "Kamu hanya bisa mengikuti maksimal 3 ekskul. Silakan keluar dari salah satu ekskul sebelum bergabung ke yang baru.";
+        window.currentUser?.role != "admin"
+            ? "Kamu hanya bisa mengikuti maksimal 3 ekskul. Silakan keluar dari salah satu ekskul sebelum bergabung ke yang baru."
+            : "Admin tidak diperkenankan untuk bergabung ke ekstrakurikuler";
 
     for (let i = 0; i < itemsToShow.length; i++) {
         const activity = itemsToShow[i];
@@ -665,15 +671,15 @@ function loadActivities(ekskulUser) {
         let buttonClass = isMyEkskul
             ? "btn btn-success"
             : window.currentUser
-            ? ekskulUser.length >= 3
+            ? ekskulUser.length >= 3 || window.currentUser.role == "admin"
                 ? "btn btn-disabled"
                 : "btn btn-primary"
             : "btn btn-disabled";
 
         let buttonText = isMyEkskul
-            ? "Kelola Ekskul Saya"
+            ? "✨ Kelola Ekskul Saya"
             : window.currentUser
-            ? ekskulUser.length >= 3
+            ? ekskulUser.length >= 3 || window.currentUser.role == "admin"
                 ? "🔒 Akses Terbatas"
                 : "✨ Bergabung dengan Kegiatan"
             : "🔒 Login untuk Bergabung";
@@ -681,7 +687,7 @@ function loadActivities(ekskulUser) {
         let buttonAction = isMyEkskul
             ? ""
             : window.currentUser
-            ? ekskulUser.length >= 3
+            ? ekskulUser.length >= 3 || window.currentUser.role == "admin"
                 ? `openModal('errorModal')`
                 : `joinActivity(${activity.id}, '${activity.nama}')`
             : `showLoginRequired()`;
@@ -1138,7 +1144,7 @@ function loadProfileData() {
         formatTanggalIndo(window.currentUser.siswa_profile.created_at) ?? "-";
 
     document.getElementById("telephone-info").textContent =
-        window.currentUser?.siswa_profile?.no_telephone ?? "-"
+        window.currentUser?.siswa_profile?.no_telephone ?? "-";
     document.getElementById("alamat-info").textContent =
         window.currentUser?.siswa_profile?.alamat ?? "-";
 }
@@ -1188,18 +1194,15 @@ document
     .addEventListener("submit", async function (e) {
         e.preventDefault();
 
-        if (!validateForm(this)) {
-            return;
-        }
+        if (!validateForm(this)) return;
 
         document.getElementById("errorForm").style.display = "none";
+
         const email = document.getElementById("loginEmail").value;
         const password = document.getElementById("loginPassword").value;
-        const inputs = document.querySelectorAll("#loginForm input");
-
-        // Add loading state
         const submitBtn = e.target.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
+
         submitBtn.innerHTML = '<span class="loading-spinner"></span> Masuk...';
         submitBtn.disabled = true;
 
@@ -1217,9 +1220,11 @@ document
 
         let data = await response.json();
 
-        if (data.status == "success") {
+        if (data.status === "success") {
             await getNewCsrfToken();
+            window.currentUser = data.user;
 
+            // Untuk user biasa, misal load data dan update UI secara dinamis
             let responseEkskul = await fetch("/json/true", {
                 headers: {
                     "Content-Type": "application/json",
@@ -1230,34 +1235,78 @@ document
             });
 
             let dataEkskul = await responseEkskul.json();
-            window.currentUser = data.user;
-            // Simulate login
-            showNotification(
-                "Berhasil Masuk!",
-                `Selamat datang kembali! Login berhasil untuk: ${email}`
-            );
-            closeModal("loginModal");
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-            e.target.reset();
-            clearFormValidation("loginModal");
 
-            loadActivities(dataEkskul);
+            if (data.user.role === "admin") {
+                sessionStorage.setItem(
+                    "dataEkskul",
+                    JSON.stringify(dataEkskul)
+                );
+                sessionStorage.setItem("isAdminLogin", "true");
+                sessionStorage.setItem("loginSuccessUI", "pending");
 
-            updateUIProfile();
-            updateMobileUIProfile();
+                window.location.href = "/ekstrasmexa/admin/dashboard";
+            } else {
+                showNotification(
+                    "Berhasil Masuk!",
+                    `Selamat datang kembali! Login berhasil untuk: ${email}`
+                );
+
+                closeModal("loginModal");
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                e.target.reset();
+                clearFormValidation("loginModal");
+
+                loadActivities(dataEkskul);
+                updateUIProfile();
+                updateMobileUIProfile();
+            }
         } else {
-            inputs.forEach((input) => {
-                input.classList.add("invalid");
-            });
+            // Jika gagal login
+            const inputs = document.querySelectorAll("#loginForm input");
+            inputs.forEach((input) => input.classList.add("invalid"));
 
             setTimeout(() => {
                 document.getElementById("errorForm").style.display = "flex";
                 submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false; // WAJIB supaya bisa login lagi
+                submitBtn.disabled = false;
             }, 500);
         }
     });
+
+window.addEventListener("pageshow", (event) => {
+    // Cek kalau ada flag loginSuccessUI pending
+    if (sessionStorage.getItem("loginSuccessUI") === "pending") {
+        loadTheme();
+        // Jalankan kode UI yang kamu mau, contoh:
+        closeModal("loginModal");
+
+        const submitBtn = document.querySelector(
+            "#loginForm button[type='submit']"
+        );
+        if (submitBtn) {
+            submitBtn.innerHTML = "Masuk"; // atau originalText yang kamu simpan
+            submitBtn.disabled = false;
+        }
+
+        const loginForm = document.getElementById("loginForm");
+        if (loginForm) loginForm.reset();
+
+        clearFormValidation("loginModal");
+
+        // Ambil dataEkskul dari sessionStorage
+        const dataEkskulStr = sessionStorage.getItem("dataEkskul");
+        if (dataEkskulStr) {
+            const dataEkskul = JSON.parse(dataEkskulStr);
+            loadActivities(dataEkskul);
+            updateUIProfile();
+            updateMobileUIProfile();
+        }
+
+        // Setelah selesai, hapus flag supaya gak berulang terus
+        sessionStorage.removeItem("loginSuccessUI");
+    }
+});
 
 document
     .getElementById("registerForm")
@@ -1537,7 +1586,7 @@ function updateActiveNavLink() {
 
     links.forEach((link) => {
         const sectionId = link.dataset.section;
-        if (sectionId === 'none') return;
+        if (sectionId === "none") return;
 
         const section = document.getElementById(sectionId);
         if (!section) return;
@@ -1552,7 +1601,6 @@ function updateActiveNavLink() {
         link.classList.toggle("active", link === activeLink);
     });
 }
-
 
 // Close mobile menu when clicking outside
 document.addEventListener("click", function (event) {

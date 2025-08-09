@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ asset('styles/guest.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body>
+<body class="guest-page">
     @yield('content')
     <script>
         let sampleActivities = @json($ekskuls);
