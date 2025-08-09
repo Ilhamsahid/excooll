@@ -30,6 +30,16 @@ class Ekskul extends Model
         return $this->hasMany(Kegiatan::class);
     }
 
+    public function schedules()
+    {
+        return $this->hasMany(ClubSchedule::class);
+    }
+
+    public function achievements()
+    {
+        return $this->hasMany(ClubAchievement::class);
+    }
+
     # Relasi: ekskul memiliki banyak pengumuman
     public function pengumumans(){
         return $this->hasMany(Pengumuman::class);
