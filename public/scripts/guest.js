@@ -854,10 +854,19 @@ function loadRecentActivities() {
 
 // Join Activity Function
 function joinActivity(activityId, activityName) {
+    const genderValue = window.currentUser.siswa_profile.jenis_kelamin
+        .trim()
+        .toLowerCase();
+
     document.getElementById("idEkskul").setAttribute("value", activityId);
     document
         .getElementById("selectedActivity")
         .setAttribute("value", activityName);
+
+    setTimeout(() => {
+        document.getElementById("studentGender").value = genderValue;
+    }, 100); // atau 100 kalau rendernya agak lama
+
     document
         .getElementById("studentName")
         .setAttribute("value", window.currentUser.name);
