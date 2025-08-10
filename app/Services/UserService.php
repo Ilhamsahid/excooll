@@ -81,4 +81,26 @@ class UserService
     {
         return $this->repository->cekUserStudentWithEmail($request, $id);
     }
+
+    public function getAllStudent()
+    {
+        return $this->repository->getAllStudentWithRelation();
+    }
+
+    public function getKelas(){
+        $kelas = ['X', 'XI', 'XII'];
+        $jurusan = ['RPL', 'BD', 'MP', 'LP', 'AK'];
+        $jumlahKelas = [2, 4, 4, 2, 3];
+
+        $kelasList = [];
+        for ($i = 0; $i < count($kelas); $i++) {
+            for ($j = 0; $j < count($jurusan); $j++) {
+                for ($k = 0; $k < $jumlahKelas[$j]; $k++) {
+                    $kelasList[] = "{$kelas[$i]} {$jurusan[$j]} " . ($k + 1);
+                }
+            }
+        }
+
+        return $kelasList;
+    }
 }
