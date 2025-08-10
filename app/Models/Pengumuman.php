@@ -15,6 +15,7 @@ class Pengumuman extends Model
         'ekskul_id',
         'judul',
         'isi',
+        'tipe',
         'tanggal_pengumuman',
     ];
 

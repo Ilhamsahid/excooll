@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('ekskul_id')->constrained('ekskuls')->onDelete('cascade');
             $table->string('judul');
             $table->text('isi');
+            $table->enum('tipe', ['wajib', 'opsional'])->nullable();
             $table->date('tanggal_pengumuman')->default(now());
             $table->timestamps();
         });
