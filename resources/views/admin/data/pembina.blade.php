@@ -28,7 +28,7 @@
                             <th>Nama</th>
                             <th>Email</th>
                             <th>Kegiatan</th>
-                            <th>Pengalaman</th>
+                            <th>Alamat</th>
                             <th>Status</th>
                             <th>Aksi</th>
                         </tr>
