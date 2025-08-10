@@ -25,7 +25,7 @@
             </div>
 
             <div class="form-group float-label">
-                <select name="" id="studentGender" class="form-select">
+                <select name="" id="studentGender" class="form-select" required>
                     <option value="laki-laki">laki-laki</option>
                     <option value="perempuan">perempuan</option>
                 </select>
