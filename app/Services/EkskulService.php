@@ -21,4 +21,9 @@ class EkskulService
     {
         return $this->repository->getEkskulByEkskulIdFromUser($ekskulId);
     }
+
+    public function getEkskulAllWithRelation()
+    {
+        return $this->repository->getAllEkskulWithRelation();
+    }
 }
