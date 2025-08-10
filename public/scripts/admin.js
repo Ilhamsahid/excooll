@@ -1,6 +1,5 @@
 // ===== ENHANCED GLOBAL VARIABLES =====
 
-
 let currentTheme = localStorage.getItem("theme") || "light";
 let currentSection = "dashboard";
 let notificationId = 0;
@@ -233,7 +232,11 @@ function loadSidebarState() {
 
 function navigate(event, sectionName) {
     event.preventDefault(); // Cegah reload halaman
-    history.pushState({ section: sectionName }, "", `/ekstrasmexa/admin/${sectionName}`);
+    history.pushState(
+        { section: sectionName },
+        "",
+        `/ekstrasmexa/admin/${sectionName}`
+    );
 
     // Panggil fungsi untuk ganti konten section
     showSection(sectionName);
@@ -1119,10 +1122,17 @@ function loadActivitiesTable() {
                             activity.nama
                         }</div>
                         <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); display: flex; align-items: center; gap: var(--space-2);">
-                            <span> ${activity.schedules.map(s => `📅 ${s.hari} ${s.jam_mulai} - ${s.jam_selesai}`).join("<br>")}</span>
+                            <span> ${activity.schedules
+                                .map(
+                                    (s) =>
+                                        `📅 ${s.hari} ${s.jam_mulai} - ${s.jam_selesai}`
+                                )
+                                .join("<br>")}</span>
                         </div>
                         <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-1);">
-                            <span>${activity.schedules.map(s => `📍${s.lokasi}`)}</span>
+                            <span>${activity.schedules.map(
+                                (s) => `📍${s.lokasi}`
+                            )}</span>
                         </div>
                     </td>
                     <td>
@@ -1142,7 +1152,8 @@ function loadActivitiesTable() {
                             }/${activity.max_anggota}</span>
                             <div style="width: 60px; height: 6px; background: var(--bg-tertiary); border-radius: var(--radius-full); overflow: hidden;">
                                 <div style="width: ${
-                                    (activity.siswa_count / activity.max_anggota) *
+                                    (activity.siswa_count /
+                                        activity.max_anggota) *
                                     100
                                 }%; height: 100%; background: ${
             activity.status === "penuh"
@@ -1155,7 +1166,8 @@ function loadActivitiesTable() {
                         </div>
                         <div style="font-size: var(--font-size-xs); color: var(--text-tertiary);">
                             ${Math.round(
-                                (activity.siswa_count / activity.max_anggota) * 100
+                                (activity.siswa_count / activity.max_anggota) *
+                                    100
                             )}% terisi
                         </div>
                     </td>
@@ -1233,26 +1245,29 @@ function loadStudentsTable() {
         row.style.animationDelay = `${index * 50}ms`;
         row.innerHTML = `
                     <td>
-                        <div style="font-weight: var(--font-weight-bold); color: var(--text-primary);">#${
-                            student.id
-                        }</div>
+                        <div style="font-weight: var(--font-weight-bold); color: var(--text-primary);">
+                            #${startIndex + index + 1}
+                        </div>
                     </td>
                     <td>
                         <div style="display: flex; align-items: center; gap: var(--space-3);">
                             <div style="width: 40px; height: 40px; border-radius: var(--radius-xl); background: linear-gradient(135deg, var(--brand-500), var(--brand-600)); color: white; display: flex; align-items: center; justify-content: center; font-weight: var(--font-weight-bold); font-size: var(--font-size-sm);">
-                                ${student.nama.charAt(0)}
+                                ${student.name.charAt(0)}
                             </div>
                             <div>
                                 <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                                    student.nama
+                                    student.name
                                 }</div>
                                 <div style="font-size: var(--font-size-xs); color: var(--text-tertiary);">
                                     ${
-                                        student.jenisKelamin === "L"
+                                        student.siswa_profile.jenis_kelamin ===
+                                        "L"
                                             ? "👨"
                                             : "👩"
                                     } ${
-            student.jenisKelamin === "L" ? "Laki-laki" : "Perempuan"
+            student.siswa_profile.jenis_kelamin === "L"
+                ? "Laki-laki"
+                : "Perempuan"
         }
                                 </div>
                             </div>
@@ -1264,27 +1279,17 @@ function loadStudentsTable() {
                         }</div>
                     </td>
                     <td>
-                        <span class="badge badge-info hover-scale">Kelas ${
-                            student.kelas
+                        <span class="badge badge-info hover-scale">${
+                            student.siswa_profile.kelas
                         }</span>
                     </td>
                     <td>
-                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                            student.kegiatan
-                        }</div>
-                        ${
-                            student.performance
-                                ? `
-                                    <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-1); display: flex; align-items: center; gap: var(--space-1);">
-                                    </div>
-                                `
-                                : ""
-                        }
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${student.ekskuls
+                            .map((s) => `${s.nama}`)
+                            .join("<br>")}</div>
                     </td>
                     <td>
-                        <span class="badge badge-success hover-scale">${
-                            student.status
-                        }</span>
+                        <span class="badge badge-success hover-scale">Aktif</span>
                     </td>
                     <td>
                         <div style="display: flex; gap: var(--space-2);">
@@ -1496,30 +1501,6 @@ function loadAnnouncementsGrid() {
                                         `
                                         : ""
                                 }
-                                ${
-                                    announcement.views
-                                        ? `
-                                            <span style="display: flex; align-items: center; gap: var(--space-1);">
-                                                <span>👁️</span>
-                                                <span>${formatNumber(
-                                                    announcement.views
-                                                )} views</span>
-                                            </span>
-                                        `
-                                        : ""
-                                }
-                                ${
-                                    announcement.likes
-                                        ? `
-                                            <span style="display: flex; align-items: center; gap: var(--space-1);">
-                                                <span>❤️</span>
-                                                <span>${formatNumber(
-                                                    announcement.likes
-                                                )} likes</span>
-                                            </span>
-                                        `
-                                        : ""
-                                }
                             </div>
                         </div>
                         <div class="announcement-badges">
@@ -1536,17 +1517,6 @@ function loadAnnouncementsGrid() {
                                         : announcement.prioritas === "tinggi"
                                         ? "⚡ Tinggi"
                                         : "📌 Normal"
-                                }
-                            </span>
-                            <span class="badge hover-scale ${
-                                announcement.status === "aktif"
-                                    ? "badge-success"
-                                    : "badge-secondary"
-                            }">
-                                ${
-                                    announcement.status === "aktif"
-                                        ? "🟢 Aktif"
-                                        : "⚪ Draft"
                                 }
                             </span>
                         </div>
@@ -1567,16 +1537,6 @@ function loadAnnouncementsGrid() {
                             <span>👁️</span>
                             <span>Lihat</span>
                         </button>
-                        ${
-                            announcement.status === "draft"
-                                ? `
-                                    <button class="btn btn-success btn-sm hover-lift" onclick="publishAnnouncement(${announcement.id})">
-                                        <span>📢</span>
-                                        <span>Publikasi</span>
-                                    </button>
-                                `
-                                : ""
-                        }
                         <button class="btn btn-ghost btn-sm hover-scale" onclick="deleteAnnouncement(${
                             announcement.id
                         })">
@@ -1636,16 +1596,6 @@ function loadMentorsTable() {
                                 <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); display: flex; align-items: center; gap: var(--space-2);">
                                     <span>📞 ${mentor.telepon}</span>
                                 </div>
-                                ${
-                                    mentor.rating
-                                        ? `
-                                            <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-1); display: flex; align-items: center; gap: var(--space-1);">
-                                                <span>⭐</span>
-                                                <span>${mentor.rating}/5.0</span>
-                                            </div>
-                                        `
-                                        : ""
-                                }
                             </div>
                         </div>
                     </td>
@@ -1665,9 +1615,6 @@ function loadMentorsTable() {
                         </div>
                     </td>
                     <td>
-                        <span class="badge badge-info hover-scale">${
-                            mentor.pengalaman
-                        }</span>
                         ${
                             mentor.achievements
                                 ? `
@@ -1927,28 +1874,25 @@ function filterStudents() {
         .value.toLowerCase();
 
     filteredData.students = sampleData.students.filter((student) => {
-        const matchesGrade = !gradeFilter || student.kelas === gradeFilter;
+        const matchesGrade =
+            !gradeFilter || student.siswa_profile.kelas === gradeFilter;
         const matchesActivity =
             !activityFilter ||
-            student.kegiatan.toLowerCase().includes(activityFilter);
+            student.ekskuls.some((e) =>
+                e.nama.toLowerCase().includes(activityFilter.toLowerCase())
+            );
         const matchesSearch =
             !searchInput ||
-            student.nama.toLowerCase().includes(searchInput) ||
+            student.name.toLowerCase().includes(searchInput) ||
             student.email.toLowerCase().includes(searchInput) ||
-            student.kegiatan.toLowerCase().includes(searchInput) ||
-            student.alamat.toLowerCase().includes(searchInput);
+            student.ekskuls[0].nama.toLowerCase().includes(searchInput) ||
+            student.siswa_profile.alamat?.toLowerCase().includes(searchInput);
 
         return matchesGrade && matchesActivity && matchesSearch;
     });
 
     currentPage.students = 1;
     loadStudentsTable();
-
-    showFilterResults(
-        "students",
-        filteredData.students.length,
-        sampleData.students.length
-    );
 }
 
 function filterRegistrationsByStatus(status) {
@@ -1972,17 +1916,6 @@ function filterRegistrationsByStatus(status) {
 
     currentPage.registrations = 1;
     loadRegistrationsTable();
-}
-
-function showFilterResults(type, filteredCount, totalCount) {
-    if (filteredCount < totalCount) {
-        showNotification(
-            "Filter Diterapkan",
-            `Menampilkan ${filteredCount} dari ${totalCount} data ${type}`,
-            "info",
-            3000
-        );
-    }
 }
 
 function updateRegistrationTabs() {
@@ -2383,8 +2316,6 @@ function publishAnnouncement(id) {
     const announcement = sampleData.announcements.find((a) => a.id === id);
     if (announcement) {
         announcement.status = "aktif";
-        announcement.views = 0;
-        announcement.likes = 0;
         loadAnnouncementsGrid();
         showNotification(
             "Pengumuman Dipublikasi",
@@ -3148,9 +3079,9 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("🔍 High Contrast:", isHighContrastMode);
     console.log("⚡ Reduced Motion:", isReducedMotion);
 
-    const path = window.location.pathname.replace('/ekstrasmexa/admin/', '');
+    const path = window.location.pathname.replace("/ekstrasmexa/admin/", "");
     // Kalau path kosong, default ke 'dashboard'
-    showSection(path || 'dashboard');
+    showSection(path || "dashboard");
 });
 
 // ===== ENHANCED PERFORMANCE MONITORING =====
