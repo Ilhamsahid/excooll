@@ -19,6 +19,7 @@ return new class extends Migration
 
             // Data spesifik siswa
             $table->string('nisn', 10)->unique(); // 10 digit NISN
+            $table->string('jenis_kelamin')->nullable();
             $table->string('kelas', 50)->nullable();
             $table->string('alamat')->nullable();
             $table->string('no_telephone', 15)->nullable();
