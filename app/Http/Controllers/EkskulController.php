@@ -2,14 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Ekskul;
-use App\Models\Pengumuman;
-use App\Models\SiswaProfile;
-use App\Models\User;
 use App\Services\EkskulService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class EkskulController extends Controller
 {
