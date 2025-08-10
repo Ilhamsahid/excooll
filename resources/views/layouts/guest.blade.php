@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=6, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <script>
+        (function() {
+        var theme = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
     <link rel="stylesheet" href="{{ asset('styles/guest.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
