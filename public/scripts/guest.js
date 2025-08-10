@@ -1324,8 +1324,8 @@ document
         const password = document.getElementById("registerPassword").value;
         const confirmPassword =
             document.getElementById("confirmPassword").value;
-
         const nisnInput = document.getElementById("registerNisn");
+        const emailInput = document.getElementById("registerEmail");
 
         if (password !== confirmPassword) {
             showNotification(
@@ -1390,13 +1390,28 @@ document
 
             updateUIProfile();
         } else {
-            if (data.status == "nisnError") {
-                nisnInput.classList.add("invalid");
-                const validationMessage = nisnInput
-                    .closest(".form-group")
-                    .querySelector(".validation-message");
-                validationMessage.textContent = data.message;
-                validationMessage.classList.add("show");
+            if (data.status == "Error") {
+                if (typeof data.message === "string") {
+                    const msgLower = data.message.toLowerCase();
+
+                    if (msgLower.includes("nisn")) {
+                        nisnInput.classList.add("invalid");
+                        const validationMessage = nisnInput
+                            .closest(".form-group")
+                            .querySelector(".validation-message");
+                        validationMessage.textContent = data.message;
+                        validationMessage.classList.add("show");
+                    }
+
+                    if (msgLower.includes("email")) {
+                        email.classList.add("invalid");
+                        const validationMessage = email
+                            .closest(".form-group")
+                            .querySelector(".validation-message");
+                        validationMessage.textContent = data.message;
+                        validationMessage.classList.add("show");
+                    }
+                }
             } else {
                 inputs.forEach((input) => {
                     input.classList.add("invalid");

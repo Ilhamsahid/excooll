@@ -63,7 +63,7 @@ class AuthController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'status'  => 'nisnError',
+                'status'  => 'Error',
                 'message' => $e->getMessage(),
             ], 400);
         }
