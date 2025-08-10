@@ -33,9 +33,14 @@ class UserService
 
     public function registerNewSiswa(Request $request){
         $cekNisn = Nisn::where('nisn', $request->nisn)->first();
+        $cekEmail = $this->repository->cekUserWithEmail($request);
 
         if(!$cekNisn){
             throw new \Exception('NISN ini tidak ditemukan.');
+        }
+
+        if($cekEmail){
+            throw new \Exception('Email Sudah Digunakan');
         }
 
         if(SiswaProfile::where('nisn', $request->nisn)->first()){
@@ -69,5 +74,10 @@ class UserService
         ]);
 
         $siswaProfile->save();
+    }
+
+    public function cekUserStudentWithEmail(Request $request, $id)
+    {
+        return $this->repository->cekUserStudentWithEmail($request, $id);
     }
 }

@@ -16,4 +16,19 @@ class UserRepository implements UserRepositoryInterface
     public function createUser($arr){
         return User::create($arr);
     }
+
+    public function cekUserStudentWithEmail($request, $id)
+    {
+        return User::where(function ($query) use ($request) {
+                    $query->where('name', $request->studentName)
+                        ->orWhere('email', $request->studentEmail);
+                })
+                ->where('id', '!=', $id) // ID user yang sedang diedit, dikecualikan
+                ->first();
+    }
+
+    public function cekUserWithEmail($request)
+    {
+        return User::where('email', $request->email);
+    }
 }

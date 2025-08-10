@@ -16,12 +16,7 @@ class EkskulController extends Controller
     public function joinEkskul(Request $request, UserService $userService)
     {
         $user = $userService->getUserWithEkskul();
-        $cekUserOrEmail = User::where(function ($query) use ($request) {
-            $query->where('name', $request->studentName)
-            ->orWhere('email', $request->studentEmail);
-        })
-        ->where('id', '!=', $user->id) // ID user yang sedang diedit, dikecualikan
-        ->first();
+        $cekUserOrEmail = $userService->cekUserStudentWithEmail($request, $user->id);
 
         if($cekUserOrEmail){
             return response()->json([
