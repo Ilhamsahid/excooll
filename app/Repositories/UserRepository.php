@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Auth;
 
 class UserRepository implements UserRepositoryInterface
 {
+    public function getAllStudentWithRelation()
+    {
+        return User::with(['ekskuls', 'siswaProfile'])->where('role', 'siswa')->get();
+    }
     public function getUserWithEkskul()
     {
         return User::with('ekskuls', 'siswaProfile')->where('id', Auth::user()->id)->first() ?? '';
