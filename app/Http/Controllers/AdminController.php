@@ -8,19 +8,13 @@ use App\Services\UserService;
 
 class AdminController extends Controller
 {
-    public function index(EkskulService $ekskulService, UserService $userService)
+    public function index(EkskulService $ekskulService, UserService $userService, PengumumanService $pengumumanService)
     {
         $ekstra = $ekskulService->getEkskulAllWithRelation();
         $siswa = $userService->getAllStudent();
         $kelas = $userService->getKelas();
-
-        return view('admin.main', compact('ekstra', 'siswa', 'kelas'));
-    }
-
-    public function pengumuman(PengumumanService $pengumumanService)
-    {
         $pengumuman = $pengumumanService->getAll();
 
-        return response()->json(['data' => $pengumuman]);
+        return view('admin.main', compact('ekstra', 'siswa', 'kelas', 'pengumuman'));
     }
 }

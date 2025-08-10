@@ -95,12 +95,6 @@
                     <span class="nav-text">Kalender</span>
                 </a>
             </div>
-            <div class="nav-item">
-                <a href="#" class="nav-link" onclick="navigate(event, 'files')" data-section="files">
-                    <span class="nav-icon">📁</span>
-                    <span class="nav-text">File Manager</span>
-                </a>
-            </div>
         </div>
     </nav>
 </aside>

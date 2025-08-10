@@ -1488,7 +1488,7 @@ function loadAnnouncementsGrid() {
                                 <span style="display: flex; align-items: center; gap: var(--space-1);">
                                     <span>📅</span>
                                     <span>${formatDate(
-                                        announcement.tanggal
+                                        announcement.tanggal_pengumuman
                                     )}</span>
                                 </span>
                                 ${
@@ -1496,7 +1496,7 @@ function loadAnnouncementsGrid() {
                                         ? `
                                             <span style="display: flex; align-items: center; gap: var(--space-1);">
                                                 <span>🎯</span>
-                                                <span>${announcement.kegiatan}</span>
+                                                <span>${announcement.ekskul.nama}</span>
                                             </span>
                                         `
                                         : ""
@@ -1516,7 +1516,7 @@ function loadAnnouncementsGrid() {
                                         ? "🚨 Urgent"
                                         : announcement.prioritas === "tinggi"
                                         ? "⚡ Tinggi"
-                                        : "📌 Normal"
+                                        : "📌 Wajib"
                                 }
                             </span>
                         </div>
@@ -3015,7 +3015,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("registrationsBadge").textContent =
         sampleData.registrations.filter((r) => r.status === "pending").length;
     document.getElementById("announcementsBadge").textContent =
-        sampleData.announcements.filter((a) => a.status === "aktif").length;
+        sampleData.announcements.length;
     document.getElementById("mentorsBadge").textContent =
         sampleData.mentors.length;
     document.getElementById("notificationsBadge").textContent = "3";
@@ -4239,7 +4239,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("registrationsBadge").textContent =
         sampleData.registrations.filter((r) => r.status === "pending").length;
     document.getElementById("announcementsBadge").textContent =
-        sampleData.announcements.filter((a) => a.status === "aktif").length;
+        sampleData.announcements.length;
     document.getElementById("mentorsBadge").textContent =
         sampleData.mentors.length;
     document.getElementById("notificationsBadge").textContent = "3";
