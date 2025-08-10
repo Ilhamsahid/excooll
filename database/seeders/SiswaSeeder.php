@@ -16,6 +16,7 @@ class SiswaSeeder extends Seeder
      */
     public function run(): void
     {
+        $jenisKelamin = ['laki-laki', 'perempuan'];
         $nisn = Nisn::all();
         $ekskuls = Ekskul::all();
         $siswaList = User::factory()->count(200)->create();
@@ -23,11 +24,13 @@ class SiswaSeeder extends Seeder
         foreach($siswaList as $index => $siswa){
             $nisnItem = $nisn[$index];
             $jumlahEks = rand(1, 3);
+            $ranJenisKelamin = rand(0, 1);
             $ekskulRandom = $ekskuls->random($jumlahEks)->pluck('id');
 
             SiswaProfile::create([
                 'user_id' => $siswa->id,
                 'nisn' => $nisnItem->nisn,
+                'jenis_kelamin' => $jenisKelamin[$ranJenisKelamin]
             ]);
 
             $siswa->ekskuls()->attach($ekskulRandom);

@@ -70,6 +70,7 @@ class UserService
         $siswaProfile->update([
             'kelas' => $request->studentClass,
             'alamat' => $request->studentAddress,
+            'jenis_kelamin' => $request->studentGender,
             'no_telephone'=> $request->studentTelephone
         ]);
 
