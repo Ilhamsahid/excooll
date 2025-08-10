@@ -35,6 +35,10 @@
                 <span class="profile-info-value" id="profileFullName">Ahmad Siswa</span>
             </div>
             <div class="profile-info-item">
+                <span class="profile-info-label" id="name">Jenis kelamin</span>
+                <span class="profile-info-value" id="profileGender"></span>
+            </div>
+            <div class="profile-info-item">
                 <span class="profile-info-label">Email</span>
                 <span class="profile-info-value" id="profileEmailValue">ahmad@student.sch.id</span>
             </div>

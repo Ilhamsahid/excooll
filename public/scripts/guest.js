@@ -1123,6 +1123,8 @@ function loadProfileData() {
     // profile detail
     document.getElementById("profileName").textContent =
         window.currentUser.name;
+    document.getElementById("profileGender").textContent =
+        window.currentUser.siswa_profile.jenis_kelamin;
     document.getElementById("profileEmail").textContent =
         window.currentUser.email;
     document.getElementById("profileRole").textContent =
@@ -1437,6 +1439,7 @@ document
         const activityName = document.getElementById("selectedActivity").value;
         const studentName = document.getElementById("studentName").value;
         const studentEmail = document.getElementById("studentEmail").value;
+        const studentGender = document.getElementById("studentGender").value;
         const studentClass = document.getElementById("classStudent").value;
         const studentTelephone = document.getElementById("studentPhone").value;
         const studentAddress = document.getElementById("studentAddress").value;
@@ -1462,6 +1465,7 @@ document
                 ekskulId: activityId,
                 studentName,
                 studentEmail,
+                studentGender,
                 studentTelephone,
                 studentClass,
                 studentAddress,

@@ -24,9 +24,18 @@
                 </div>
             </div>
 
+            <div class="form-group float-label">
+                <select name="" id="studentGender" class="form-select">
+                    <option value="laki-laki">laki-laki</option>
+                    <option value="perempuan">perempuan</option>
+                </select>
+                <label class="form-label" for="studentPhone">Jenis Kelamin</label>
+                <div class="validation-message">Jenis kelamin harus diisi</div>
+            </div>
+
             <div class="form-row">
                 <div class="form-group float-label">
-                    <input type="text" name="" id="classStudent" class="form-input"  placeholder=" " required>
+                    <input type="text" name="" id="classStudent" class="form-input" placeholder=" " required>
                     <label class="form-label" for="studentGrade">Kelas</label>
                     <div class="validation-message">Kelas Harus diisi</div>
                 </div>
