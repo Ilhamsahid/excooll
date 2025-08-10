@@ -1184,7 +1184,7 @@ function loadActivitiesTable() {
                                 ? `
                                     <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-1); display: flex; align-items: center; gap: var(--space-1);">
                                         <span>🏆</span>
-                                        <span>${activity.achievements} prestasi</span>
+                                        <span>${activity.achievements}</span>
                                     </div>
                                 `
                                 : ""
@@ -1581,20 +1581,20 @@ function loadMentorsTable() {
         row.innerHTML = `
                     <td>
                         <div style="font-weight: var(--font-weight-bold); color: var(--text-primary);">#${
-                            mentor.id
+                            startIndex + index + 1
                         }</div>
                     </td>
                     <td>
                         <div style="display: flex; align-items: center; gap: var(--space-3);">
                             <div style="width: 40px; height: 40px; border-radius: var(--radius-xl); background: linear-gradient(135deg, var(--warning-500), var(--warning-600)); color: white; display: flex; align-items: center; justify-content: center; font-weight: var(--font-weight-bold); font-size: var(--font-size-sm);">
-                                ${mentor.nama.charAt(0)}
+                                ${mentor.name.charAt(0)}
                             </div>
                             <div>
                                 <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                                    mentor.nama
+                                    mentor.name
                                 }</div>
                                 <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); display: flex; align-items: center; gap: var(--space-2);">
-                                    <span>📞 ${mentor.telepon}</span>
+                                    <span>📞 ${mentor.pembina_profile.no_telephone}</span>
                                 </div>
                             </div>
                         </div>
@@ -1606,30 +1606,25 @@ function loadMentorsTable() {
                     </td>
                     <td>
                         <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                            mentor.kegiatan
+                            mentor.ekskul_dibina.map((s) => `${s.nama}`)
                         }</div>
-                        <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-1);">
+                        <div style="font-size: var(--font-weight-medium); color: var(--text-tertiary); margin-top: var(--space-1);">
                             <span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;">${
-                                mentor.keahlian
+                                mentor.ekskul_dibina.map((s) => `${s.kategori}`)
                             }</span>
                         </div>
                     </td>
                     <td>
                         ${
-                            mentor.achievements
-                                ? `
-                                    <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-1); display: flex; align-items: center; gap: var(--space-1);">
-                                        <span>🏆</span>
-                                        <span>${mentor.achievements} prestasi</span>
+                                `
+                                    <div style="font-size: var(--font-size-); color: var(--text-tertiary); margin-top: var(--space-1); display: flex; align-items: center; gap: var(--space-1);">
+                                        <span>${mentor.pembina_profile.alamat}</span>
                                     </div>
                                 `
-                                : ""
                         }
                     </td>
                     <td>
-                        <span class="badge badge-success hover-scale">${
-                            mentor.status
-                        }</span>
+                        <span class="badge badge-success hover-scale">Aktif</span>
                     </td>
                     <td>
                         <div style="display: flex; gap: var(--space-2);">
@@ -2353,7 +2348,7 @@ function viewMentor(id) {
     if (mentor) {
         showNotification(
             "Detail Mentor",
-            `${mentor.nama} - ${mentor.kegiatan}`,
+            `${mentor.name} - ${mentor.ekskul_dibina.nama}`,
             "info"
         );
     }

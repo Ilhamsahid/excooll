@@ -12,6 +12,10 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::with(['ekskuls', 'siswaProfile'])->where('role', 'siswa')->get();
     }
+    public function getAllPembina(){
+        return User::with('pembinaProfile', 'ekskulDibina')->where('role', 'pembina')->get();
+    }
+
     public function getUserWithEkskul()
     {
         return User::with('ekskuls', 'siswaProfile')->where('id', Auth::user()->id)->first() ?? '';

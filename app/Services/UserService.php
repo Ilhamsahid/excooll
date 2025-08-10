@@ -6,7 +6,6 @@ use App\Models\Nisn;
 use App\Models\SiswaProfile;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserService 
@@ -21,6 +20,11 @@ class UserService
     public function getUserWithEkskul()
     {
         return $this->repository->getUserWithEkskul();
+    }
+
+    public function getAllPembina()
+    {
+        return $this->repository->getAllPembina();
     }
 
     public function createUser(Request $request){
