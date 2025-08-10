@@ -1119,10 +1119,10 @@ function loadActivitiesTable() {
                             activity.nama
                         }</div>
                         <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); display: flex; align-items: center; gap: var(--space-2);">
-                            <span>📅 ${activity.jadwal}</span>
+                            <span> ${activity.schedules.map(s => `📅 ${s.hari} ${s.jam_mulai} - ${s.jam_selesai}`).join("<br>")}</span>
                         </div>
                         <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-1);">
-                            <span>📍 ${activity.lokasi}</span>
+                            <span>${activity.schedules.map(s => `📍${s.lokasi}`)}</span>
                         </div>
                     </td>
                     <td>
@@ -1132,22 +1132,22 @@ function loadActivitiesTable() {
                     </td>
                     <td>
                         <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                            activity.pembina
+                            activity.pembina.name
                         }</div>
                     </td>
                     <td>
                         <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2);">
                             <span style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                                activity.members
-                            }/${activity.maxMembers}</span>
+                                activity.siswa_count
+                            }/${activity.max_anggota}</span>
                             <div style="width: 60px; height: 6px; background: var(--bg-tertiary); border-radius: var(--radius-full); overflow: hidden;">
                                 <div style="width: ${
-                                    (activity.members / activity.maxMembers) *
+                                    (activity.siswa_count / activity.max_anggota) *
                                     100
                                 }%; height: 100%; background: ${
             activity.status === "penuh"
                 ? "var(--error-500)"
-                : activity.members / activity.maxMembers > 0.8
+                : activity.siswa_count / activity.max_anggota > 0.8
                 ? "var(--warning-500)"
                 : "var(--success-500)"
         }; border-radius: var(--radius-full); transition: all var(--transition-normal);"></div>
@@ -1155,7 +1155,7 @@ function loadActivitiesTable() {
                         </div>
                         <div style="font-size: var(--font-size-xs); color: var(--text-tertiary);">
                             ${Math.round(
-                                (activity.members / activity.maxMembers) * 100
+                                (activity.siswa_count / activity.max_anggota) * 100
                             )}% terisi
                         </div>
                     </td>
