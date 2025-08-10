@@ -14,6 +14,11 @@ class User extends Authenticatable
 
     protected $fillable = ['name', 'email', 'password', 'role', 'created_at'];
 
+    public function pembinaProfile()
+    {
+        return $this->hasOne(PembinaProfile::class);
+    }
+
     public function siswaProfile()
     {
         return $this->hasOne(SiswaProfile::class);

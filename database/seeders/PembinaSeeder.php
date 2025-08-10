@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\PembinaProfile;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -14,6 +14,7 @@ class PembinaSeeder extends Seeder
      */
     public function run(): void
     {
+        $jenis_kelamin = ['laki-laki', 'perempuan'];
         User::create([
             'name' => 'Admin Sekolah',
             'email' => 'admin@example.com',
@@ -39,12 +40,19 @@ class PembinaSeeder extends Seeder
             ['name' => 'Pak Wartawan',    'email' => 'wartawan@example.com'],
         ];
 
-        foreach ($pembinas as $pembina) {
-            User::create([
+        foreach ($pembinas as $index => $pembina) {
+            $p = User::create([
                 'name' => $pembina['name'],
                 'email' => $pembina['email'],
                 'password' => Hash::make('password'),
                 'role' => 'pembina',
+            ]);
+
+            PembinaProfile::create([
+                'user_id' => $p->id,
+                'jenis_kelamin' => $jenis_kelamin[rand(0, 1)],
+                'alamat' => fake()->address,
+                'no_telephone' => fake()->regexify('08[0-9]{8,10}')
             ]);
         }
     }
