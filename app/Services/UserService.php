@@ -22,6 +22,11 @@ class UserService
         return $this->repository->getUserWithEkskul();
     }
 
+    public function getUserWithEkskulApproved()
+    {
+        return $this->repository->getUserWithEkskulApproved();
+    }
+
     public function getAllPembina()
     {
         return $this->repository->getAllPembina();
