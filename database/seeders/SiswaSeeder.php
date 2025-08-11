@@ -40,7 +40,7 @@ class SiswaSeeder extends Seeder
                 'kelas' => $kelasAll[$ranKelas],
             ]);
 
-            $siswa->ekskuls()->attach($ekskulRandom);
+            $siswa->ekskuls()->attach($ekskulRandom, ['status' => 'diterima']);
         }
     }
 

@@ -644,17 +644,10 @@ function loadActivities(ekskulUser) {
     grid.innerHTML = "";
     const title = document.getElementById("errorTitle");
     const message = document.getElementById("errorMessage");
-
-    title.textContent =
-        window.currentUser?.role != "admin"
-            ? "Batas Maksimal Ekskul"
-            : "Akses Ditolak";
-    message.textContent =
-        window.currentUser?.role != "admin"
-            ? "Kamu hanya bisa mengikuti maksimal 3 ekskul. Silakan keluar dari salah satu ekskul sebelum bergabung ke yang baru."
-            : "Admin tidak diperkenankan untuk bergabung ke ekstrakurikuler";
+    let flag = false;
 
     for (let i = 0; i < itemsToShow.length; i++) {
+        console.log();
         const activity = itemsToShow[i];
         const card = document.createElement("div");
         card.className = "card";
@@ -669,7 +662,9 @@ function loadActivities(ekskulUser) {
         }
 
         let buttonClass = isMyEkskul
-            ? "btn btn-success"
+            ? window.currentUser.ekskuls[i].pivot.status == "pending"
+                ? "btn btn-disabled"
+                : "btn btn-success"
             : window.currentUser
             ? ekskulUser.length >= 3 || window.currentUser.role == "admin"
                 ? "btn btn-disabled"
@@ -677,7 +672,9 @@ function loadActivities(ekskulUser) {
             : "btn btn-disabled";
 
         let buttonText = isMyEkskul
-            ? "✨ Kelola Ekskul Saya"
+            ? window.currentUser.ekskuls[i].pivot.status == "pending"
+                ? "Menunggu permintaan"
+                : "✨ Kelola Ekskul Saya"
             : window.currentUser
             ? ekskulUser.length >= 3 || window.currentUser.role == "admin"
                 ? "🔒 Akses Terbatas"
@@ -685,10 +682,20 @@ function loadActivities(ekskulUser) {
             : "🔒 Login untuk Bergabung";
 
         let buttonAction = isMyEkskul
-            ? ""
+            ? window.currentUser.ekskuls[i].pivot.status == "pending"
+                ? `errorModal('Menunggu Permintaan', 'Tunggu Admin Atau Pembina mengonfirmasi kamu untuk bergabung')`
+                : ""
             : window.currentUser
             ? ekskulUser.length >= 3 || window.currentUser.role == "admin"
-                ? `openModal('errorModal')`
+                ? window.currentUser.role == "admin"
+                    ? `errorModal(
+                'Akses Ditolak',
+                'Admin tidak diperkenankan untuk bergabung ke ekstrakurikuler',
+                )`
+                    : `errorModal(
+                'Batas maksimal ekskul',
+                'Kamu hanya bisa mengikuti maksimal 3 ekskul. Silakan keluar dari salah satu ekskul sebelum bergabung ke yang baru.',
+                )`
                 : `joinActivity(${activity.id}, '${activity.nama}')`
             : `showLoginRequired()`;
 
@@ -728,6 +735,16 @@ function loadActivities(ekskulUser) {
     // Show/hide load more button
     const loadMoreBtn = document.getElementById("loadMoreActivities");
     loadMoreBtn.style.display = endIndex < totalItems ? "flex" : "none";
+}
+
+function errorModal(title, message) {
+    const newTitle = document.getElementById("errorTitle");
+    const newMessage = document.getElementById("errorMessage");
+
+    newTitle.textContent = title;
+    newMessage.textContent = message;
+
+    openModal("errorModal");
 }
 
 // Load Announcements with pagination
@@ -1130,34 +1147,30 @@ function openProfileModal() {
 
 function loadProfileData() {
     // profile detail
-    document.getElementById("profileName").textContent =
-        window.currentUser.name;
+    document.getElementById("profileName").textContent = window.user.name;
     document.getElementById("profileGender").textContent =
-        window.currentUser.siswa_profile.jenis_kelamin;
-    document.getElementById("profileEmail").textContent =
-        window.currentUser.email;
-    document.getElementById("profileRole").textContent =
-        window.currentUser.role;
+        window.user.siswa_profile.jenis_kelamin;
+    document.getElementById("profileEmail").textContent = window.user.email;
+    document.getElementById("profileRole").textContent = window.user.role;
     document.getElementById("countActivities").textContent =
-        window.currentUser.ekskuls.length;
+        window.user.ekskuls.length;
     document.getElementById("totalActivities").textContent =
-        window.currentUser.ekskuls.length;
+        window.user.ekskuls.length;
 
-    document.getElementById("profileFullName").textContent =
-        window.currentUser.name;
+    document.getElementById("profileFullName").textContent = window.user.name;
     document.getElementById("profileEmailValue").textContent =
-        window.currentUser.email;
+        window.user.email;
     document.getElementById("classProfile").textContent =
-        window.currentUser?.siswa_profile?.kelas ?? "-";
+        window.user?.siswa_profile?.kelas ?? "-";
     document.getElementById("nis").textContent =
-        window.currentUser?.siswa_profile?.nisn ?? "-";
+        window.user?.siswa_profile?.nisn ?? "-";
     document.getElementById("date").textContent =
-        formatTanggalIndo(window.currentUser.siswa_profile.created_at) ?? "-";
+        formatTanggalIndo(window.user.siswa_profile.created_at) ?? "-";
 
     document.getElementById("telephone-info").textContent =
-        window.currentUser?.siswa_profile?.no_telephone ?? "-";
+        window.user?.siswa_profile?.no_telephone ?? "-";
     document.getElementById("alamat-info").textContent =
-        window.currentUser?.siswa_profile?.alamat ?? "-";
+        window.user?.siswa_profile?.alamat ?? "-";
 }
 
 async function loadActivityCardProfile() {
@@ -1176,26 +1189,29 @@ async function loadActivityCardProfile() {
 
     grid.innerHTML = "";
 
-    itemsToShow.forEach((activity) => {
+    itemsToShow.forEach((activity, index) => {
+        if(dataEkskul[index].siswa[0].pivot.status == 'diterima'){
         const card = document.createElement("div");
         card.className = "activity-card";
 
         card.innerHTML = `
-            <div class="activity-card-header">
-                <div class="activity-card-title">${activity.nama}</div>
-                <div class="activity-status">Aktif</div>
-            </div>
-            <div class="activity-card-meta">
-                <span>👨‍🏫 ${activity.pembina.name}</span>
-                <span>📅 Bergabung: 15 Jan 2024</span>
-                <span>👥 ${activity.siswa_count} Anggota</span>
-            </div>
-            <div class="activity-card-description">
-                ${activity.deskripsi}
-            </div>
-        `;
+        <div class="activity-card-header">
+            <div class="activity-card-title">${activity.nama}</div>
+            <div class="activity-status">Aktif</div>
+        </div>
+        <div class="activity-card-meta">
+            <span>👨‍🏫 ${activity.pembina.name}</span>
+            <span>📅 Bergabung: 15 Jan 2024</span>
+            <span>👥 ${activity.siswa_count} Anggota</span>
+        </div>
+        <div class="activity-card-description">
+            ${activity.deskripsi}
+        </div>
+    `;
 
         grid.appendChild(card);
+
+        }
     });
 }
 

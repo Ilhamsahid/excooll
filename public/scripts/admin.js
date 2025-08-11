@@ -1147,28 +1147,9 @@ function loadActivitiesTable() {
                     </td>
                     <td>
                         <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2);">
-                            <span style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
+                            <span style="margin-left: 20px; font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
                                 activity.siswa_count
-                            }/${activity.max_anggota}</span>
-                            <div style="width: 60px; height: 6px; background: var(--bg-tertiary); border-radius: var(--radius-full); overflow: hidden;">
-                                <div style="width: ${
-                                    (activity.siswa_count /
-                                        activity.max_anggota) *
-                                    100
-                                }%; height: 100%; background: ${
-            activity.status === "penuh"
-                ? "var(--error-500)"
-                : activity.siswa_count / activity.max_anggota > 0.8
-                ? "var(--warning-500)"
-                : "var(--success-500)"
-        }; border-radius: var(--radius-full); transition: all var(--transition-normal);"></div>
-                            </div>
-                        </div>
-                        <div style="font-size: var(--font-size-xs); color: var(--text-tertiary);">
-                            ${Math.round(
-                                (activity.siswa_count / activity.max_anggota) *
-                                    100
-                            )}% terisi
+                            }</span>
                         </div>
                     </td>
                     <td>

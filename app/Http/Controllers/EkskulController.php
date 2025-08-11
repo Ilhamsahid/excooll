@@ -29,7 +29,7 @@ class EkskulController extends Controller
             ]);
         }
 
-        $user->ekskuls()->attach($request->ekskulId, ['alasan' => $request->whyJoin]);
+        $user->ekskuls()->attach($request->ekskulId, ['alasan' => $request->whyJoin, 'status' => 'pending']);
 
         $userService->addSiswaProfile($request, $user);
 

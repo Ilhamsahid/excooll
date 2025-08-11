@@ -28,10 +28,12 @@ class GuestController extends Controller
         $announcements = $this->pengumumanService->getAll();
         $recentActivities = $this->recentActivitiesService->getAll();
         $user = Auth::user() ? $this->userService->getUserWithEkskul() : '';
-        $ekskulsUser = $user ? $this->getUserEkskul(false) : '';
+        $userWithEkskulApproved = Auth::user() ? $this->userService->getUserWithEkskulApproved() : '';
+        $ekskulsUser = $user ?  $this->getUserEkskul(false): '';
 
-        return view('guest.dashboard.index', compact('ekskuls', 'announcements', 'recentActivities', 'user', 'ekskulsUser'));
+        return view('guest.dashboard.index', compact('ekskuls', 'announcements', 'recentActivities', 'user', 'ekskulsUser', 'userWithEkskulApproved'));
     }
+
 
     public function getUserEkskul($bool)
     {
