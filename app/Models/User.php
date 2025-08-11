@@ -11,7 +11,6 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
     protected $table = 'users';
-
     protected $fillable = ['name', 'email', 'password', 'role', 'created_at'];
 
     public function pembinaProfile()
@@ -27,7 +26,7 @@ class User extends Authenticatable
     # Relasi: User(siswa) memiliki banyak ekskul
     public function ekskuls(){
         return $this->belongsToMany(Ekskul::class, 'ekskul_user')
-            ->withPivot('alasan')
+            ->withPivot('alasan', 'status')
             ->withTimestamps();
     }
 

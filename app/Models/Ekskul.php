@@ -10,7 +10,6 @@ class Ekskul extends Model
     use HasFactory;
     
     protected $table = 'ekskuls';
-
     protected $fillable = ['nama', 'deskripsi', 'pembina_id', 'created_at'];
 
     # Relasi: ekskul dimiliki oleh pembina dari user
@@ -21,7 +20,7 @@ class Ekskul extends Model
     # Relasi: ekskul dimiliki banyak siswa dari user
     public function siswa(){
         return $this->belongsToMany(User::class, 'ekskul_user')
-            ->withPivot('status')
+            ->withPivot('status', 'alasan')
             ->withTimestamps();
     }
 
