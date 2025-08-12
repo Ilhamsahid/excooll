@@ -17,6 +17,11 @@ class EkskulService
         return $this->repository->getAllWithPembinaAndCount();
     }
 
+    public function getAllUserWithEkskulPending()
+    {
+        return $this->repository->getAllStudentWithPending();
+    }
+
     public function getEkskulByEkskulUser($ekskulId)
     {
         return $this->repository->getEkskulByEkskulIdFromUser($ekskulId);

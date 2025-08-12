@@ -871,9 +871,7 @@ function loadRecentActivities() {
 
 // Join Activity Function
 function joinActivity(activityId, activityName) {
-    const genderValue = window.currentUser.siswa_profile.jenis_kelamin
-        .trim()
-        .toLowerCase();
+    const genderValue = window.currentUser?.siswa_profile?.jenis_kelamin;
 
     document.getElementById("idEkskul").setAttribute("value", activityId);
     document
@@ -1190,11 +1188,11 @@ async function loadActivityCardProfile() {
     grid.innerHTML = "";
 
     itemsToShow.forEach((activity, index) => {
-        if(dataEkskul[index].siswa[0].pivot.status == 'diterima'){
-        const card = document.createElement("div");
-        card.className = "activity-card";
+        if (dataEkskul[index].siswa[0].pivot.status == "diterima") {
+            const card = document.createElement("div");
+            card.className = "activity-card";
 
-        card.innerHTML = `
+            card.innerHTML = `
         <div class="activity-card-header">
             <div class="activity-card-title">${activity.nama}</div>
             <div class="activity-status">Aktif</div>
@@ -1209,8 +1207,7 @@ async function loadActivityCardProfile() {
         </div>
     `;
 
-        grid.appendChild(card);
-
+            grid.appendChild(card);
         }
     });
 }
@@ -1431,8 +1428,8 @@ document
                     }
 
                     if (msgLower.includes("email")) {
-                        email.classList.add("invalid");
-                        const validationMessage = email
+                        emailInput.classList.add("invalid");
+                        const validationMessage = emailInput
                             .closest(".form-group")
                             .querySelector(".validation-message");
                         validationMessage.textContent = data.message;
@@ -1469,6 +1466,7 @@ document
         const studentTelephone = document.getElementById("studentPhone").value;
         const studentAddress = document.getElementById("studentAddress").value;
         const whyJoin = document.getElementById("whyJoin").value;
+        const expBefore = document.getElementById("previousExperience").value;
 
         // Add loading state
         const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -1495,12 +1493,13 @@ document
                 studentClass,
                 studentAddress,
                 whyJoin,
+                expBefore,
             }),
         });
 
         let data = await response.json();
 
-        console.log(data);
+        console.log();
         if (data.status == "success") {
             window.currentUser = data.user;
             let responseEkskul = await fetch("/json/true", {

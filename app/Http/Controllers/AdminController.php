@@ -11,11 +11,12 @@ class AdminController extends Controller
     public function index(EkskulService $ekskulService, UserService $userService, PengumumanService $pengumumanService)
     {
         $ekstra = $ekskulService->getEkskulAllWithRelation();
-        $siswa = $userService->getAllStudent();
+        $siswa = $userService->getAllUserWithEkskulApproved();
+        $pendaftaran = $ekskulService->getAllUserWithEkskulPending();
         $kelas = $userService->getKelas();
         $pengumuman = $pengumumanService->getAll();
         $pembina = $userService->getAllPembina();
 
-        return view('admin.main', compact('ekstra', 'siswa', 'kelas', 'pengumuman', 'pembina'));
+        return view('admin.main', compact('ekstra', 'siswa', 'pendaftaran', 'kelas', 'pengumuman', 'pembina'));
     }
 }

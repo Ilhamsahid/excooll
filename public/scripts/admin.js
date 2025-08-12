@@ -13,6 +13,7 @@ let currentPage = {
     users: 1,
 };
 let itemsPerPage = 10;
+let currentRegistrationStatus = "all"; // simpan status tab aktif
 let filteredData = {};
 
 // Enhanced touch detection for better mobile experience
@@ -40,7 +41,9 @@ function formatDate(dateString) {
 }
 
 function formatDateTime(dateString) {
-    const date = new Date(dateString);
+    const safeDateString = dateString.replace(" ", "T");
+    const date = new Date(safeDateString);
+
     return date.toLocaleString("id-ID", {
         year: "numeric",
         month: "short",
@@ -346,7 +349,7 @@ function loadSectionData(sectionName) {
             loadStudentsTable();
             break;
         case "registrations":
-            loadRegistrationsTable();
+            loadRegistrationsTable(currentRegistrationStatus);
             break;
         case "announcements":
             loadAnnouncementsGrid();
@@ -1298,12 +1301,35 @@ function loadStudentsTable() {
     updatePagination("students", data.length);
 }
 
-function loadRegistrationsTable() {
+function loadRegistrationsTable(status = 'all') {
+    // Flatten data dari registration.siswa
+    let allRows = getFilteredData("registrations").flatMap((registration) => {
+        return registration.siswa.map((s) => ({
+            siswa_id: s.id,
+            nama: s.name,
+            email: s.email,
+            kelas: s.siswa_profile.kelas,
+            kegiatan: registration.nama,
+            tanggal: s.pivot.created_at,
+            status: s.pivot.status,
+        }));
+    });
+
+    allRows.sort((a, b) => {
+        if (a.status === 'pending' && b.status !== 'pending') return -1;
+        if (a.status !== 'pending' && b.status === 'pending') return 1;
+        
+        return new Date(b.tanggal) - new Date(a.tanggal);
+    });
+
+    if (status !== "all") {
+        allRows = allRows.filter((row) => row.status === status);
+    }
+
     const tbody = document.getElementById("registrationsTableBody");
-    const data = getFilteredData("registrations");
     const startIndex = (currentPage.registrations - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const pageData = data.slice(startIndex, endIndex);
+    const pageData = allRows.slice(startIndex, endIndex);
 
     tbody.innerHTML = "";
 
@@ -1322,114 +1348,90 @@ function loadRegistrationsTable() {
         return;
     }
 
-    pageData.forEach((registration, index) => {
+    // Baru render table
+    pageData.forEach((item, index) => {
         const row = document.createElement("tr");
         row.style.animationDelay = `${index * 50}ms`;
+
         row.innerHTML = `
-                    <td>
-                        <div style="font-weight: var(--font-weight-bold); color: var(--text-primary);">#${
-                            registration.id
-                        }</div>
-                    </td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: var(--space-3);">
-                            <div style="width: 40px; height: 40px; border-radius: var(--radius-xl); background: linear-gradient(135deg, var(--brand-500), var(--brand-600)); color: white; display: flex; align-items: center; justify-content: center; font-weight: var(--font-weight-bold); font-size: var(--font-size-sm);">
-                                ${registration.siswa.charAt(0)}
-                            </div>
-                            <div>
-                                <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                                    registration.siswa
-                                }</div>
-                                <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); display: flex; align-items: center; gap: var(--space-2);">
-                                    <span>📧 ${registration.email}</span>
-                                    <span>🎓 Kelas ${registration.kelas}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                            registration.kegiatan
-                        }</div>
-                        ${
-                            registration.urgency
-                                ? `
-                                    <div style="font-size: var(--font-size-xs); margin-top: var(--space-1);">
-                                        <span class="badge ${
-                                            registration.urgency === "high"
-                                                ? "badge-danger"
-                                                : registration.urgency ===
-                                                  "normal"
-                                                ? "badge-info"
-                                                : "badge-secondary"
-                                        }" style="font-size: 10px; padding: 2px 6px;">
-                                            ${
-                                                registration.urgency === "high"
-                                                    ? "🔥 Prioritas Tinggi"
-                                                    : registration.urgency ===
-                                                      "normal"
-                                                    ? "📌 Normal"
-                                                    : "⚡ Rendah"
-                                            }
-                                        </span>
-                                    </div>
-                                `
-                                : ""
-                        }
-                    </td>
-                    <td>
-                        <div style="font-weight: var(--font-weight-medium); color: var(--text-primary);">${formatDate(
-                            registration.tanggal
-                        )}</div>
-                        <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-1);">
-                            ${formatDateTime(
-                                registration.tanggal + " 10:30:00"
-                            )}
-                        </div>
-                    </td>
-                    <td>
-                        <span class="badge hover-scale ${
-                            registration.status === "approved"
-                                ? "badge-success"
-                                : registration.status === "rejected"
-                                ? "badge-danger"
-                                : "badge-warning"
-                        }">
-                            ${
-                                registration.status === "approved"
-                                    ? "✅ Disetujui"
-                                    : registration.status === "rejected"
-                                    ? "❌ Ditolak"
-                                    : "⏳ Pending"
-                            }
-                        </span>
-                    </td>
-                    <td>
-                        <div style="display: flex; gap: var(--space-2);">
-                            ${
-                                registration.status === "pending"
-                                    ? `
-                                        <button class="btn btn-success btn-sm hover-lift" onclick="approveRegistration(${registration.id})" title="Setujui">
-                                            ✅
-                                        </button>
-                                        <button class="btn btn-danger btn-sm hover-scale" onclick="rejectRegistration(${registration.id})" title="Tolak">
-                                            ❌
-                                        </button>
-                                    `
-                                    : ""
-                            }
-                            <button class="btn btn-ghost btn-sm hover-lift" onclick="viewRegistration(${
-                                registration.id
-                            })" title="Lihat Detail">
-                                👁️
+        <td>
+            <div style="font-weight: var(--font-weight-bold); color: var(--text-primary);">
+                #${startIndex + (index + 1)}
+            </div>
+        </td>
+        <td>
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+                <div style="width: 40px; height: 40px; border-radius: var(--radius-xl); background: linear-gradient(135deg, var(--brand-500), var(--brand-600)); color: white; display: flex; align-items: center; justify-content: center; font-weight: var(--font-weight-bold); font-size: var(--font-size-sm);">
+                    ${item.nama.charAt(0)}
+                </div>
+                <div>
+                    <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
+                        item.nama
+                    }</div>
+                    <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); display: flex; align-items: center; gap: var(--space-2);">
+                        <span>📧 ${item.email}</span>
+                        <span>🎓 Kelas ${item.kelas}</span>
+                    </div>
+                </div>
+            </div>
+        </td>
+        <td>
+            <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">
+                ${item.kegiatan}
+            </div>
+        </td>
+        <td>
+            <div style="font-weight: var(--font-weight-medium); color: var(--text-primary);">${formatDate(
+                item.tanggal
+            )}</div>
+            <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-1);">
+                ${formatDateTime(item.tanggal)}
+            </div>
+        </td>
+        <td>
+            <span class="badge hover-scale ${
+                item.status === "diterima"
+                    ? "badge-success"
+                    : item.status === "ditolak"
+                    ? "badge-danger"
+                    : "badge-warning"
+            }">
+                ${
+                    item.status === "diterima"
+                        ? "✅ Disetujui"
+                        : item.status === "ditolak"
+                        ? "❌ Ditolak"
+                        : "⏳ Pending"
+                }
+            </span>
+        </td>
+        <td>
+            <div style="display: flex; gap: var(--space-2);">
+                ${
+                    item.status === "pending"
+                        ? `
+                            <button class="btn btn-success btn-sm hover-lift" onclick="approveRegistration(${item.siswa_id})" title="Setujui">
+                                ✅
                             </button>
-                        </div>
-                    </td>
-                `;
+                            <button class="btn btn-danger btn-sm hover-scale" onclick="rejectRegistration(${item.siswa_id})" title="Tolak">
+                                ❌
+                            </button>
+                        `
+                        : ""
+                }
+                <button class="btn btn-ghost btn-sm hover-lift" onclick="viewRegistration(${
+                    item.siswa_id
+                })" title="Lihat Detail">
+                    👁️
+                </button>
+            </div>
+        </td>
+    `;
+
         tbody.appendChild(row);
     });
 
-    updatePagination("registrations", data.length);
+    updatePagination("registrations", allRows.length);
     updateRegistrationTabs();
 }
 
@@ -1575,7 +1577,9 @@ function loadMentorsTable() {
                                     mentor.name
                                 }</div>
                                 <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); display: flex; align-items: center; gap: var(--space-2);">
-                                    <span>📞 ${mentor.pembina_profile.no_telephone}</span>
+                                    <span>📞 ${
+                                        mentor.pembina_profile.no_telephone
+                                    }</span>
                                 </div>
                             </div>
                         </div>
@@ -1586,23 +1590,21 @@ function loadMentorsTable() {
                         }</div>
                     </td>
                     <td>
-                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                            mentor.ekskul_dibina.map((s) => `${s.nama}`)
-                        }</div>
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${mentor.ekskul_dibina.map(
+                            (s) => `${s.nama}`
+                        )}</div>
                         <div style="font-size: var(--font-weight-medium); color: var(--text-tertiary); margin-top: var(--space-1);">
-                            <span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;">${
-                                mentor.ekskul_dibina.map((s) => `${s.kategori}`)
-                            }</span>
+                            <span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;">${mentor.ekskul_dibina.map(
+                                (s) => `${s.kategori}`
+                            )}</span>
                         </div>
                     </td>
                     <td>
-                        ${
-                                `
+                        ${`
                                     <div style="font-size: var(--font-size-); color: var(--text-tertiary); margin-top: var(--space-1); display: flex; align-items: center; gap: var(--space-1);">
                                         <span>${mentor.pembina_profile.alamat}</span>
                                     </div>
-                                `
-                        }
+                                `}
                     </td>
                     <td>
                         <span class="badge badge-success hover-scale">Aktif</span>
@@ -1882,28 +1884,27 @@ function filterRegistrationsByStatus(status) {
         )
         .classList.add("active");
 
-    if (status === "all") {
-        filteredData.registrations = [...sampleData.registrations];
-    } else {
-        filteredData.registrations = sampleData.registrations.filter(
-            (reg) => reg.status === status
-        );
-    }
-
+    currentRegistrationStatus = status;
     currentPage.registrations = 1;
-    loadRegistrationsTable();
+    loadRegistrationsTable(currentRegistrationStatus);
 }
 
 function updateRegistrationTabs() {
-    const all = sampleData.registrations.length;
-    const pending = sampleData.registrations.filter(
-        (r) => r.status === "pending"
+    let allRows = getFilteredData("registrations").flatMap((registration) => {
+        return registration.siswa.map((s) => ({
+            status: s.pivot.status,
+        }));
+    });
+
+    const all = allRows.length;
+    const pending = allRows.filter(
+        (r) => r.status === 'pending'
     ).length;
-    const approved = sampleData.registrations.filter(
-        (r) => r.status === "approved"
+    const approved = allRows.filter(
+        (r) => r.status === 'diterima'
     ).length;
-    const rejected = sampleData.registrations.filter(
-        (r) => r.status === "rejected"
+    const rejected = allRows.filter(
+        (r) => r.status === 'ditolak'
     ).length;
 
     document.getElementById("regTabAll").textContent = `Semua (${all})`;
@@ -1911,10 +1912,10 @@ function updateRegistrationTabs() {
         "regTabPending"
     ).textContent = `Pending (${pending})`;
     document.getElementById(
-        "regTabApproved"
+        "regTabDiterima"
     ).textContent = `Disetujui (${approved})`;
     document.getElementById(
-        "regTabRejected"
+        "regTabDitolak"
     ).textContent = `Ditolak (${rejected})`;
 }
 
@@ -2863,7 +2864,6 @@ function toggleUserMenu() {
         "info"
     );
 }
-
 // ===== ENHANCED INITIALIZATION =====
 document.addEventListener("DOMContentLoaded", function () {
     const startTime = performance.now();
@@ -2983,13 +2983,19 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    let allRows = sampleData.registrations.flatMap((registration) => {
+        return registration.siswa.map((s) => ({
+            status: s.pivot.status,
+        }));
+    });
+
     // Update badges in navigation
     document.getElementById("activitiesBadge").textContent =
         sampleData.activities.length;
     document.getElementById("studentsBadge").textContent =
         sampleData.students.length;
     document.getElementById("registrationsBadge").textContent =
-        sampleData.registrations.filter((r) => r.status === "pending").length;
+        allRows.filter((s) => s.status == 'pending').length
     document.getElementById("announcementsBadge").textContent =
         sampleData.announcements.length;
     document.getElementById("mentorsBadge").textContent =
@@ -4135,9 +4141,6 @@ document.addEventListener("DOMContentLoaded", initializePWA);
 
 // ===== FINAL INITIALIZATION AND CLEANUP =====
 document.addEventListener("DOMContentLoaded", function () {
-    // Initialize all enhanced features
-    console.log("🎯 Initializing Enhanced EkstraKu Admin Dashboard...");
-
     // Performance monitoring
     const initStart = performance.now();
 
@@ -4207,13 +4210,19 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    let allRows = sampleData.registrations.flatMap((registration) => {
+        return registration.siswa.map((s) => ({
+            status: s.pivot.status,
+        }));
+    });
+
     // Update navigation badges
     document.getElementById("activitiesBadge").textContent =
         sampleData.activities.length;
     document.getElementById("studentsBadge").textContent =
         sampleData.students.length;
     document.getElementById("registrationsBadge").textContent =
-        sampleData.registrations.filter((r) => r.status === "pending").length;
+        allRows.filter((s) => s.status === 'pending').length;
     document.getElementById("announcementsBadge").textContent =
         sampleData.announcements.length;
     document.getElementById("mentorsBadge").textContent =

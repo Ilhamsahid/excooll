@@ -8,5 +8,6 @@ interface EkskulRepositoryInterface
 {
     public function getAllEkskulWithRelation(): collection;
     public function getAllWithPembinaAndCount(): collection;
+    public function getAllStudentWithPending();
     public function getEkskulByEkskulIdFromUser($ekskulId): collection;
 }

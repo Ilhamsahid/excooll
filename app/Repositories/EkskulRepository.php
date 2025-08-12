@@ -20,8 +20,19 @@ class EkskulRepository implements EkskulRepositoryInterface
         }, 'pembina'])->withCount('siswa')->whereIn('id', $ekskulId)->get();
     }
 
+    public function getAllStudentWithPending()
+    {
+        return Ekskul::with([
+            'siswa' => function ($q) {
+                $q->with('siswaProfile'); // nested eager loading di dalam sini
+            }
+        ])
+        ->get();
+    }
+
     public function getAllEkskulWithRelation(): collection
     {
         return Ekskul::with(['pembina', 'schedules'])->withCount(['siswa', 'achievements'])->get();
     }
+
 }

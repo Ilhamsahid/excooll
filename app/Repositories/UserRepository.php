@@ -31,6 +31,19 @@ class UserRepository implements UserRepositoryInterface
         ->first() ?? '';
     }
 
+    public function getAllUserWithEkskulApproved()
+    {
+        return User::with([
+            'ekskuls' => function ($q) {
+                $q->wherePivot('status', 'diterima');
+        }, 'siswaProfile'])
+        ->where('role', 'siswa')
+        ->whereHas('ekskuls', function($q){
+            $q->where('ekskul_user.status', 'diterima');
+        })
+        ->get();
+    }
+
     public function createUser($arr){
         return User::create($arr);
     }
@@ -47,6 +60,6 @@ class UserRepository implements UserRepositoryInterface
 
     public function cekUserWithEmail($request)
     {
-        return User::where('email', $request->email);
+        return User::where('email', $request->email)->first();
     }
 }
