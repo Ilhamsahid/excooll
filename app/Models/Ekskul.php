@@ -10,7 +10,7 @@ class Ekskul extends Model
     use HasFactory;
     
     protected $table = 'ekskuls';
-    protected $fillable = ['nama', 'deskripsi', 'pembina_id', 'created_at'];
+    protected $fillable = ['nama', 'deskripsi', 'pembina_id', 'created_at', 'kategori'];
 
     # Relasi: ekskul dimiliki oleh pembina dari user
     public function pembina(){

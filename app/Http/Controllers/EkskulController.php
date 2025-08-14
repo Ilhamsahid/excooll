@@ -38,8 +38,36 @@ class EkskulController extends Controller
         return response()->json(['status' => 'success', 'user' => $user]);
     }
 
-    public function create(EkskulService $ekskulService)
+    public function addEkskul(EkskulService $ekskulService, Request $request)
     {
-        
+        try {
+            $ekskul = $ekskulService->createEkskul($request);
+
+            return response()->json([
+                'status' => 'success',
+                'ekskul' => $ekskul,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getEkskulJson(EkskulService $ekskulService)
+    {
+        try{
+            $ekskul = $ekskulService->getEkskulAllWithRelation();
+
+            return response()->json($ekskul);
+        }
+        catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(), // biar tahu persis errornya
+            ], 500);
+        }
     }
 }

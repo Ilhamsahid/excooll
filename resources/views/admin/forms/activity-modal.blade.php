@@ -39,7 +39,6 @@
                 <div class="form-group">
                     <label class="form-label">Pembina</label>
                     <select class="form-select" name="pembina" required id="selectPembina">
-                        <option value="">Pilih Pembina</option>
                     </select>
                     <div class="validation-message">Pembina Harus diisi</div>
                 </div>

@@ -35,14 +35,9 @@ class UserRepository implements UserRepositoryInterface
 
     public function getAllUserWithEkskulApproved()
     {
-        return User::with([
-            'ekskuls' => function ($q) {
-                $q->wherePivot('status', 'diterima');
-        }, 'siswaProfile'])
+        return User::with('ekskuls', 'siswaProfile')
         ->where('role', 'siswa')
-        ->whereHas('ekskuls', function($q){
-            $q->where('ekskul_user.status', 'diterima');
-        })
+        ->orderBy('id', 'desc')
         ->get();
     }
 

@@ -10,5 +10,7 @@ Route::middleware(['auth.custom', 'role:admin'])->group(function () {
 
     Route::post('/add-pembina', [PembinaController::class, 'addPembina']);
     Route::post('/add-ekskul', [EkskulController::class, 'addEkskul']);
-    Route::get('/get-pembina', [PembinaController::class, 'getPembinaJson']);
+
+    Route::get('/get-mentors', [PembinaController::class, 'getPembinaJson']);
+    Route::get('/get-ekskul', [EkskulController::class, 'getEkskulJson']);
 });

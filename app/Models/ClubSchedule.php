@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class ClubSchedule extends Model
 {
     protected $fillable = [
-        'club_id',
+        'ekskul_id',
         'hari',
         'jam_mulai',
         'jam_selesai',
+        'lokasi',
     ];
 
     public function club()

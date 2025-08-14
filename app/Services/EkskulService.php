@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\Contracts\EkskulRepositoryInterface;
+use Illuminate\Http\Request;
 
 class EkskulService
 {
@@ -30,5 +31,10 @@ class EkskulService
     public function getEkskulAllWithRelation()
     {
         return $this->repository->getAllEkskulWithRelation();
+    }
+
+    public function createEkskul(Request $request)
+    {
+        return $this->repository->createEkskul($request);
     }
 }

@@ -1,4 +1,7 @@
 // ===== ENHANCED GLOBAL VARIABLES =====
+const refreshMap = {
+    activities: ["mentors"], // kalau ekskul diubah, mentors ikut refresh
+};
 
 let currentTheme = localStorage.getItem("theme") || "light";
 let currentSection = "dashboard";
@@ -376,10 +379,12 @@ function loadSectionData(sectionName) {
 }
 
 async function loadPembinaSelect() {
-    const response = await fetch("/get-pembina");
+    const response = await fetch("/get-mentors");
     const namePembina = await response.json();
+    console.log(namePembina);
 
     const select = document.getElementById("selectPembina");
+    select.innerHTML = '<option value="">-- Pilih Pembina --</option>';
 
     namePembina.forEach((element) => {
         const option = document.createElement("option");
@@ -1131,7 +1136,7 @@ function loadActivitiesTable() {
         row.innerHTML = `
                     <td>
                         <div style="font-weight: var(--font-weight-bold); color: var(--text-primary);">#${
-                            activity.id
+                            startIndex + index + 1
                         }</div>
                     </td>
                     <td>
@@ -2728,30 +2733,33 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
         try {
             const formData = new FormData(form);
 
-            console.log([...formData][4][1])
+            console.log([...formData][4][1]);
 
+            if (type == "activities") {
+                // Ambil nilai jadwal di indeks ke-4
+                const jadwal = [...formData][4][1].trim();
 
-            // Ambil nilai jadwal di indeks ke-4
-            const jadwal = [...formData][4][1].trim();
+                // Pakai regex untuk ambil hari, jam mulai, dan jam selesai
+                const match = jadwal.match(
+                    /^(.+?)\s+(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/
+                );
 
-            // Pakai regex untuk ambil hari, jam mulai, dan jam selesai
-            const match = jadwal.match(/^(.+?)\s+(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/);
+                if (match) {
+                    const hari = match[1].trim();
+                    const jam_mulai = match[2];
+                    const jam_selesai = match[3];
 
-            if (match) {
-                const hari = match[1].trim();
-                const jam_mulai = match[2];
-                const jam_selesai = match[3];
+                    console.log(`Hari: ${hari}`);
+                    console.log(`Jam Mulai: ${jam_mulai}`);
+                    console.log(`Jam Selesai: ${jam_selesai}`);
 
-                console.log(`Hari: ${hari}`);
-                console.log(`Jam Mulai: ${jam_mulai}`);
-                console.log(`Jam Selesai: ${jam_selesai}`);
-
-                // Tambahkan ke FormData
-                formData.append('hari', hari);
-                formData.append('jam_mulai', jam_mulai);
-                formData.append('jam_selesai', jam_selesai);
-            } else {
-                console.error("Format jadwal tidak valid");
+                    // Tambahkan ke FormData
+                    formData.append("hari", hari);
+                    formData.append("jam_mulai", jam_mulai);
+                    formData.append("jam_selesai", jam_selesai);
+                } else {
+                    console.error("Format jadwal tidak valid");
+                }
             }
 
             const res = await fetch(url, {
@@ -2771,9 +2779,18 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
             if (data.status == "success") {
                 const resData = await fetch(urlData + "?t=" + Date.now());
                 const dataUrl = await resData.json();
-
                 sampleData[type] = [...dataUrl];
                 filteredData[type] = [...dataUrl]; // refresh cache
+
+                if(refreshMap[type]){
+                    for(const relatedType of refreshMap[type]){
+                        const resRel = await fetch(`/get-${relatedType}?t=` + Date.now());
+                        const relData = await resRel.json();
+                        sampleData[relatedType] = [...relData];
+                        filteredData[relatedType] = [...relData]; // refresh cache
+                    }
+                }
+                loadPembinaSelect();
                 loadSectionData(currentSection);
 
                 showNotification("Berhasil", successMessage, "success");
@@ -4291,7 +4308,7 @@ document.addEventListener("DOMContentLoaded", function () {
     handleFormSubmit(
         "addMentorForm",
         "/add-pembina",
-        "/get-pembina",
+        "/get-mentors",
         "mentors",
         "Mentor berhasil ditambahkan"
     );
