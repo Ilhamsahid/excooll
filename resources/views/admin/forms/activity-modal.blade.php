@@ -13,20 +13,20 @@
         <form id="addActivityForm">
             <div class="form-group">
                 <label class="form-label">Nama Kegiatan</label>
-                <input type="text" class="form-input" required placeholder="Masukkan nama kegiatan" />
+                <input type="text" name="nama" class="form-input" required placeholder="Masukkan nama kegiatan" />
                 <div class="validation-message">Nama Ekskul Harus diisi</div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Deskripsi</label>
-                <textarea class="form-textarea" required placeholder="Deskripsi kegiatan"></textarea>
+                <textarea class="form-textarea" name="deskripsi" required placeholder="Deskripsi kegiatan"></textarea>
                 <div class="validation-message">Deskripsi Harus diisi</div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Kategori</label>
-                    <select class="form-select" required>
+                    <select class="form-select" name="kategori" required>
                         <option value="">Pilih Kategori</option>
                         <option value="olahraga">Olahraga</option>
                         <option value="seni">Seni & Budaya</option>
@@ -38,7 +38,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Pembina</label>
-                    <select class="form-select" required id="selectPembina">
+                    <select class="form-select" name="pembina" required id="selectPembina">
                         <option value="">Pilih Pembina</option>
                     </select>
                     <div class="validation-message">Pembina Harus diisi</div>
@@ -47,14 +47,14 @@
 
             <div class="form-group">
                 <label class="form-label">Jadwal</label>
-                <input type="text" class="form-input" placeholder="Contoh: Senin, Rabu, Jumat 15:30-17:00"
+                <input type="text" class="form-input" name="jadwal" placeholder="Contoh: Senin, Rabu, Jumat 15:30-17:00"
                     required />
                 <div class="validation-message">Jadwal Harus diisi</div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Lokasi</label>
-                <input type="text" class="form-input" placeholder="Lokasi kegiatan" required />
+                <input type="text" class="form-input" name="lokasi" placeholder="Lokasi kegiatan" required />
                 <div class="validation-message">Lokasi Harus diisi</div>
             </div>
 

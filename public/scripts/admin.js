@@ -383,7 +383,7 @@ async function loadPembinaSelect() {
 
     namePembina.forEach((element) => {
         const option = document.createElement("option");
-        option.value = element.name;
+        option.value = element.id;
         option.textContent = element.name;
         select.appendChild(option);
     });
@@ -2728,6 +2728,32 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
         try {
             const formData = new FormData(form);
 
+            console.log([...formData][4][1])
+
+
+            // Ambil nilai jadwal di indeks ke-4
+            const jadwal = [...formData][4][1].trim();
+
+            // Pakai regex untuk ambil hari, jam mulai, dan jam selesai
+            const match = jadwal.match(/^(.+?)\s+(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/);
+
+            if (match) {
+                const hari = match[1].trim();
+                const jam_mulai = match[2];
+                const jam_selesai = match[3];
+
+                console.log(`Hari: ${hari}`);
+                console.log(`Jam Mulai: ${jam_mulai}`);
+                console.log(`Jam Selesai: ${jam_selesai}`);
+
+                // Tambahkan ke FormData
+                formData.append('hari', hari);
+                formData.append('jam_mulai', jam_mulai);
+                formData.append('jam_selesai', jam_selesai);
+            } else {
+                console.error("Format jadwal tidak valid");
+            }
+
             const res = await fetch(url, {
                 method: "post",
                 headers: {
@@ -2739,6 +2765,8 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
             });
 
             const data = await res.json();
+
+            console.log(data);
 
             if (data.status == "success") {
                 const resData = await fetch(urlData + "?t=" + Date.now());
