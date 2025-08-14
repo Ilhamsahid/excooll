@@ -35,4 +35,10 @@ class EkskulRepository implements EkskulRepositoryInterface
         return Ekskul::with(['pembina', 'schedules'])->withCount(['siswa', 'achievements'])->get();
     }
 
+    public function createEkskul($request)
+    {
+        $ekskul = Ekskul::create([
+            ''
+        ]);
+    }
 }
