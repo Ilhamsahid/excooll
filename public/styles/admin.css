@@ -51,6 +51,7 @@
     --gray-950: #030712;
 
     /* Success Colors Extended */
+    --success: #10b981;
     --success-25: #f7fef7;
     --success-50: #f0fdf4;
     --success-100: #dcfce7;
@@ -79,6 +80,7 @@
     --warning-950: #451a03;
 
     /* Error Colors Extended */
+    --error: #ef4444;
     --error-25: #fef7f7;
     --error-50: #fef2f2;
     --error-100: #fee2e2;
@@ -792,6 +794,70 @@ body {
 .search-input:focus + .search-icon {
     color: var(--brand-500);
     transform: scale(1.1);
+}
+
+.form-input.valid,
+.form-select.valid,
+.form-textarea.valid {
+    border-color: var(--success);
+}
+
+.form-input.invalid,
+.form-select.invalid,
+.form-textarea.invalid {
+    border-color: var(--error);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+.table-address {
+    max-width: 300px;
+    position: relative;
+}
+
+.address-text {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    color: var(--text-tertiary);
+    font-size: var(--font-size-);
+}
+
+.table-address:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-5px);
+}
+
+.tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background: #1e293b;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: normal;
+    max-width: 300px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(0);
+    transition: all 0.2s ease-in-out;
+    z-index: 9999;
+}
+
+.validation-message {
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    display: none;
+    color: var(--error);
+}
+
+.validation-message.show {
+    display: block;
 }
 
 /* Enhanced Header Actions */
@@ -1546,6 +1612,10 @@ body {
     font-weight: var(--font-weight-medium);
     min-height: 48px;
     box-shadow: var(--shadow-sm);
+    -webkit-border-radius: var(--radius-xl);
+    -moz-border-radius: var(--radius-xl);
+    -ms-border-radius: var(--radius-xl);
+    -o-border-radius: var(--radius-xl);
 }
 
 .form-input:focus,
@@ -2952,6 +3022,10 @@ body {
 /* Enhanced Hover Effects */
 .hover-lift {
     transition: transform var(--transition-spring);
+    -webkit-transition: transform var(--transition-spring);
+    -moz-transition: transform var(--transition-spring);
+    -ms-transition: transform var(--transition-spring);
+    -o-transition: transform var(--transition-spring);
 }
 
 .hover-lift:hover {

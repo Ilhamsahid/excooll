@@ -45,6 +45,11 @@ class UserService
         return $this->repository->createUser($data);
     }
 
+    public function createPembina(Request $request)
+    {
+        return $this->repository->createPembina($request);
+    }
+
     public function registerNewSiswa(Request $request){
         $cekNisn = Nisn::where('nisn', $request->nisn)->first();
         $cekEmail = $this->repository->cekUserWithEmail($request);

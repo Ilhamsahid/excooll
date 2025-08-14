@@ -18,6 +18,7 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'password' => Hash::make('password'),
             'role' => 'siswa',
+            'status' => 'aktif',
         ];
     }
 

@@ -375,6 +375,20 @@ function loadSectionData(sectionName) {
     }
 }
 
+async function loadPembinaSelect() {
+    const response = await fetch("/get-pembina");
+    const namePembina = await response.json();
+
+    const select = document.getElementById("selectPembina");
+
+    namePembina.forEach((element) => {
+        const option = document.createElement("option");
+        option.value = element.name;
+        option.textContent = element.name;
+        select.appendChild(option);
+    });
+}
+
 function loadDashboardData() {
     // Update stats with animations
     animateCountUp("totalStudents", 0, sampleData.students.length, 1000);
@@ -1301,7 +1315,7 @@ function loadStudentsTable() {
     updatePagination("students", data.length);
 }
 
-function loadRegistrationsTable(status = 'all') {
+function loadRegistrationsTable(status = "all") {
     // Flatten data dari registration.siswa
     let allRows = getFilteredData("registrations").flatMap((registration) => {
         return registration.siswa.map((s) => ({
@@ -1316,9 +1330,9 @@ function loadRegistrationsTable(status = 'all') {
     });
 
     allRows.sort((a, b) => {
-        if (a.status === 'pending' && b.status !== 'pending') return -1;
-        if (a.status !== 'pending' && b.status === 'pending') return 1;
-        
+        if (a.status === "pending" && b.status !== "pending") return -1;
+        if (a.status !== "pending" && b.status === "pending") return 1;
+
         return new Date(b.tanggal) - new Date(a.tanggal);
     });
 
@@ -1601,8 +1615,9 @@ function loadMentorsTable() {
                     </td>
                     <td>
                         ${`
-                                    <div style="font-size: var(--font-size-); color: var(--text-tertiary); margin-top: var(--space-1); display: flex; align-items: center; gap: var(--space-1);">
-                                        <span>${mentor.pembina_profile.alamat}</span>
+                                    <div class="table-address" style="font-size: var(--font-size-); color: var(--text-tertiary); margin-top: var(--space-1); display: flex; align-items: center; gap: var(--space-1);" title="">
+                                        <span class="address-text">${mentor.pembina_profile.alamat}</span>
+                                        <div class="tooltip">${mentor.pembina_profile.alamat}</div>
                                     </div>
                                 `}
                     </td>
@@ -1824,22 +1839,15 @@ function filterActivities() {
         const matchesSearch =
             !searchInput ||
             activity.nama.toLowerCase().includes(searchInput) ||
-            activity.pembina.toLowerCase().includes(searchInput) ||
+            activity.pembina.name.toLowerCase().includes(searchInput) ||
             activity.kategori.toLowerCase().includes(searchInput) ||
-            activity.lokasi.toLowerCase().includes(searchInput);
+            activity.schedules[0].lokasi.toLowerCase().includes(searchInput);
 
         return matchesCategory && matchesStatus && matchesSearch;
     });
 
     currentPage.activities = 1;
     loadActivitiesTable();
-
-    // Show filter results count
-    showFilterResults(
-        "activities",
-        filteredData.activities.length,
-        sampleData.activities.length
-    );
 }
 
 function filterStudents() {
@@ -1897,15 +1905,9 @@ function updateRegistrationTabs() {
     });
 
     const all = allRows.length;
-    const pending = allRows.filter(
-        (r) => r.status === 'pending'
-    ).length;
-    const approved = allRows.filter(
-        (r) => r.status === 'diterima'
-    ).length;
-    const rejected = allRows.filter(
-        (r) => r.status === 'ditolak'
-    ).length;
+    const pending = allRows.filter((r) => r.status === "pending").length;
+    const approved = allRows.filter((r) => r.status === "diterima").length;
+    const rejected = allRows.filter((r) => r.status === "ditolak").length;
 
     document.getElementById("regTabAll").textContent = `Semua (${all})`;
     document.getElementById(
@@ -2038,6 +2040,8 @@ function closeModal(modalId) {
     if (form) {
         form.reset();
     }
+
+    clearFormValidation(modalId);
 }
 
 function handleModalEscape(e) {
@@ -2701,56 +2705,135 @@ function generateReportData(type) {
 }
 
 // ===== ENHANCED FORM HANDLERS =====
-function handleFormSubmit(formId, successMessage) {
+async function handleFormSubmit(formId, url, urlData, type, successMessage) {
     const form = document.getElementById(formId);
     if (!form) return;
 
-    form.addEventListener("submit", function (e) {
+    form.addEventListener("submit", async function (e) {
         e.preventDefault();
 
         // Validate form
         if (!validateForm(form)) {
-            showNotification(
-                "Validasi Gagal",
-                "Mohon lengkapi semua field yang diperlukan",
-                "error"
-            );
+            console.log("gak bisa");
             return;
         }
 
-        // Show loading
+        // loading state
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML =
             '<div class="loading-spinner"></div><span>Menyimpan...</span>';
         submitBtn.disabled = true;
 
-        // Simulate API call
-        setTimeout(() => {
-            showNotification("Berhasil", successMessage, "success");
-            closeModal(formId.replace("Form", "Modal"));
-            form.reset();
+        try {
+            const formData = new FormData(form);
 
-            // Restore button
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
+            const res = await fetch(url, {
+                method: "post",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                },
+                body: formData,
+            });
 
-            // Reload current section data
-            loadSectionData(currentSection);
-        }, 2000);
+            const data = await res.json();
+
+            if (data.status == "success") {
+                const resData = await fetch(urlData + "?t=" + Date.now());
+                const dataUrl = await resData.json();
+
+                sampleData[type] = [...dataUrl];
+                filteredData[type] = [...dataUrl]; // refresh cache
+                loadSectionData(currentSection);
+
+                showNotification("Berhasil", successMessage, "success");
+                closeModal(formId.replace("Form", "Modal"));
+                form.reset();
+            } else {
+                showNotification(
+                    "Gagal",
+                    data.message || "Terjadi kesalahan",
+                    "error"
+                );
+            }
+        } catch (err) {
+            console.error(err);
+            showNotification("Error", err, "error");
+        }
+
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     });
 }
 
+// Clear form validation
+function clearFormValidation(modalId) {
+    const modal = document.getElementById(modalId);
+    const inputs = modal.querySelectorAll(
+        ".form-input, .form-select, .form-textarea"
+    );
+    const messages = modal.querySelectorAll(".validation-message");
+
+    inputs.forEach((input) => {
+        input.classList.remove("invalid", "valid");
+    });
+
+    messages.forEach((message) => {
+        message.classList.remove("show");
+    });
+}
+
+function validateInput(input) {
+    const isRequired = input.hasAttribute("required");
+    const message = input.parentElement.querySelector(".validation-message");
+    const value = input.value.trim();
+
+    // Validasi kosong
+    if (isRequired && value === "") {
+        input.classList.add("invalid");
+        input.classList.remove("valid");
+        if (message)
+            message.textContent =
+                message.dataset.empty || "Field ini wajib diisi";
+        if (message) message.classList.add("show");
+        return false;
+    }
+
+    // Validasi angka khusus NISN
+    if (input.id === "notel" || input.id === "studentPhone") {
+        console.log(input.id);
+        if (!/^\d+$/.test(value)) {
+            // kalau bukan angka
+            input.classList.add("invalid");
+            input.classList.remove("valid");
+            if (message)
+                message.textContent =
+                    input.id === "registerNisn"
+                        ? "NISN harus berupa angka"
+                        : "Nomor Telepon harus angka";
+            if (message) message.classList.add("show");
+            return false;
+        }
+    }
+
+    // Lolos semua validasi
+    input.classList.remove("invalid");
+    input.classList.add("valid");
+    if (message) message.classList.remove("show");
+    return true;
+}
+
 function validateForm(form) {
-    const requiredFields = form.querySelectorAll("[required]");
+    const inputs = form.querySelectorAll(
+        "input[required], select[required], textarea[required]"
+    );
     let isValid = true;
 
-    requiredFields.forEach((field) => {
-        if (!field.value.trim()) {
-            field.style.borderColor = "var(--error-500)";
+    inputs.forEach((input) => {
+        if (!validateInput(input)) {
             isValid = false;
-        } else {
-            field.style.borderColor = "";
         }
     });
 
@@ -2893,11 +2976,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Setup form handlers
-    handleFormSubmit("addActivityForm", "Kegiatan berhasil ditambahkan");
-    handleFormSubmit("addStudentForm", "Siswa berhasil ditambahkan");
-    handleFormSubmit("addAnnouncementForm", "Pengumuman berhasil dipublikasi");
-    handleFormSubmit("addMentorForm", "Mentor berhasil ditambahkan");
-    handleFormSubmit("addUserForm", "Pengguna berhasil ditambahkan");
 
     // Setup settings form
     document
@@ -2994,14 +3072,16 @@ document.addEventListener("DOMContentLoaded", function () {
         sampleData.activities.length;
     document.getElementById("studentsBadge").textContent =
         sampleData.students.length;
-    document.getElementById("registrationsBadge").textContent =
-        allRows.filter((s) => s.status == 'pending').length
+    document.getElementById("registrationsBadge").textContent = allRows.filter(
+        (s) => s.status == "pending"
+    ).length;
     document.getElementById("announcementsBadge").textContent =
         sampleData.announcements.length;
     document.getElementById("mentorsBadge").textContent =
         sampleData.mentors.length;
     document.getElementById("notificationsBadge").textContent = "3";
 
+    loadPembinaSelect();
     // Enhanced responsive handling
     window.addEventListener(
         "resize",
@@ -3052,15 +3132,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Show welcome notification
     // Log performance metrics
-    console.log(
-        "🚀 EkstraKu Admin Dashboard Enhanced initialized successfully!"
-    );
-    console.log("📊 Performance Metrics:", performanceMetrics);
-    console.log("🎨 Theme:", currentTheme);
-    console.log("📱 Touch Device:", isTouchDevice);
-    console.log("🔍 High Contrast:", isHighContrastMode);
-    console.log("⚡ Reduced Motion:", isReducedMotion);
-
     const path = window.location.pathname.replace("/ekstrasmexa/admin/", "");
     // Kalau path kosong, default ke 'dashboard'
     showSection(path || "dashboard");
@@ -4168,11 +4239,41 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Setup all form handlers
-    handleFormSubmit("addActivityForm", "Kegiatan berhasil ditambahkan");
-    handleFormSubmit("addStudentForm", "Siswa berhasil ditambahkan");
-    handleFormSubmit("addAnnouncementForm", "Pengumuman berhasil dipublikasi");
-    handleFormSubmit("addMentorForm", "Mentor berhasil ditambahkan");
-    handleFormSubmit("addUserForm", "Pengguna berhasil ditambahkan");
+    handleFormSubmit(
+        "addActivityForm",
+        "/add-ekskul",
+        "/get-ekskul",
+        "activities",
+        "Kegiatan berhasil ditambahkan"
+    );
+    handleFormSubmit(
+        "addStudentForm",
+        "",
+        "",
+        "students",
+        "Siswa berhasil ditambahkan"
+    );
+    handleFormSubmit(
+        "addAnnouncementForm",
+        "",
+        "",
+        "announcements",
+        "Pengumuman berhasil dipublikasi"
+    );
+    handleFormSubmit(
+        "addMentorForm",
+        "/add-pembina",
+        "/get-pembina",
+        "mentors",
+        "Mentor berhasil ditambahkan"
+    );
+    handleFormSubmit(
+        "addUserForm",
+        "",
+        "",
+        "users",
+        "Pengguna berhasil ditambahkan"
+    );
 
     // Setup settings form
     document
@@ -4221,8 +4322,9 @@ document.addEventListener("DOMContentLoaded", function () {
         sampleData.activities.length;
     document.getElementById("studentsBadge").textContent =
         sampleData.students.length;
-    document.getElementById("registrationsBadge").textContent =
-        allRows.filter((s) => s.status === 'pending').length;
+    document.getElementById("registrationsBadge").textContent = allRows.filter(
+        (s) => s.status === "pending"
+    ).length;
     document.getElementById("announcementsBadge").textContent =
         sampleData.announcements.length;
     document.getElementById("mentorsBadge").textContent =
@@ -4244,6 +4346,33 @@ document.addEventListener("DOMContentLoaded", function () {
             handleMobileResponsive();
         }, 250)
     );
+
+    document
+        .querySelectorAll(".form-input, .form-select, .form-textarea")
+        .forEach((input) => {
+            // Only validate after user has interacted with the field
+            let hasInteracted = false;
+
+            input.addEventListener("focus", function () {
+                hasInteracted = true;
+            });
+
+            input.addEventListener("blur", function () {
+                if (hasInteracted && this.hasAttribute("required")) {
+                    validateInput(this);
+                }
+            });
+
+            input.addEventListener("input", function () {
+                if (
+                    hasInteracted &&
+                    this.classList.contains("invalid") &&
+                    this.value.trim()
+                ) {
+                    validateInput(this);
+                }
+            });
+        });
 
     // Enhanced touch handling
     if (isTouchDevice) {
@@ -4281,15 +4410,4 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1000);
 
     // Final console log
-    console.log("✅ EkstraKu Admin Dashboard Enhanced fully initialized!");
-    console.log("📊 Total Lines: 7000+");
-    console.log(
-        "🎨 Enhanced Features: Mobile-optimized, No-loading pagination, Fixed sidebar, Enhanced graphics"
-    );
-    console.log(
-        "📱 Mobile Improvements: Better graphics, fixed sidebar text, proper close functionality"
-    );
-    console.log(
-        "🔧 Technical Improvements: Normalized tables, instant pagination, enhanced responsive design"
-    );
 });

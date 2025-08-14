@@ -11,7 +11,8 @@ interface UserRepositoryInterface
     public function getUserWithEkskul();
     public function getUserWithEkskulApproved();
     public function getAllUserWithEkskulApproved();
-    public function createUser($arr);
     public function cekUserStudentWithEmail($request, $id);
     public function cekUserWithEmail($request);
+    public function createUser($arr);
+    public function createPembina($request);
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\EkskulService;
 use App\Services\PengumumanService;
 use App\Services\UserService;
+use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {

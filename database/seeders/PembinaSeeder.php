@@ -46,6 +46,7 @@ class PembinaSeeder extends Seeder
                 'email' => $pembina['email'],
                 'password' => Hash::make('password'),
                 'role' => 'pembina',
+                'status' => 'aktif',
             ]);
 
             PembinaProfile::create([
