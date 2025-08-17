@@ -17,4 +17,17 @@ class PengumumanService
     {
         return $this->repository->getAllWithEkskul();
     }
+
+    public function addPengumuman($data)
+    {
+        $announcement =  $this->repository->createAnnouncement([
+            'ekskul_id' => $data['ekskul_id'],
+            'judul' => $data['judul'],
+            'isi' => $data['isi'],
+            'tipe' => $data['tipe'],
+            'tanggal_pengumuman' => $data['tanggal'],
+        ]);
+
+        return $announcement;
+    }
 }

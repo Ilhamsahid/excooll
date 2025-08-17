@@ -7,4 +7,5 @@ use Illuminate\Support\Collection;
 interface PengumumanRepositoryInterface
 {
     public function getAllWithEkskul(): collection;
+    public function createAnnouncement($arr);
 }

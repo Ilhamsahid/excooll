@@ -1,8 +1,4 @@
 // ===== ENHANCED GLOBAL VARIABLES =====
-const refreshMap = {
-    activities: ["mentors"], // kalau ekskul diubah, mentors ikut refresh
-};
-
 let currentTheme = localStorage.getItem("theme") || "light";
 let currentSection = "dashboard";
 let notificationId = 0;
@@ -31,6 +27,10 @@ let performanceMetrics = {
     loadTime: 0,
     renderTime: 0,
     interactionCount: 0,
+};
+
+const refreshMap = {
+    activities: ["mentors"], // kalau ekskul diubah, mentors ikut refresh
 };
 
 // ===== ENHANCED UTILITY FUNCTIONS =====
@@ -384,12 +384,28 @@ async function loadPembinaSelect() {
     console.log(namePembina);
 
     const select = document.getElementById("selectPembina");
-    select.innerHTML = '<option value="">-- Pilih Pembina --</option>';
+    select.innerHTML = '<option value="">Pilih Pembina</option>';
 
     namePembina.forEach((element) => {
         const option = document.createElement("option");
         option.value = element.id;
         option.textContent = element.name;
+        select.appendChild(option);
+    });
+}
+
+async function loadEkskulsSelect() {
+    const response = await fetch("/get-ekskul");
+    const namePembina = await response.json();
+    console.log(namePembina);
+
+    const select = document.getElementById("selectEkskul");
+    select.innerHTML = '<option value="">Pilih Ekskul</option>';
+
+    namePembina.forEach((element) => {
+        const option = document.createElement("option");
+        option.value = element.id;
+        option.textContent = element.nama;
         select.appendChild(option);
     });
 }
@@ -1509,17 +1525,13 @@ function loadAnnouncementsGrid() {
                         </div>
                         <div class="announcement-badges">
                             <span class="badge hover-scale ${
-                                announcement.prioritas === "urgent"
-                                    ? "badge-danger"
-                                    : announcement.prioritas === "tinggi"
+                                announcement.tipe === "opsional"
                                     ? "badge-warning"
                                     : "badge-info"
                             }">
                                 ${
-                                    announcement.prioritas === "urgent"
-                                        ? "🚨 Urgent"
-                                        : announcement.prioritas === "tinggi"
-                                        ? "⚡ Tinggi"
+                                    announcement.tipe === "opsional"
+                                        ? "🚨 Opsional"
                                         : "📌 Wajib"
                                 }
                             </span>
@@ -2795,6 +2807,7 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
                     }
                 }
                 loadPembinaSelect();
+                loadEkskulsSelect();
                 loadSectionData(currentSection);
 
                 showNotification("Berhasil", successMessage, "success");
@@ -3130,6 +3143,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("notificationsBadge").textContent = "3";
 
     loadPembinaSelect();
+    loadEkskulsSelect();
     // Enhanced responsive handling
     window.addEventListener(
         "resize",
@@ -4303,8 +4317,8 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     handleFormSubmit(
         "addAnnouncementForm",
-        "",
-        "",
+        "/add-pengumuman",
+        "/get-pengumuman",
         "announcements",
         "Pengumuman berhasil dipublikasi"
     );

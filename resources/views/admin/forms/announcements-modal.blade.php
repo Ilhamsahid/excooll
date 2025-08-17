@@ -12,46 +12,38 @@
         <form id="addAnnouncementForm">
             <div class="form-group">
                 <label class="form-label">Judul Pengumuman</label>
-                <input type="text" class="form-input" required placeholder="Judul pengumuman" />
+                <input type="text" class="form-input" required placeholder="Judul pengumuman" name="judul"/>
+                <div class="validation-message">Judul Harus diisi</div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Isi Pengumuman</label>
-                <textarea class="form-textarea" rows="6" required placeholder="Isi pengumuman..."></textarea>
+                <textarea class="form-textarea" rows="6" required placeholder="Isi pengumuman..." name="isi"></textarea>
+                <div class="validation-message">Isi Pengumuman Harus diisi</div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Kegiatan Terkait</label>
-                    <select class="form-select">
-                        <option value="">Pengumuman Umum</option>
-                        <option value="1">Klub Basket</option>
-                        <option value="2">Komunitas Drama</option>
-                        <option value="3">Olimpiade Sains</option>
+                    <select class="form-select" id="selectEkskul" name="ekskul_id" required>
                     </select>
+                    <div class="validation-message">Kegiatan Harus diisi</div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Prioritas</label>
-                    <select class="form-select" required>
-                        <option value="normal">Normal</option>
-                        <option value="tinggi">Tinggi</option>
-                        <option value="urgent">Urgent</option>
+                    <label class="form-label">Tipe pengumuman</label>
+                    <select class="form-select" required name="tipe">
+                        <option value="wajib">Wajib</option>
+                        <option value="opsional">Opsional</option>
                     </select>
+                    <div class="validation-message">Tipe Pengumuman Harus diisi</div>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Tanggal Publikasi</label>
-                    <input type="datetime-local" class="form-input" required />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Status</label>
-                    <select class="form-select" required>
-                        <option value="draft">Draft</option>
-                        <option value="published">Publikasi Sekarang</option>
-                        <option value="scheduled">Jadwalkan</option>
-                    </select>
+                    <input type="date" class="form-input" required  name="tanggal"/>
+                    <div class="validation-message">Tanggal Publikasi Harus diisi</div>
                 </div>
             </div>
 
