@@ -1264,11 +1264,11 @@ function loadStudentsTable() {
                                 <div style="font-size: var(--font-size-xs); color: var(--text-tertiary);">
                                     ${
                                         student.siswa_profile.jenis_kelamin ===
-                                        "L"
+                                        "laki-laki"
                                             ? "👨"
                                             : "👩"
                                     } ${
-            student.siswa_profile.jenis_kelamin === "L"
+            student.siswa_profile.jenis_kelamin === "laki-laki"
                 ? "Laki-laki"
                 : "Perempuan"
         }
@@ -1287,9 +1287,11 @@ function loadStudentsTable() {
                         }</span>
                     </td>
                     <td>
-                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${student.ekskuls
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${ student.ekskuls.length > 0
+                            ? student.ekskuls
                             .map((s) => `${s.nama}`)
-                            .join("<br>")}</div>
+                            .join("<br>")
+                        : '<span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;"></span>'}</div>
                     </td>
                     <td>
                         <span class="badge badge-success hover-scale">Aktif</span>
@@ -2782,9 +2784,11 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
                 sampleData[type] = [...dataUrl];
                 filteredData[type] = [...dataUrl]; // refresh cache
 
-                if(refreshMap[type]){
-                    for(const relatedType of refreshMap[type]){
-                        const resRel = await fetch(`/get-${relatedType}?t=` + Date.now());
+                if (refreshMap[type]) {
+                    for (const relatedType of refreshMap[type]) {
+                        const resRel = await fetch(
+                            `/get-${relatedType}?t=` + Date.now()
+                        );
                         const relData = await resRel.json();
                         sampleData[relatedType] = [...relData];
                         filteredData[relatedType] = [...relData]; // refresh cache
@@ -2847,15 +2851,14 @@ function validateInput(input) {
     }
 
     // Validasi angka khusus NISN
-    if (input.id === "notel" || input.id === "studentPhone") {
-        console.log(input.id);
+    if (input.id === "notel" || input.id === "nisn") {
         if (!/^\d+$/.test(value)) {
             // kalau bukan angka
             input.classList.add("invalid");
             input.classList.remove("valid");
             if (message)
                 message.textContent =
-                    input.id === "registerNisn"
+                    input.id === "nisn"
                         ? "NISN harus berupa angka"
                         : "Nomor Telepon harus angka";
             if (message) message.classList.add("show");
@@ -4293,8 +4296,8 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     handleFormSubmit(
         "addStudentForm",
-        "",
-        "",
+        "/add-student",
+        "/get-students",
         "students",
         "Siswa berhasil ditambahkan"
     );

@@ -10,9 +10,10 @@ interface UserRepositoryInterface
     public function getAllPembina();
     public function getUserWithEkskul();
     public function getUserWithEkskulApproved();
-    public function getAllUserWithEkskulApproved();
+    public function getAllUserWithEkskul();
     public function cekUserStudentWithEmail($request, $id);
     public function cekUserWithEmail($request);
     public function createUser($arr);
-    public function createPembina($request);
+    public function createPembinaProfile($arr);
+    public function createSiswaProfile($arr);
 }

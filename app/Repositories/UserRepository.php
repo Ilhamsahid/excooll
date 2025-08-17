@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\PembinaProfile;
+use App\Models\SiswaProfile;
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +34,7 @@ class UserRepository implements UserRepositoryInterface
         ->first() ?? '';
     }
 
-    public function getAllUserWithEkskulApproved()
+    public function getAllUserWithEkskul()
     {
         return User::with('ekskuls', 'siswaProfile')
         ->where('role', 'siswa')
@@ -60,23 +61,13 @@ class UserRepository implements UserRepositoryInterface
         return User::create($arr);
     }
 
-    public function createPembina($request)
+    public function createPembinaProfile($arr)
     {
-        $pembina = User::create([
-            'name' => $request->nama,
-            'email' => $request->email,
-            'password' => Hash::make('password'),
-            'role' => 'pembina',
-            'status' => $request->status,
-        ]);
+        return PembinaProfile::create($arr);
+    }
 
-        PembinaProfile::create([
-            'user_id' => $pembina->id,
-            'deskripsi' => $request->deskripsi,
-            'no_telephone' => $request->no_tel,
-            'alamat' => $request->alamat,
-        ]);
-
-        return $pembina;
+    public function createSiswaProfile($arr)
+    {
+        return SiswaProfile::create($arr);
     }
 }

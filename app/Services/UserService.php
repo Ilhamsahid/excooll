@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Nisn;
+use App\Models\PembinaProfile;
 use App\Models\SiswaProfile;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\Request;
@@ -29,7 +30,12 @@ class UserService
 
     public function getAllUserWithEkskulApproved()
     {
-        return $this->repository->getAllUserWithEkskulApproved();
+        return $this->repository->getUserWithEkskul();
+    }
+
+    public function getAllUserWithEkskul()
+    {
+        return $this->repository->getAllUserWithEkskul();
     }
 
     public function getAllPembina()
@@ -47,7 +53,44 @@ class UserService
 
     public function createPembina(Request $request)
     {
-        return $this->repository->createPembina($request);
+        $pembina = $this->repository->createUser([
+            'name' => $request->nama,
+            'email' => $request->email,
+            'password' => Hash::make('password'),
+            'role' => 'pembina',
+            'status' => $request->status,
+        ]);
+
+        $this->repository->createPembinaProfile([
+            'user_id' => $pembina->id,
+            'deskripsi' => $request->deskripsi,
+            'no_telephone' => $request->no_tel,
+            'alamat' => $request->alamat,
+        ]);
+
+        return $pembina;
+    }
+
+    public function createSiswa(Request $request)
+    {
+        $siswa = $this->repository->createUser([
+            'name' => $request->nama,
+            'email' => $request->email,
+            'password' => Hash::make('password'),
+            'role' => 'siswa',
+            'status' => 'aktif',
+        ]);
+
+        $this->repository->createSiswaProfile([
+            'user_id' => $siswa->id,
+            'nisn' => $request->nisn,
+            'jenis_kelamin' => $request->j_kel,
+            'kelas' => $request->kelas,
+            'alamat' => $request->alamat,
+            'no_telephone' => $request->no_tel,
+        ]);
+
+        return $siswa;
     }
 
     public function registerNewSiswa(Request $request){

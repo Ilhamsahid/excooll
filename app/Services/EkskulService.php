@@ -35,6 +35,22 @@ class EkskulService
 
     public function createEkskul(Request $request)
     {
-        return $this->repository->createEkskul($request);
+        $ekskul = $this->repository->createEkskul([
+            'nama' => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'kategori' => $request->kategori,
+            'pembina_id' => $request->pembina,
+            'status' => 'aktif',
+        ])->fresh();
+
+        $this->repository->createClubSchedule([
+            'ekskul_id' => $ekskul->getKey(),
+            'hari' => $request->hari,
+            'jam_mulai' => $request->jam_mulai,
+            'jam_selesai' => $request->jam_selesai,
+            'lokasi' => $request->lokasi
+        ]);
+
+        return $ekskul;
     }
 }

@@ -1247,6 +1247,7 @@ document
         if (data.status === "success") {
             await getNewCsrfToken();
             window.currentUser = data.user;
+            window.user = data.user;
 
             // Untuk user biasa, misal load data dan update UI secara dinamis
             let responseEkskul = await fetch("/json/true", {

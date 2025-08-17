@@ -36,24 +36,13 @@ class EkskulRepository implements EkskulRepositoryInterface
         return Ekskul::with(['pembina', 'schedules'])->withCount(['siswa', 'achievements'])->orderBy('id', 'desc')->get();
     }
 
-    public function createEkskul($request)
+    public function createEkskul($arr)
     {
-        $ekskul = Ekskul::create([
-            'nama' => $request->nama,
-            'deskripsi' => $request->deskripsi,
-            'kategori' => $request->kategori,
-            'pembina_id' => $request->pembina,
-            'status' => 'aktif',
-        ])->fresh();
+        return Ekskul::create($arr);
+    }
 
-        ClubSchedule::create([
-            'ekskul_id' => $ekskul->getKey(),
-            'hari' => $request->hari,
-            'jam_mulai' => $request->jam_mulai,
-            'jam_selesai' => $request->jam_selesai,
-            'lokasi' => $request->lokasi
-        ]);
-
-        return $ekskul;
+    public function createClubSchedule($arr)
+    {
+        return ClubSchedule::create($arr);
     }
 }
