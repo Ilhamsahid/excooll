@@ -2291,18 +2291,17 @@ function viewStudent(id) {
         detailsContainer.innerHTML = `
             <div style="display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); padding: var(--space-6); background: var(--bg-accent); border-radius: var(--radius-2xl);">
               <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--success-500), var(--success-600)); border-radius: var(--radius-2xl); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-3xl); color: white; font-weight: var(--font-weight-bold);">
-                ${student.nama.charAt(0)}
+                ${student.name.charAt(0)}
               </div>
               <div>
                 <h4 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-2);">${
-                    student.nama
+                    student.name
                 }</h4>
                 <div style="display: flex; gap: var(--space-4); font-size: var(--font-size-sm); color: var(--text-secondary);">
-                  <span>🎓 Kelas ${student.kelas}</span>
-                  <span>${student.jenisKelamin === "L" ? "👨" : "👩"} ${
-            student.jenisKelamin === "L" ? "Laki-laki" : "Perempuan"
+                  <span>🎓 Kelas ${student.siswa_profile.kelas}</span>
+                  <span>${student.siswa_profile.jenis_kelamin === "laki-laki" ? "👨" : "👩"} ${
+            student.siswa_profile.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan"
         }</span>
-                  <span>📈 ${student.performance}% performance</span>
                 </div>
               </div>
             </div>
@@ -2315,9 +2314,9 @@ function viewStudent(id) {
                       student.email
                   }</div>
                   <div style="margin-bottom: var(--space-2);"><strong>Telepon:</strong> ${
-                      student.telepon || "Belum tersedia"
+                      student.siswa_profile.no_telephone || "Belum tersedia"
                   }</div>
-                  <div><strong>Alamat:</strong> ${student.alamat}</div>
+                  <div><strong>Alamat:</strong> ${student.siswa_profile.alamat || "Belum tersedia"}</div>
                 </div>
               </div>
               
@@ -2325,14 +2324,11 @@ function viewStudent(id) {
                 <h5 style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-3);">🎯 Kegiatan</h5>
                 <div style="background: var(--bg-primary); padding: var(--space-4); border-radius: var(--radius-xl); border: 1px solid var(--border-primary);">
                   <div style="margin-bottom: var(--space-2);"><strong>Kegiatan:</strong> ${
-                      student.kegiatan
+                     student.ekskuls.length > 0 ? student.ekskuls.map(n => n.nama) : '-'
                   }</div>
                   <div style="margin-bottom: var(--space-2);"><strong>Status:</strong> <span class="badge badge-success">${
                       student.status
                   }</span></div>
-                  <div><strong>Tanggal Lahir:</strong> ${formatDate(
-                      student.tanggalLahir
-                  )}</div>
                 </div>
               </div>
             </div>

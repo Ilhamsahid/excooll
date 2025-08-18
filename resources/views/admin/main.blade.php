@@ -219,16 +219,13 @@
     </section>
 
     @include('admin.layouts.bottom-nav')
-
     @include('admin.forms.activity-modal')
-
     @include('admin.forms.student-modal')
-
     @include('admin.forms.announcements-modal')
-
     @include('admin.forms.mentor-modal')
 
     @include('admin.data.modal.activity-detail')
+    @include('admin.data.modal.student-detail')
 
     <div id="notificationContainer" class="notification-container"></div>
 @endsection
