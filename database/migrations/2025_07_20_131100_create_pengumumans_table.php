@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('judul');
             $table->text('isi');
             $table->enum('tipe', ['wajib', 'opsional'])->nullable();
+            $table->string('lokasi')->nullable();
             $table->date('tanggal_pengumuman')->default(now());
             $table->timestamps();
         });

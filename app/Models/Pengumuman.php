@@ -17,6 +17,7 @@ class Pengumuman extends Model
         'isi',
         'tipe',
         'tanggal_pengumuman',
+        'lokasi',
     ];
 
     # Relasi: Pengumuman dimiliki oleh suatu ekskul

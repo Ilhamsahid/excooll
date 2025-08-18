@@ -25,6 +25,7 @@ class PengumumanService
             'judul' => $data['judul'],
             'isi' => $data['isi'],
             'tipe' => $data['tipe'],
+            'lokasi' => $data['lokasi'],
             'tanggal_pengumuman' => $data['tanggal'],
         ]);
 

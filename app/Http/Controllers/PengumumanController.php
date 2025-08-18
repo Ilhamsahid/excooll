@@ -10,7 +10,7 @@ class PengumumanController extends Controller
     public function addPengumuman(Request $request, PengumumanService $pengumumanService)
     {
         $pengumuman = $pengumumanService->addPengumuman($request->only([
-            'ekskul_id', 'isi', 'judul', 'tanggal', 'tipe'
+            'ekskul_id', 'isi', 'judul', 'tanggal', 'tipe', 'lokasi'
         ]));
 
         return response()->json( [

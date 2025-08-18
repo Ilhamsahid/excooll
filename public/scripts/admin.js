@@ -1293,7 +1293,7 @@ function loadStudentsTable() {
                                             ? "👨"
                                             : "👩"
                                     } ${
-            student.siswa_profile.jenis_kelamin === "laki-laki"
+            student.siswa_profile.jenis_kelamin
                 ? "Laki-laki"
                 : "Perempuan"
         }
@@ -2304,7 +2304,7 @@ function viewStudent(id) {
                           ? "👨"
                           : "👩"
                   } ${
-            student.siswa_profile.jenis_kelamin === "L"
+            student.siswa_profile.jenis_kelamin === "laki-laki"
                 ? "Laki-laki"
                 : "Perempuan"
         }</span>
@@ -2436,7 +2436,7 @@ function viewRegistration(id) {
 
     sampleData.registrations.forEach((reg) => {
         const siswa = reg.siswa.find((s) => s.id === id);
-        if(siswa){
+        if (siswa) {
             found = siswa;
             parent = reg;
         }
@@ -2600,11 +2600,58 @@ function editAnnouncement(id) {
 function viewAnnouncement(id) {
     const announcement = sampleData.announcements.find((a) => a.id === id);
     if (announcement) {
-        showNotification(
-            "Detail Pengumuman",
-            `${announcement.judul} - ${announcement.views || 0} views`,
-            "info"
-        );
+        currentAnnouncementId = id;
+
+        const detailsContainer = document.getElementById("announcementDetails");
+        // FIXED: Removed likes and views from announcement details
+        detailsContainer.innerHTML = `
+            <div style="padding: var(--space-6); background: var(--bg-accent); border-radius: var(--radius-2xl); margin-bottom: var(--space-6);">
+              <h4 style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-4);">${
+                  announcement.judul
+              }</h4>
+              
+              <div style="display: flex; gap: var(--space-4); margin-bottom: var(--space-4); flex-wrap: wrap;">
+                <span class="badge ${
+                    announcement.tipe === "wajib"
+                        ? "badge-info"
+                        : "badge-warning"
+                }">
+                  ${
+                    announcement.tipe === "wajib"
+                        ? "📌 Wajib"
+                        : "🚨 Opsional"
+                  }
+                </span>
+                <span class="badge badge-info">🎯 ${
+                    announcement.ekskul.nama
+                }</span>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--space-4);">
+                <div style="text-align: center;">
+                  <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--info-600);">${formatDate(
+                      announcement.tanggal_pengumuman
+                  )}</div>
+                  <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">Tanggal</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--success-600);">${
+                      announcement.lokasi || "TBD"
+                  }</div>
+                  <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">Lokasi</div>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h5 style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-3);">📄 Isi Pengumuman</h5>
+              <div style="background: var(--bg-primary); padding: var(--space-4); border-radius: var(--radius-xl); border: 1px solid var(--border-primary); color: var(--text-secondary); line-height: var(--line-height-relaxed);">
+                ${announcement.isi}
+              </div>
+            </div>
+          `;
+
+        openModal("viewAnnouncementModal");
     }
 }
 
@@ -2647,11 +2694,7 @@ function editMentor(id) {
 function viewMentor(id) {
     const mentor = sampleData.mentors.find((m) => m.id === id);
     if (mentor) {
-        showNotification(
-            "Detail Mentor",
-            `${mentor.name} - ${mentor.ekskul_dibina.nama}`,
-            "info"
-        );
+        
     }
 }
 

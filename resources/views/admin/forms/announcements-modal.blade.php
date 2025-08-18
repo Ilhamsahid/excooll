@@ -45,6 +45,11 @@
                     <input type="date" class="form-input" required  name="tanggal"/>
                     <div class="validation-message">Tanggal Publikasi Harus diisi</div>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Lokasi Pengumuman</label>
+                        <input type="text" class="form-input" required placeholder="Judul pengumuman" name="lokasi"/>
+                    <div class="validation-message">Lokasi Harus diisi</div>
+                </div>
             </div>
 
             <div
