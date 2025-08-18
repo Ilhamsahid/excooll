@@ -1260,6 +1260,12 @@ function loadStudentsTable() {
     }
 
     pageData.forEach((student, index) => {
+        const diterimaEkskul = student.ekskuls.filter(s => s.pivot.status === 'diterima');
+
+        const ekskulHtml = diterimaEkskul.length > 0
+            ? diterimaEkskul.map(s => s.nama).join("<br>")
+            : '<span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;"></span>';
+
         const row = document.createElement("tr");
         row.style.animationDelay = `${index * 50}ms`;
         row.innerHTML = `
@@ -1303,11 +1309,9 @@ function loadStudentsTable() {
                         }</span>
                     </td>
                     <td>
-                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${ student.ekskuls.length > 0
-                            ? student.ekskuls
-                            .map((s) => `${s.nama}`)
-                            .join("<br>")
-                        : '<span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;"></span>'}</div>
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
+                            ekskulHtml
+                        }</div>
                     </td>
                     <td>
                         <span class="badge badge-success hover-scale">Aktif</span>
@@ -1359,14 +1363,16 @@ function loadRegistrationsTable(status = "all") {
         return new Date(b.tanggal) - new Date(a.tanggal);
     });
 
+    filteredRows = allRows;
+
     if (status !== "all") {
-        allRows = allRows.filter((row) => row.status === status);
+        filteredRows = allRows.filter((row) => row.status === status);
     }
 
     const tbody = document.getElementById("registrationsTableBody");
     const startIndex = (currentPage.registrations - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const pageData = allRows.slice(startIndex, endIndex);
+    const pageData = filteredRows.slice(startIndex, endIndex);
 
     tbody.innerHTML = "";
 
@@ -1382,6 +1388,8 @@ function loadRegistrationsTable(status = "all") {
                         </td>
                     </tr>
                 `;
+        updateRegistrationTabs();
+        updatePagination("registrations", filteredRows.length === 0 ? 0 : filteredRows.length);
         return;
     }
 
@@ -1447,7 +1455,7 @@ function loadRegistrationsTable(status = "all") {
                 ${
                     item.status === "pending"
                         ? `
-                            <button class="btn btn-success btn-sm hover-lift" onclick="approveRegistration(${item.siswa_id})" title="Setujui">
+                            <button class="btn btn-success btn-sm hover-lift" onclick="approveRegistration(${item.siswa_id}, '${item.kegiatan}')" title="Setujui">
                                 ✅
                             </button>
                             <button class="btn btn-danger btn-sm hover-scale" onclick="rejectRegistration(${item.siswa_id})" title="Tolak">
@@ -1468,8 +1476,8 @@ function loadRegistrationsTable(status = "all") {
         tbody.appendChild(row);
     });
 
-    updatePagination("registrations", allRows.length);
     updateRegistrationTabs();
+    updatePagination("registrations", filteredRows.length === 0 ? 0 : filteredRows.length);
 }
 
 function loadAnnouncementsGrid() {
@@ -1890,7 +1898,7 @@ function filterStudents() {
             !searchInput ||
             student.name.toLowerCase().includes(searchInput) ||
             student.email.toLowerCase().includes(searchInput) ||
-            student.ekskuls[0].nama.toLowerCase().includes(searchInput) ||
+            student.ekskuls[0]?.nama.toLowerCase().includes(searchInput) ||
             student.siswa_profile.alamat?.toLowerCase().includes(searchInput);
 
         return matchesGrade && matchesActivity && matchesSearch;
@@ -1912,7 +1920,6 @@ function filterRegistrationsByStatus(status) {
         .classList.add("active");
 
     currentRegistrationStatus = status;
-    currentPage.registrations = 1;
     loadRegistrationsTable(currentRegistrationStatus);
 }
 
@@ -1942,6 +1949,7 @@ function updateRegistrationTabs() {
 
 // ===== NO-LOADING PAGINATION FUNCTIONS (FIXED) =====
 function updatePagination(type, totalItems) {
+    console.log(totalItems);
     const paginationContainer = document.getElementById(`${type}Pagination`);
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const current = currentPage[type];
@@ -2222,16 +2230,45 @@ function deleteStudent(id) {
     }
 }
 
-function approveRegistration(id) {
-    const registration = sampleData.registrations.find((r) => r.id === id);
-    if (registration) {
-        registration.status = "approved";
-        loadRegistrationsTable();
+async function approveRegistration(id, kegiatan) {
+    found = null;
+    parent = null;
+
+    sampleData.registrations.forEach(reg => {
+        const siswa = reg.siswa.find(s => s.id === id);
+        if (siswa && kegiatan == reg.nama) {
+            found = siswa;
+            parent = reg;
+        }
+    })
+
+    if (found) {
+        found.pivot.status = 'diterima';
+        loadRegistrationsTable(currentRegistrationStatus);
         showNotification(
             "Pendaftaran Disetujui",
-            `Pendaftaran ${registration.siswa} telah disetujui`,
+            `Pendaftaran ${found.name} di ${parent.nama} telah disetujui`,
             "success"
         );
+
+        await fetch(`/registration-approve`, {
+            method: "PUT", // pakai PUT karena update
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                idUser: found.id,
+                idEkskul: parent.id,
+            })
+        });
+
+        let resStudent = await fetch('/get-students' + "?t=" + Date.now());
+        let data = await resStudent.json();
+
+        sampleData['students'] = [...data];
+        filteredData['students'] = [...sampleData.students]; // reset filter biar ikut keupdate
+        loadStudentsTable();
     }
 }
 
@@ -2261,10 +2298,22 @@ function viewRegistration(id) {
     }
 }
 
-function approveAllPending() {
-    const pendingRegistrations = sampleData.registrations.filter(
-        (r) => r.status === "pending"
-    );
+async function approveAllPending() {
+    let pendingRegistrations = [];
+
+    // Loop langsung ke sampleData
+    sampleData.registrations.forEach((registration) => {
+        registration.siswa.forEach((s) => {
+            if (s.pivot.status === "pending") {
+                pendingRegistrations.push({
+                    ekskul_id: registration.id,
+                    siswa_id: s.id,
+                    pivot: s.pivot
+                });
+            }
+        });
+    });
+
     const pendingCount = pendingRegistrations.length;
 
     if (pendingCount === 0) {
@@ -2282,14 +2331,32 @@ function approveAllPending() {
         )
     ) {
         pendingRegistrations.forEach((r) => {
-            r.status = "approved";
+            r.pivot.status = "diterima";
         });
-        loadRegistrationsTable();
+        loadRegistrationsTable(currentRegistrationStatus);
         showNotification(
             "Berhasil",
             `${pendingCount} pendaftaran telah disetujui`,
             "success"
         );
+
+        await fetch('/approve-all',{
+            method: "PUT", // pakai PUT karena update
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                pendingRegistrations,
+            })
+        });
+
+        let resStudent = await fetch('/get-students' + "?t=" + Date.now());
+        let data = await resStudent.json();
+
+        sampleData['students'] = [...data];
+        filteredData['students'] = [...sampleData.students]; // reset filter biar ikut keupdate
+        loadStudentsTable();
     }
 }
 
@@ -2733,7 +2800,6 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
 
         // Validate form
         if (!validateForm(form)) {
-            console.log("gak bisa");
             return;
         }
 
@@ -2747,7 +2813,6 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
         try {
             const formData = new FormData(form);
 
-            console.log([...formData][4][1]);
 
             if (type == "activities") {
                 // Ambil nilai jadwal di indeks ke-4
@@ -2762,10 +2827,6 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
                     const hari = match[1].trim();
                     const jam_mulai = match[2];
                     const jam_selesai = match[3];
-
-                    console.log(`Hari: ${hari}`);
-                    console.log(`Jam Mulai: ${jam_mulai}`);
-                    console.log(`Jam Selesai: ${jam_selesai}`);
 
                     // Tambahkan ke FormData
                     formData.append("hari", hari);
@@ -2788,7 +2849,6 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
 
             const data = await res.json();
 
-            console.log(data);
 
             if (data.status == "success") {
                 const resData = await fetch(urlData + "?t=" + Date.now());
