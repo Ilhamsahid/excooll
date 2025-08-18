@@ -2299,8 +2299,14 @@ function viewStudent(id) {
                 }</h4>
                 <div style="display: flex; gap: var(--space-4); font-size: var(--font-size-sm); color: var(--text-secondary);">
                   <span>🎓 Kelas ${student.siswa_profile.kelas}</span>
-                  <span>${student.siswa_profile.jenis_kelamin === "laki-laki" ? "👨" : "👩"} ${
-            student.siswa_profile.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan"
+                  <span>${
+                      student.siswa_profile.jenis_kelamin === "laki-laki"
+                          ? "👨"
+                          : "👩"
+                  } ${
+            student.siswa_profile.jenis_kelamin === "L"
+                ? "Laki-laki"
+                : "Perempuan"
         }</span>
                 </div>
               </div>
@@ -2316,7 +2322,9 @@ function viewStudent(id) {
                   <div style="margin-bottom: var(--space-2);"><strong>Telepon:</strong> ${
                       student.siswa_profile.no_telephone || "Belum tersedia"
                   }</div>
-                  <div><strong>Alamat:</strong> ${student.siswa_profile.alamat || "Belum tersedia"}</div>
+                  <div><strong>Alamat:</strong> ${
+                      student.siswa_profile.alamat || "Belum tersedia"
+                  }</div>
                 </div>
               </div>
               
@@ -2324,7 +2332,9 @@ function viewStudent(id) {
                 <h5 style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-3);">🎯 Kegiatan</h5>
                 <div style="background: var(--bg-primary); padding: var(--space-4); border-radius: var(--radius-xl); border: 1px solid var(--border-primary);">
                   <div style="margin-bottom: var(--space-2);"><strong>Kegiatan:</strong> ${
-                     student.ekskuls.length > 0 ? student.ekskuls.map(n => n.nama) : '-'
+                      student.ekskuls.length > 0
+                          ? student.ekskuls.map((n) => n.nama)
+                          : "-"
                   }</div>
                   <div style="margin-bottom: var(--space-2);"><strong>Status:</strong> <span class="badge badge-success">${
                       student.status
@@ -2421,13 +2431,97 @@ function rejectRegistration(id) {
 }
 
 function viewRegistration(id) {
-    const registration = sampleData.registrations.find((r) => r.id === id);
-    if (registration) {
-        showNotification(
-            "Detail Pendaftaran",
-            `${registration.siswa} mendaftar ke ${registration.kegiatan}`,
-            "info"
-        );
+    found = null;
+    parent = null;
+
+    sampleData.registrations.forEach((reg) => {
+        const siswa = reg.siswa.find((s) => s.id === id);
+        if(siswa){
+            found = siswa;
+            parent = reg;
+        }
+    });
+
+    console.log(found);
+    console.log(parent);
+
+    if (found) {
+        currentRegistrationId = id;
+
+        const detailsContainer = document.getElementById("registrationDetails");
+        detailsContainer.innerHTML = `
+            <div style="padding: var(--space-6); background: var(--bg-accent); border-radius: var(--radius-2xl); margin-bottom: var(--space-6);">
+              <h4 style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-4);">Pendaftaran ${
+                  parent.nama
+              }</h4>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+                <div>
+                  <div style="margin-bottom: var(--space-3);">
+                    <strong>Nama Siswa:</strong><br>
+                    <span style="color: var(--text-secondary);">${
+                        found.name
+                    }</span>
+                  </div>
+                  <div style="margin-bottom: var(--space-3);">
+                    <strong>Email:</strong><br>
+                    <span style="color: var(--text-secondary);">${
+                        found.email
+                    }</span>
+                  </div>
+                  <div>
+                    <strong>Kelas:</strong><br>
+                    <span class="badge badge-info">Kelas ${
+                        found.siswa_profile.kelas
+                    }</span>
+                  </div>
+                </div>
+                
+                <div>
+                  <div style="margin-bottom: var(--space-3);">
+                    <strong>Tanggal Daftar:</strong><br>
+                    <span style="color: var(--text-secondary);">${formatDate(
+                        found.pivot.created_at
+                    )}</span>
+                  </div>
+                  <div style="margin-bottom: var(--space-3);">
+                    <strong>Status:</strong><br>
+                    <span class="badge ${
+                        found.pivot.status === "diterima"
+                            ? "badge-success"
+                            : found.pivot.status === "ditolak"
+                            ? "badge-danger"
+                            : "badge-warning"
+                    }">
+                      ${
+                          found.pivot.status === "diterima"
+                              ? "✅ Disetujui"
+                              : found.pivot.status === "ditolak"
+                              ? "❌ Ditolak"
+                              : "⏳ Pending"
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div style="margin-bottom: var(--space-6);">
+              <h5 style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-3);">💭 Alasan Mendaftar</h5>
+              <div style="background: var(--bg-primary); padding: var(--space-4); border-radius: var(--radius-xl); border: 1px solid var(--border-primary); color: var(--text-secondary);">
+                ${found.pivot.alasan || "Alasan tidak tersedia"}
+              </div>
+            </div>
+            
+            <div>
+              <h5 style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-3);">🎯 Pengalaman Sebelumnya</h5>
+              <div style="background: var(--bg-primary); padding: var(--space-4); border-radius: var(--radius-xl); border: 1px solid var(--border-primary); color: var(--text-secondary);">
+                ${found.pivot.exp_before || "Tidak ada pengalaman sebelumnya"}
+              </div>
+            </div>
+          `;
+
+        openModal("viewRegistrationModal");
     }
 }
 
