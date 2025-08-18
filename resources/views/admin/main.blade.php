@@ -228,5 +228,7 @@
 
     @include('admin.forms.mentor-modal')
 
+    @include('admin.data.modal.activity-detail')
+
     <div id="notificationContainer" class="notification-container"></div>
 @endsection

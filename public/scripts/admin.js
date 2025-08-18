@@ -1260,11 +1260,14 @@ function loadStudentsTable() {
     }
 
     pageData.forEach((student, index) => {
-        const diterimaEkskul = student.ekskuls.filter(s => s.pivot.status === 'diterima');
+        const diterimaEkskul = student.ekskuls.filter(
+            (s) => s.pivot.status === "diterima"
+        );
 
-        const ekskulHtml = diterimaEkskul.length > 0
-            ? diterimaEkskul.map(s => s.nama).join("<br>")
-            : '<span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;"></span>';
+        const ekskulHtml =
+            diterimaEkskul.length > 0
+                ? diterimaEkskul.map((s) => s.nama).join("<br>")
+                : '<span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;"></span>';
 
         const row = document.createElement("tr");
         row.style.animationDelay = `${index * 50}ms`;
@@ -1309,9 +1312,7 @@ function loadStudentsTable() {
                         }</span>
                     </td>
                     <td>
-                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                            ekskulHtml
-                        }</div>
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${ekskulHtml}</div>
                     </td>
                     <td>
                         <span class="badge badge-success hover-scale">Aktif</span>
@@ -1389,7 +1390,10 @@ function loadRegistrationsTable(status = "all") {
                     </tr>
                 `;
         updateRegistrationTabs();
-        updatePagination("registrations", filteredRows.length === 0 ? 0 : filteredRows.length);
+        updatePagination(
+            "registrations",
+            filteredRows.length === 0 ? 0 : filteredRows.length
+        );
         return;
     }
 
@@ -1477,7 +1481,10 @@ function loadRegistrationsTable(status = "all") {
     });
 
     updateRegistrationTabs();
-    updatePagination("registrations", filteredRows.length === 0 ? 0 : filteredRows.length);
+    updatePagination(
+        "registrations",
+        filteredRows.length === 0 ? 0 : filteredRows.length
+    );
 }
 
 function loadAnnouncementsGrid() {
@@ -2155,11 +2162,90 @@ function editActivity(id) {
 function viewActivity(id) {
     const activity = sampleData.activities.find((a) => a.id === id);
     if (activity) {
-        showNotification(
-            "Detail Kegiatan",
-            `${activity.nama} - ${activity.members}/${activity.maxMembers} anggota`,
-            "info"
-        );
+        currentActivityId = id;
+
+        const modal = document.getElementById("viewActivityModal");
+        const detailsContainer = document.getElementById("activityDetails");
+
+        detailsContainer.innerHTML = `
+            <div style="display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); padding: var(--space-6); background: var(--bg-accent); border-radius: var(--radius-2xl);">
+              <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--brand-500), var(--brand-600)); border-radius: var(--radius-2xl); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-3xl);">
+                ${
+                    activity.kategori === "olahraga"
+                        ? "🏃"
+                        : activity.kategori === "seni"
+                        ? "🎨"
+                        : activity.kategori === "akademik"
+                        ? "📚"
+                        : activity.kategori === "teknologi"
+                        ? "💻"
+                        : "🤝"
+                }
+              </div>
+              <div>
+                <h4 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-2); color: var(--text-primary);">${
+                    activity.nama
+                }</h4>
+                <div style="display: flex; gap: var(--space-4); font-size: var(--font-size-sm); color: var(--text-secondary);">
+                  <span>🎯 ${activity.kategori}</span>
+                  <span>👨‍🏫 ${activity.pembina.name}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-6);">
+              <div>
+                <h5 style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-3); color: var(--text-primary);">📊 Statistik</h5>
+                <div style="background: var(--bg-primary); padding: var(--space-4); border-radius: var(--radius-xl); border: 1px solid var(--border-primary);">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-2);">
+                    <span>Anggota Aktif:</span>
+                    <strong>${activity.siswa_count}</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-2);">
+                    <span>Status:</span>
+                    <span class="badge ${
+                        activity.status === "aktif"
+                            ? "badge-success"
+                            : "badge-secondary"
+                    }">${activity.status}</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span>Prestasi:</span>
+                    <strong>🏆 ${activity.achievements_count} prestasi</strong>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h5 style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-3); color: var(--text-primary);">📅 Jadwal & Lokasi</h5>
+                <div style="background: var(--bg-primary); padding: var(--space-4); border-radius: var(--radius-xl); border: 1px solid var(--border-primary);">
+                  <div style="margin-bottom: var(--space-3);">
+                    <div style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-1);">⏰ Jadwal:</div>
+                    <div style="color: var(--text-secondary);">${
+                        activity.schedules[0].hari
+                    } ${activity.schedules[0].jam_mulai} - ${
+            activity.schedules[0].jam_selesai
+        }</div>
+                  </div>
+                  <div>
+                    <div style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-1);">📍 Lokasi:</div>
+                    <div style="color: var(--text-secondary);">${
+                        activity.schedules[0].lokasi
+                    }</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div style="margin-bottom: var(--space-6);">
+              <h5 style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-3); color: var(--text-primary);">📝 Deskripsi</h5>
+              <div style="background: var(--bg-primary); padding: var(--space-4); border-radius: var(--radius-xl); border: 1px solid var(--border-primary); color: var(--text-secondary); line-height: var(--line-height-relaxed);">
+                ${activity.deskripsi || "Deskripsi kegiatan belum tersedia."}
+              </div>
+            </div>
+          `;
+
+        openModal("viewActivityModal");
     }
 }
 
@@ -2199,11 +2285,60 @@ function editStudent(id) {
 function viewStudent(id) {
     const student = sampleData.students.find((s) => s.id === id);
     if (student) {
-        showNotification(
-            "Detail Siswa",
-            `${student.nama} - ${student.kegiatan}`,
-            "info"
-        );
+        currentStudentId = id;
+
+        const detailsContainer = document.getElementById("studentDetails");
+        detailsContainer.innerHTML = `
+            <div style="display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); padding: var(--space-6); background: var(--bg-accent); border-radius: var(--radius-2xl);">
+              <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--success-500), var(--success-600)); border-radius: var(--radius-2xl); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-3xl); color: white; font-weight: var(--font-weight-bold);">
+                ${student.nama.charAt(0)}
+              </div>
+              <div>
+                <h4 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-2);">${
+                    student.nama
+                }</h4>
+                <div style="display: flex; gap: var(--space-4); font-size: var(--font-size-sm); color: var(--text-secondary);">
+                  <span>🎓 Kelas ${student.kelas}</span>
+                  <span>${student.jenisKelamin === "L" ? "👨" : "👩"} ${
+            student.jenisKelamin === "L" ? "Laki-laki" : "Perempuan"
+        }</span>
+                  <span>📈 ${student.performance}% performance</span>
+                </div>
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6);">
+              <div>
+                <h5 style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-3);">📞 Kontak</h5>
+                <div style="background: var(--bg-primary); padding: var(--space-4); border-radius: var(--radius-xl); border: 1px solid var(--border-primary);">
+                  <div style="margin-bottom: var(--space-2);"><strong>Email:</strong> ${
+                      student.email
+                  }</div>
+                  <div style="margin-bottom: var(--space-2);"><strong>Telepon:</strong> ${
+                      student.telepon || "Belum tersedia"
+                  }</div>
+                  <div><strong>Alamat:</strong> ${student.alamat}</div>
+                </div>
+              </div>
+              
+              <div>
+                <h5 style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-3);">🎯 Kegiatan</h5>
+                <div style="background: var(--bg-primary); padding: var(--space-4); border-radius: var(--radius-xl); border: 1px solid var(--border-primary);">
+                  <div style="margin-bottom: var(--space-2);"><strong>Kegiatan:</strong> ${
+                      student.kegiatan
+                  }</div>
+                  <div style="margin-bottom: var(--space-2);"><strong>Status:</strong> <span class="badge badge-success">${
+                      student.status
+                  }</span></div>
+                  <div><strong>Tanggal Lahir:</strong> ${formatDate(
+                      student.tanggalLahir
+                  )}</div>
+                </div>
+              </div>
+            </div>
+          `;
+
+        openModal("viewStudentModal");
     }
 }
 
@@ -2234,16 +2369,16 @@ async function approveRegistration(id, kegiatan) {
     found = null;
     parent = null;
 
-    sampleData.registrations.forEach(reg => {
-        const siswa = reg.siswa.find(s => s.id === id);
+    sampleData.registrations.forEach((reg) => {
+        const siswa = reg.siswa.find((s) => s.id === id);
         if (siswa && kegiatan == reg.nama) {
             found = siswa;
             parent = reg;
         }
-    })
+    });
 
     if (found) {
-        found.pivot.status = 'diterima';
+        found.pivot.status = "diterima";
         loadRegistrationsTable(currentRegistrationStatus);
         showNotification(
             "Pendaftaran Disetujui",
@@ -2255,19 +2390,21 @@ async function approveRegistration(id, kegiatan) {
             method: "PUT", // pakai PUT karena update
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                ).content,
             },
             body: JSON.stringify({
                 idUser: found.id,
                 idEkskul: parent.id,
-            })
+            }),
         });
 
-        let resStudent = await fetch('/get-students' + "?t=" + Date.now());
+        let resStudent = await fetch("/get-students" + "?t=" + Date.now());
         let data = await resStudent.json();
 
-        sampleData['students'] = [...data];
-        filteredData['students'] = [...sampleData.students]; // reset filter biar ikut keupdate
+        sampleData["students"] = [...data];
+        filteredData["students"] = [...sampleData.students]; // reset filter biar ikut keupdate
         loadStudentsTable();
     }
 }
@@ -2308,7 +2445,7 @@ async function approveAllPending() {
                 pendingRegistrations.push({
                     ekskul_id: registration.id,
                     siswa_id: s.id,
-                    pivot: s.pivot
+                    pivot: s.pivot,
                 });
             }
         });
@@ -2340,22 +2477,24 @@ async function approveAllPending() {
             "success"
         );
 
-        await fetch('/approve-all',{
+        await fetch("/approve-all", {
             method: "PUT", // pakai PUT karena update
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                ).content,
             },
             body: JSON.stringify({
                 pendingRegistrations,
-            })
+            }),
         });
 
-        let resStudent = await fetch('/get-students' + "?t=" + Date.now());
+        let resStudent = await fetch("/get-students" + "?t=" + Date.now());
         let data = await resStudent.json();
 
-        sampleData['students'] = [...data];
-        filteredData['students'] = [...sampleData.students]; // reset filter biar ikut keupdate
+        sampleData["students"] = [...data];
+        filteredData["students"] = [...sampleData.students]; // reset filter biar ikut keupdate
         loadStudentsTable();
     }
 }
@@ -2813,7 +2952,6 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
         try {
             const formData = new FormData(form);
 
-
             if (type == "activities") {
                 // Ambil nilai jadwal di indeks ke-4
                 const jadwal = [...formData][4][1].trim();
@@ -2848,7 +2986,6 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
             });
 
             const data = await res.json();
-
 
             if (data.status == "success") {
                 const resData = await fetch(urlData + "?t=" + Date.now());
