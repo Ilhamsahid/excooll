@@ -228,6 +228,7 @@
     @include('admin.data.modal.student-detail')
     @include('admin.data.modal.registration-detail')
     @include('admin.data.modal.announcement-detail')
+    @include('admin.data.modal.pembina-detail')
 
     <div id="notificationContainer" class="notification-container"></div>
 @endsection

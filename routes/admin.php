@@ -11,10 +11,11 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth.custom', 'role:admin'])->group(function () {
     Route::get('/ekstrasmexa/admin/{any}', [AdminController::class, 'index'])->where('any', '.*');
 
-    Route::post('/add-pembina', [PembinaController::class, 'addPembina']);
-    Route::post('/add-student', [SiswaController::class, 'addSiswa']);
-    Route::post('/add-ekskul', [EkskulController::class, 'addEkskul']);
-    Route::post('/add-pengumuman', [PengumumanController::class, 'addPengumuman']);
+    Route::resource('pembina', PembinaController::class);
+    Route::resource('student', SiswaController::class);
+    Route::resource('ekskul', EkskulController::class);
+    Route::resource('pengumuman', PengumumanController::class);
+
     Route::put('/registration-approve', [PendaftaranController::class, 'approveRegistration']);
     Route::put('/approve-all', [PendaftaranController::class, 'approveAll']);
 

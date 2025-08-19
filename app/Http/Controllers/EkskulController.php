@@ -38,7 +38,7 @@ class EkskulController extends Controller
         return response()->json(['status' => 'success', 'user' => $user]);
     }
 
-    public function addEkskul(EkskulService $ekskulService, Request $request)
+    public function store(EkskulService $ekskulService, Request $request)
     {
         try {
             $ekskul = $ekskulService->createEkskul($request);

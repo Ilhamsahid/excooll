@@ -14,7 +14,7 @@ class PembinaController extends Controller
         return response()->json($pembina);
     }
 
-    public function addPembina(UserService $userService, Request $request)
+    public function store(UserService $userService, Request $request)
     {
         $pembina = $userService->createPembina($request);
         

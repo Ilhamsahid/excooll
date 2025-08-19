@@ -2,7 +2,7 @@
 <div id="addActivityModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 class="modal-title text-gradient-primary">
+            <h3 class="modal-title text-gradient-primary" id="judulActivity">
                 Tambah Kegiatan Baru
             </h3>
             <button class="close-btn hover-scale" onclick="closeModal('addActivityModal')" aria-label="Close">
@@ -13,20 +13,20 @@
         <form id="addActivityForm">
             <div class="form-group">
                 <label class="form-label">Nama Kegiatan</label>
-                <input type="text" name="nama" class="form-input" required placeholder="Masukkan nama kegiatan" />
+                <input type="text" name="nama" class="form-input" required placeholder="Masukkan nama kegiatan" id="nameActivity"/>
                 <div class="validation-message">Nama Ekskul Harus diisi</div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Deskripsi</label>
-                <textarea class="form-textarea" name="deskripsi" required placeholder="Deskripsi kegiatan"></textarea>
+                <textarea class="form-textarea" name="deskripsi" required placeholder="Deskripsi kegiatan" id="deskripsiActivity"></textarea>
                 <div class="validation-message">Deskripsi Harus diisi</div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Kategori</label>
-                    <select class="form-select" name="kategori" required>
+                    <select class="form-select" name="kategori" id="categoryActivity" required>
                         <option value="">Pilih Kategori</option>
                         <option value="olahraga">Olahraga</option>
                         <option value="seni">Seni & Budaya</option>
@@ -46,14 +46,14 @@
 
             <div class="form-group">
                 <label class="form-label">Jadwal</label>
-                <input type="text" class="form-input" name="jadwal" placeholder="Contoh: Senin, Rabu, Jumat 15:30-17:00"
+                <input type="text" class="form-input" name="jadwal" id="jadwalActivity" placeholder="Contoh: Senin, Rabu, Jumat 15:30-17:00"
                     required />
                 <div class="validation-message">Jadwal Harus diisi</div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Lokasi</label>
-                <input type="text" class="form-input" name="lokasi" placeholder="Lokasi kegiatan" required />
+                <input type="text" class="form-input" name="lokasi" id="lokasiActivity" placeholder="Lokasi kegiatan" required />
                 <div class="validation-message">Lokasi Harus diisi</div>
             </div>
 

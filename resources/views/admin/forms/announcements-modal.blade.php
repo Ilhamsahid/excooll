@@ -47,7 +47,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Lokasi Pengumuman</label>
-                        <input type="text" class="form-input" required placeholder="Judul pengumuman" name="lokasi"/>
+                        <input type="text" class="form-input" required placeholder="Lokasi pengumuman" name="lokasi"/>
                     <div class="validation-message">Lokasi Harus diisi</div>
                 </div>
             </div>

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class SiswaController extends Controller
 {
-    public function addSiswa(Request $request, UserService $userService)
+    public function store(Request $request, UserService $userService)
     {
         $siswa = $userService->createSiswa($request);
 

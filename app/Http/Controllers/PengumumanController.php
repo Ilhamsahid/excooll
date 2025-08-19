@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class PengumumanController extends Controller
 {
-    public function addPengumuman(Request $request, PengumumanService $pengumumanService)
+    public function store(Request $request, PengumumanService $pengumumanService)
     {
         $pengumuman = $pengumumanService->addPengumuman($request->only([
             'ekskul_id', 'isi', 'judul', 'tanggal', 'tipe', 'lokasi'

@@ -378,7 +378,12 @@ function loadSectionData(sectionName) {
     }
 }
 
-async function loadPembinaSelect() {
+async function loadPembinaSelect(id) {
+    if(id){
+        const activity = sampleData.activities.find((a) => a.id === id);
+        document.getElementById("selectPembina").value = activity.pembina.id;
+        return;
+    }
     const response = await fetch("/get-mentors");
     const namePembina = await response.json();
     console.log(namePembina);
@@ -1293,9 +1298,7 @@ function loadStudentsTable() {
                                             ? "👨"
                                             : "👩"
                                     } ${
-            student.siswa_profile.jenis_kelamin
-                ? "Laki-laki"
-                : "Perempuan"
+            student.siswa_profile.jenis_kelamin ? "Laki-laki" : "Perempuan"
         }
                                 </div>
                             </div>
@@ -2151,12 +2154,21 @@ function closeNotification(id) {
 
 // ===== ENHANCED ACTION FUNCTIONS =====
 function editActivity(id) {
-    showNotification(
-        "Edit Kegiatan",
-        `Mengedit kegiatan dengan ID: ${id}`,
-        "info"
-    );
-    // Here you would typically open an edit modal with pre-filled data
+    const activity = sampleData.activities.find((a) => a.id === id);
+    if (activity){
+        currentActivityId = id;
+        console.log(activity);
+
+        loadPembinaSelect(id);
+        document.getElementById("judulActivity").textContent = 'Edit Kegiatan';
+        document.getElementById("nameActivity").value = activity.nama;
+        document.getElementById("deskripsiActivity").value = activity.deskripsi;
+        document.getElementById("categoryActivity").value = activity.kategori;
+        document.getElementById("jadwalActivity").value = `${activity.schedules[0].hari} ${activity.schedules[0].jam_mulai} - ${activity.schedules[0].jam_selesai}`;
+        document.getElementById("lokasiActivity").value = activity.schedules[0].lokasi;
+
+        openModal("addActivityModal")
+    }
 }
 
 function viewActivity(id) {
@@ -2616,11 +2628,7 @@ function viewAnnouncement(id) {
                         ? "badge-info"
                         : "badge-warning"
                 }">
-                  ${
-                    announcement.tipe === "wajib"
-                        ? "📌 Wajib"
-                        : "🚨 Opsional"
-                  }
+                  ${announcement.tipe === "wajib" ? "📌 Wajib" : "🚨 Opsional"}
                 </span>
                 <span class="badge badge-info">🎯 ${
                     announcement.ekskul.nama
@@ -2694,7 +2702,54 @@ function editMentor(id) {
 function viewMentor(id) {
     const mentor = sampleData.mentors.find((m) => m.id === id);
     if (mentor) {
-        
+        currentMentorId = id;
+
+        const detailsContainer = document.getElementById("mentorDetails");
+        detailsContainer.innerHTML = `
+            <div style="display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); padding: var(--space-6); background: var(--bg-accent); border-radius: var(--radius-2xl);">
+              <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--success-500), var(--success-600)); border-radius: var(--radius-2xl); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-3xl); color: white; font-weight: var(--font-weight-bold);">
+                ${mentor.name.charAt(0)}
+              </div>
+              <div>
+                <h4 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-2);">${
+                    mentor.name
+                }</h4>
+                <div style="display: flex; gap: var(--space-4); font-size: var(--font-size-sm); color: var(--text-secondary);">
+                  <span>🎯 ${
+                      mentor.ekskul_dibina.length > 0 ? mentor.ekskul_dibina.map((n) => n.nama) : "tidak ada"
+                  }</span>
+                  <span>${
+                    mentor.ekskul_dibina.some((n) => n.kategori === "olahraga")
+    ? "🏃"
+    : mentor.ekskul_dibina.some((n) => n.kategori === "seni")
+    ? "🎨"
+    : mentor.ekskul_dibina.some((n) => n.kategori === "akademik")
+    ? "📚"
+    : mentor.ekskul_dibina.some((n) => n.kategori === "teknologi")
+    ? "💻"
+    : "🤝"
+                  } ${mentor.ekskul_dibina.length > 0 ? mentor.ekskul_dibina.map((n) => n.kategori) : 'tidak ada'}</span>
+                </div>
+              </div>
+            </div>
+
+                          <div>
+                <h5 style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-3);">📞 Kontak</h5>
+                <div style="background: var(--bg-primary); padding: var(--space-4); border-radius: var(--radius-xl); border: 1px solid var(--border-primary);">
+                  <div style="margin-bottom: var(--space-2);"><strong>Email:</strong> ${
+                      mentor.email
+                  }</div>
+                  <div style="margin-bottom: var(--space-2);"><strong>Telepon:</strong> ${
+                      mentor.pembina_profile.no_telephone || "Belum tersedia"
+                  }</div>
+                  <div><strong>Alamat:</strong> ${
+                      mentor.pembina_profile.alamat || "Belum tersedia"
+                  }</div>
+                </div>
+              </div>
+        `;
+
+        openModal("viewMentorModal");
     }
 }
 
@@ -3136,7 +3191,7 @@ async function handleFormSubmit(formId, url, urlData, type, successMessage) {
                         filteredData[relatedType] = [...relData]; // refresh cache
                     }
                 }
-                loadPembinaSelect();
+                loadPembinaSelect(null);
                 loadEkskulsSelect();
                 loadSectionData(currentSection);
 
@@ -3472,7 +3527,7 @@ document.addEventListener("DOMContentLoaded", function () {
         sampleData.mentors.length;
     document.getElementById("notificationsBadge").textContent = "3";
 
-    loadPembinaSelect();
+    loadPembinaSelect(null);
     loadEkskulsSelect();
     // Enhanced responsive handling
     window.addEventListener(
@@ -4633,28 +4688,28 @@ document.addEventListener("DOMContentLoaded", function () {
     // Setup all form handlers
     handleFormSubmit(
         "addActivityForm",
-        "/add-ekskul",
+        "/ekskul",
         "/get-ekskul",
         "activities",
         "Kegiatan berhasil ditambahkan"
     );
     handleFormSubmit(
         "addStudentForm",
-        "/add-student",
+        "/student",
         "/get-students",
         "students",
         "Siswa berhasil ditambahkan"
     );
     handleFormSubmit(
         "addAnnouncementForm",
-        "/add-pengumuman",
+        "/pengumuman",
         "/get-pengumuman",
         "announcements",
         "Pengumuman berhasil dipublikasi"
     );
     handleFormSubmit(
         "addMentorForm",
-        "/add-pembina",
+        "/pembina",
         "/get-mentors",
         "mentors",
         "Mentor berhasil ditambahkan"
