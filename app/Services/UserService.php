@@ -71,6 +71,26 @@ class UserService
         return $pembina;
     }
 
+    public function updateSiswa($data)
+    {
+        $siswa = $this->repository->findUserById($data['id']);
+
+        $this->repository->updateUser($siswa, [
+            'name' => $data['nama'],
+            'email' => $data['email'],
+        ]);
+
+        $this->repository->updateSiswaProfile($siswa->id, [
+            'nisn' => $data['nisn'],
+            'jenis_kelamin' => $data['j_kel'],
+            'kelas' => $data['kelas'],
+            'no_telephone' => $data['no_tel'],
+            'alamat' => $data['alamat'],
+        ]);
+
+        return $siswa;
+    }
+
     public function createSiswa(Request $request)
     {
         $siswa = $this->repository->createUser([

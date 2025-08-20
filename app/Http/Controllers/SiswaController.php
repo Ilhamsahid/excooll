@@ -17,6 +17,18 @@ class SiswaController extends Controller
         ]);
     }
 
+    public function update(Request $request, UserService $userService)
+    {
+        $siswa = $userService->updateSiswa($request->only([
+            'id', 'nama', 'email', 'kelas', 'nisn', 'no_tel', 'j_kel', 'alamat'
+        ]));
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $siswa,
+        ]);
+    }
+
     public function getSiswaJson(UserService $userService)
     {
         $siswa = $userService->getAllUserWithEkskul();

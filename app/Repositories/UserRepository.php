@@ -61,6 +61,22 @@ class UserRepository implements UserRepositoryInterface
         return User::create($arr);
     }
 
+    public function updateUser($user, $arr){
+        $user->update($arr);
+        return $user;
+    }
+
+    public function updateSiswaProfile($id, $arr)
+    {
+        $siswaProfile = SiswaProfile::where('user_id', $id)->first();
+
+        if($siswaProfile){
+            $siswaProfile->update($arr);
+            return $siswaProfile;
+        }
+        return null;
+    }
+
     public function createPembinaProfile($arr)
     {
         return PembinaProfile::create($arr);
@@ -69,5 +85,10 @@ class UserRepository implements UserRepositoryInterface
     public function createSiswaProfile($arr)
     {
         return SiswaProfile::create($arr);
+    }
+
+    public function findUserById($id)
+    {
+        return User::find($id);
     }
 }

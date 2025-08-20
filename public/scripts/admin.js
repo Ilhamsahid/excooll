@@ -2203,6 +2203,7 @@ function editActivity(id) {
             activity.schedules[0].lokasi;
 
         openModal("addActivityModal");
+
         const form = document.getElementById("addActivityForm");
         form.onsubmit = (e) => {
             e.preventDefault();
@@ -2339,7 +2340,37 @@ function deleteActivity(id) {
 }
 
 function editStudent(id) {
-    showNotification("Edit Siswa", `Mengedit siswa dengan ID: ${id}`, "info");
+    const student = sampleData.students.find((s) => s.id === id);
+
+    if(student){
+        currentStudentId = id;
+
+        document.getElementById("headerStudentModal").textContent = "Edit Siswa";
+        document.getElementById("name").value = student.name;
+        document.getElementById("email").value = student.email;
+        document.getElementById("class").value = student.siswa_profile.kelas;
+        document.getElementById("notel").value = student.siswa_profile.no_telephone;
+        document.getElementById("nisn").value = student.siswa_profile.nisn;
+        document.getElementById("j_kel").value = student.siswa_profile.jenis_kelamin;
+        document.getElementById("alamat").value = student.siswa_profile.alamat;
+
+        const form = document.getElementById('addStudentForm');
+        form.onsubmit = (e) => {
+            e.preventDefault();
+
+            handleFormSubmit(
+                'addStudentForm',
+                '/student',
+                '/get-students',
+                'students',
+                'Siswa berhasil diupdate',
+                'PUT',
+                id
+            );
+        };
+
+        openModal("addStudentModal")
+    }
 }
 
 function viewStudent(id) {
@@ -3209,7 +3240,7 @@ async function handleFormSubmit(
             method = "POST";
         }
 
-        console.log([...formData]); // cek isi sebelum dikirim
+        console.log(url); // cek isi sebelum dikirim
 
         if (type === "activities") {
             const jadwal = [...formData][4][1].trim();

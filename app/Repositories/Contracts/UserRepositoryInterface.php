@@ -16,4 +16,7 @@ interface UserRepositoryInterface
     public function createUser($arr);
     public function createPembinaProfile($arr);
     public function createSiswaProfile($arr);
+    public function updateUser($user, $arr);
+    public function updateSiswaProfile($id, $arr);
+    public function findUserById($id);
 }
