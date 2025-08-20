@@ -2080,6 +2080,24 @@ function addStudentModal(modalId){
     openModal(modalId);
 }
 
+function addAnnouncementModal(modalId){
+    const form = document.getElementById("addAnnouncementForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            "addAnnouncementForm",
+            "/pengumuman",
+            "/get-pengumuman",
+            "announcements",
+            "Pengumuman berhasil dipublikasi",
+            "post",
+            null
+        );
+    };
+
+    openModal(modalId);
+}
+
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.classList.add("active");
@@ -2678,11 +2696,36 @@ async function approveAllPending() {
 }
 
 function editAnnouncement(id) {
-    showNotification(
-        "Edit Pengumuman",
-        `Mengedit pengumuman dengan ID: ${id}`,
-        "info"
-    );
+    const announcement = sampleData.announcements.find((a) => a.id === id);
+
+    if(announcement){
+        console.log(announcement);
+
+        document.getElementById('pengumuman').textContent = 'Edit Pengumuman';
+        document.getElementById('judul').value = announcement.judul;
+        document.getElementById('isi').value = announcement.isi;
+        document.getElementById('selectEkskul').value = announcement.ekskul.id;
+        document.getElementById('tipe').value = announcement.tipe;
+        document.getElementById('tanggal').value = announcement.tanggal_pengumuman;
+        document.getElementById('lokasi').value = announcement.lokasi;
+
+        const form = document.getElementById('addAnnouncementForm');
+        form.onsubmit = (e) => {
+            e.preventDefault();
+
+            handleFormSubmit(
+                "addAnnouncementForm",
+                "/pengumuman",
+                "/get-pengumuman",
+                "announcements",
+                "Pengumuman berhasil diupdate",
+                "PUT",
+                id
+            );
+        };
+
+        openModal('addAnnouncementModal')
+    }
 }
 
 function viewAnnouncement(id) {
@@ -4777,15 +4820,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Setup all form handlers
-    // handleFormSubmit(
-    //     "addAnnouncementForm",
-    //     "/pengumuman",
-    //     "/get-pengumuman",
-    //     "announcements",
-    //     "Pengumuman berhasil dipublikasi",
-    //     "post",
-    //     null
-    // );
     // handleFormSubmit(
     //     "addMentorForm",
     //     "/pembina",

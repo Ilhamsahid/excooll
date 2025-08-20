@@ -31,4 +31,20 @@ class PengumumanService
 
         return $announcement;
     }
+
+    public function updatePengumuman($data)
+    {
+        $announc = $this->repository->findAnnouncById($data['id']);
+
+        $this->repository->updateAnnouncement($announc, [
+            'ekskul_id' => $data['ekskul_id'],
+            'judul' => $data['judul'],
+            'isi' => $data['isi'],
+            'tipe' => $data['tipe'],
+            'tanggal_pengumuman' => $data['tanggal'],
+            'lokasi' => $data['lokasi'],
+        ]);
+
+        return $announc;
+    }
 }

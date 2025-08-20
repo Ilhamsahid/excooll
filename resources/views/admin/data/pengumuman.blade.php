@@ -12,7 +12,7 @@
                     <span>📊</span>
                     <span>Export</span>
                 </button>
-                <button class="btn btn-primary hover-lift" onclick="openModal('addAnnouncementModal')">
+                <button class="btn btn-primary hover-lift" onclick="addAnnouncementModal('addAnnouncementModal')">
                     <span>➕</span>
                     <span>Buat Pengumuman</span>
                 </button>

@@ -19,6 +19,18 @@ class PengumumanController extends Controller
         ]);
     }
 
+    public function update(Request $request, PengumumanService $pengumumanService)
+    {
+        $announc = $pengumumanService->updatePengumuman($request->only([
+            'id', 'ekskul_id', 'judul', 'isi', 'tipe', 'tanggal', 'lokasi'
+        ]));
+
+        return response()->json([
+            'status' => 'success',
+            'announc' => $announc,
+        ]);
+    }
+
     public function getPengumumanJson(PengumumanService $pengumumanService)
     {
         $pengumuman = $pengumumanService->getAll();

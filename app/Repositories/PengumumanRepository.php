@@ -16,4 +16,15 @@ class PengumumanRepository implements PengumumanRepositoryInterface
     {
         return Pengumuman::create($arr);
     }
+
+    public function updateAnnouncement($announc, $arr)
+    {
+        $announc->update($arr);
+        return $announc;
+    }
+
+    public function findAnnouncById($id)
+    {
+        return Pengumuman::find($id);
+    }
 }

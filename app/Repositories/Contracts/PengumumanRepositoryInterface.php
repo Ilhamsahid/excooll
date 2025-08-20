@@ -8,4 +8,6 @@ interface PengumumanRepositoryInterface
 {
     public function getAllWithEkskul(): collection;
     public function createAnnouncement($arr);
+    public function updateAnnouncement($announc, $arr);
+    public function findAnnouncById($id);
 }
