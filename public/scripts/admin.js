@@ -2098,6 +2098,25 @@ function addAnnouncementModal(modalId){
     openModal(modalId);
 }
 
+function addMentorModal(modalId){
+    const form = document.getElementById('addMentorForm');
+
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            "addMentorForm",
+            "/pembina",
+            "/get-mentors",
+            "mentors",
+            "Mentor berhasil ditambahkan",
+            "post",
+            null
+        );
+    };
+
+    openModal(modalId);
+}
+
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.classList.add("active");
@@ -4820,15 +4839,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Setup all form handlers
-    // handleFormSubmit(
-    //     "addMentorForm",
-    //     "/pembina",
-    //     "/get-mentors",
-    //     "mentors",
-    //     "Mentor berhasil ditambahkan",
-    //     "post",
-    //     null
-    // );
     // handleFormSubmit(
     //     "addUserForm",
     //     "",

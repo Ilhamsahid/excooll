@@ -12,7 +12,7 @@
                     <span>📊</span>
                     <span>Export</span>
                 </button>
-                <button class="btn btn-primary hover-lift" onclick="openModal('addMentorModal')">
+                <button class="btn btn-primary hover-lift" onclick="addMentorModal('addMentorModal')">
                     <span>➕</span>
                     <span>Tambah Mentor</span>
                 </button>
