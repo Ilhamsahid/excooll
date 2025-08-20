@@ -379,14 +379,13 @@ function loadSectionData(sectionName) {
 }
 
 async function loadPembinaSelect(id) {
-    if(id){
+    if (id) {
         const activity = sampleData.activities.find((a) => a.id === id);
         document.getElementById("selectPembina").value = activity.pembina.id;
         return;
     }
     const response = await fetch("/get-mentors");
     const namePembina = await response.json();
-    console.log(namePembina);
 
     const select = document.getElementById("selectPembina");
     select.innerHTML = '<option value="">Pilih Pembina</option>';
@@ -402,7 +401,6 @@ async function loadPembinaSelect(id) {
 async function loadEkskulsSelect() {
     const response = await fetch("/get-ekskul");
     const namePembina = await response.json();
-    console.log(namePembina);
 
     const select = document.getElementById("selectEkskul");
     select.innerHTML = '<option value="">Pilih Ekskul</option>';
@@ -1959,7 +1957,6 @@ function updateRegistrationTabs() {
 
 // ===== NO-LOADING PAGINATION FUNCTIONS (FIXED) =====
 function updatePagination(type, totalItems) {
-    console.log(totalItems);
     const paginationContainer = document.getElementById(`${type}Pagination`);
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const current = currentPage[type];
@@ -2047,6 +2044,23 @@ function changePage(type, page) {
 }
 
 // ===== ENHANCED MODAL FUNCTIONS =====
+function addActivityModal(modalId) {
+    const form = document.getElementById("addActivityForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            "addActivityForm",
+            "/ekskul",
+            "/get-ekskul",
+            "activities",
+            "Kegiatan berhasil ditambahkan",
+            "post",
+            null
+        );
+    };
+
+    openModal(modalId);
+}
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.classList.add("active");
@@ -2155,19 +2169,34 @@ function closeNotification(id) {
 // ===== ENHANCED ACTION FUNCTIONS =====
 function editActivity(id) {
     const activity = sampleData.activities.find((a) => a.id === id);
-    if (activity){
+    if (activity) {
         currentActivityId = id;
-        console.log(activity);
 
         loadPembinaSelect(id);
-        document.getElementById("judulActivity").textContent = 'Edit Kegiatan';
+        document.getElementById("judulActivity").textContent = "Edit Kegiatan";
         document.getElementById("nameActivity").value = activity.nama;
         document.getElementById("deskripsiActivity").value = activity.deskripsi;
         document.getElementById("categoryActivity").value = activity.kategori;
-        document.getElementById("jadwalActivity").value = `${activity.schedules[0].hari} ${activity.schedules[0].jam_mulai} - ${activity.schedules[0].jam_selesai}`;
-        document.getElementById("lokasiActivity").value = activity.schedules[0].lokasi;
+        document.getElementById(
+            "jadwalActivity"
+        ).value = `${activity.schedules[0].hari} ${activity.schedules[0].jam_mulai} - ${activity.schedules[0].jam_selesai}`;
+        document.getElementById("lokasiActivity").value =
+            activity.schedules[0].lokasi;
 
-        openModal("addActivityModal")
+        openModal("addActivityModal");
+        const form = document.getElementById("addActivityForm");
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            handleFormSubmit(
+                "addActivityForm",
+                "/ekskul", // base url
+                "/get-ekskul", // refresh url
+                "activities",
+                "Kegiatan berhasil diupdate",
+                "PUT", // method
+                id // id yang mau diupdate
+            );
+        };
     }
 }
 
@@ -2454,9 +2483,6 @@ function viewRegistration(id) {
         }
     });
 
-    console.log(found);
-    console.log(parent);
-
     if (found) {
         currentRegistrationId = id;
 
@@ -2716,19 +2742,33 @@ function viewMentor(id) {
                 }</h4>
                 <div style="display: flex; gap: var(--space-4); font-size: var(--font-size-sm); color: var(--text-secondary);">
                   <span>🎯 ${
-                      mentor.ekskul_dibina.length > 0 ? mentor.ekskul_dibina.map((n) => n.nama) : "tidak ada"
+                      mentor.ekskul_dibina.length > 0
+                          ? mentor.ekskul_dibina.map((n) => n.nama)
+                          : "tidak ada"
                   }</span>
                   <span>${
-                    mentor.ekskul_dibina.some((n) => n.kategori === "olahraga")
-    ? "🏃"
-    : mentor.ekskul_dibina.some((n) => n.kategori === "seni")
-    ? "🎨"
-    : mentor.ekskul_dibina.some((n) => n.kategori === "akademik")
-    ? "📚"
-    : mentor.ekskul_dibina.some((n) => n.kategori === "teknologi")
-    ? "💻"
-    : "🤝"
-                  } ${mentor.ekskul_dibina.length > 0 ? mentor.ekskul_dibina.map((n) => n.kategori) : 'tidak ada'}</span>
+                      mentor.ekskul_dibina.some(
+                          (n) => n.kategori === "olahraga"
+                      )
+                          ? "🏃"
+                          : mentor.ekskul_dibina.some(
+                                (n) => n.kategori === "seni"
+                            )
+                          ? "🎨"
+                          : mentor.ekskul_dibina.some(
+                                (n) => n.kategori === "akademik"
+                            )
+                          ? "📚"
+                          : mentor.ekskul_dibina.some(
+                                (n) => n.kategori === "teknologi"
+                            )
+                          ? "💻"
+                          : "🤝"
+                  } ${
+            mentor.ekskul_dibina.length > 0
+                ? mentor.ekskul_dibina.map((n) => n.kategori)
+                : "tidak ada"
+        }</span>
                 </div>
               </div>
             </div>
@@ -3118,101 +3158,102 @@ function generateReportData(type) {
 }
 
 // ===== ENHANCED FORM HANDLERS =====
-async function handleFormSubmit(formId, url, urlData, type, successMessage) {
+async function handleFormSubmit(
+    formId,
+    url,
+    urlData,
+    type,
+    successMessage,
+    method = "POST",
+    id = null
+) {
     const form = document.getElementById(formId);
     if (!form) return;
 
-    form.addEventListener("submit", async function (e) {
-        e.preventDefault();
+    if (id) {
+        url = url + "/" + id;
+    }
 
-        // Validate form
-        if (!validateForm(form)) {
-            return;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML =
+        '<div class="loading-spinner"></div><span>Menyimpan...</span>';
+    submitBtn.disabled = true;
+
+    try {
+        const formData = new FormData(form);
+
+        // Laravel butuh _method kalau PUT/PATCH/DELETE
+        if (method === "PUT" || method === "PATCH" || method === "DELETE") {
+            formData.append("_method", method);
+            formData.append("id", id);
+            method = "POST";
         }
 
-        // loading state
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML =
-            '<div class="loading-spinner"></div><span>Menyimpan...</span>';
-        submitBtn.disabled = true;
+        console.log([...formData]); // cek isi sebelum dikirim
 
-        try {
-            const formData = new FormData(form);
-
-            if (type == "activities") {
-                // Ambil nilai jadwal di indeks ke-4
-                const jadwal = [...formData][4][1].trim();
-
-                // Pakai regex untuk ambil hari, jam mulai, dan jam selesai
-                const match = jadwal.match(
-                    /^(.+?)\s+(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/
-                );
-
-                if (match) {
-                    const hari = match[1].trim();
-                    const jam_mulai = match[2];
-                    const jam_selesai = match[3];
-
-                    // Tambahkan ke FormData
-                    formData.append("hari", hari);
-                    formData.append("jam_mulai", jam_mulai);
-                    formData.append("jam_selesai", jam_selesai);
-                } else {
-                    console.error("Format jadwal tidak valid");
-                }
+        if (type === "activities") {
+            const jadwal = [...formData][4][1].trim();
+            const match = jadwal.match(
+                /^(.+?)\s+(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/
+            );
+            if (match) {
+                formData.append("hari", match[1].trim());
+                formData.append("jam_mulai", match[2]);
+                formData.append("jam_selesai", match[3]);
             }
-
-            const res = await fetch(url, {
-                method: "post",
-                headers: {
-                    "X-CSRF-TOKEN": document.querySelector(
-                        'meta[name="csrf-token"]'
-                    ).content,
-                },
-                body: formData,
-            });
-
-            const data = await res.json();
-
-            if (data.status == "success") {
-                const resData = await fetch(urlData + "?t=" + Date.now());
-                const dataUrl = await resData.json();
-                sampleData[type] = [...dataUrl];
-                filteredData[type] = [...dataUrl]; // refresh cache
-
-                if (refreshMap[type]) {
-                    for (const relatedType of refreshMap[type]) {
-                        const resRel = await fetch(
-                            `/get-${relatedType}?t=` + Date.now()
-                        );
-                        const relData = await resRel.json();
-                        sampleData[relatedType] = [...relData];
-                        filteredData[relatedType] = [...relData]; // refresh cache
-                    }
-                }
-                loadPembinaSelect(null);
-                loadEkskulsSelect();
-                loadSectionData(currentSection);
-
-                showNotification("Berhasil", successMessage, "success");
-                closeModal(formId.replace("Form", "Modal"));
-                form.reset();
-            } else {
-                showNotification(
-                    "Gagal",
-                    data.message || "Terjadi kesalahan",
-                    "error"
-                );
-            }
-        } catch (err) {
-            console.error(err);
-            showNotification("Error", err, "error");
         }
 
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    });
+        const res = await fetch(url, {
+            method: method,
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                ).content,
+            },
+            body: formData,
+        });
+
+        const data = await res.json();
+        console.log(data);
+
+        if (data.status === "success") {
+            const resData = await fetch(urlData + "?t=" + Date.now());
+            const dataUrl = await resData.json();
+            sampleData[type] = [...dataUrl];
+            filteredData[type] = [...dataUrl];
+
+            if (refreshMap[type]) {
+                for (const relatedType of refreshMap[type]) {
+                    const resRel = await fetch(
+                        `/get-${relatedType}?t=` + Date.now()
+                    );
+                    const relData = await resRel.json();
+                    sampleData[relatedType] = [...relData];
+                    filteredData[relatedType] = [...relData];
+                }
+            }
+            loadPembinaSelect(null);
+            loadEkskulsSelect();
+            loadSectionData(currentSection);
+
+            showNotification("Berhasil", successMessage, "success");
+            closeModal(formId.replace("Form", "Modal"));
+            form.reset();
+        } else {
+            showNotification(
+                "Gagal",
+                data.message || "Terjadi kesalahan",
+                "error"
+            );
+        }
+    } catch (err) {
+        console.error(err);
+        showNotification("Error", err, "error");
+    }
+
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
 }
 
 // Clear form validation
@@ -4686,41 +4727,42 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Setup all form handlers
-    handleFormSubmit(
-        "addActivityForm",
-        "/ekskul",
-        "/get-ekskul",
-        "activities",
-        "Kegiatan berhasil ditambahkan"
-    );
-    handleFormSubmit(
-        "addStudentForm",
-        "/student",
-        "/get-students",
-        "students",
-        "Siswa berhasil ditambahkan"
-    );
-    handleFormSubmit(
-        "addAnnouncementForm",
-        "/pengumuman",
-        "/get-pengumuman",
-        "announcements",
-        "Pengumuman berhasil dipublikasi"
-    );
-    handleFormSubmit(
-        "addMentorForm",
-        "/pembina",
-        "/get-mentors",
-        "mentors",
-        "Mentor berhasil ditambahkan"
-    );
-    handleFormSubmit(
-        "addUserForm",
-        "",
-        "",
-        "users",
-        "Pengguna berhasil ditambahkan"
-    );
+    // handleFormSubmit(
+    //     "addStudentForm",
+    //     "/student",
+    //     "/get-students",
+    //     "students",
+    //     "Siswa berhasil ditambahkan",
+    //     "post",
+    //     null
+    // );
+    // handleFormSubmit(
+    //     "addAnnouncementForm",
+    //     "/pengumuman",
+    //     "/get-pengumuman",
+    //     "announcements",
+    //     "Pengumuman berhasil dipublikasi",
+    //     "post",
+    //     null
+    // );
+    // handleFormSubmit(
+    //     "addMentorForm",
+    //     "/pembina",
+    //     "/get-mentors",
+    //     "mentors",
+    //     "Mentor berhasil ditambahkan",
+    //     "post",
+    //     null
+    // );
+    // handleFormSubmit(
+    //     "addUserForm",
+    //     "",
+    //     "",
+    //     "users",
+    //     "Pengguna berhasil ditambahkan",
+    //     "post",
+    //     null
+    // );
 
     // Setup settings form
     document

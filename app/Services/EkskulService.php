@@ -53,4 +53,26 @@ class EkskulService
 
         return $ekskul;
     }
+
+    public function updateEkskul(Request $request)
+    {
+        $ekskul = $this->repository->findEkskulById($request->id);
+
+        $this->repository->updateEkskul($ekskul, [
+            'nama' => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'kategori' => $request->kategori,
+            'pembina_id' => $request->pembina,
+            'status' => $request->status ?? 'aktif',
+        ]);
+
+        $this->repository->updateClubSchedule($ekskul->id,[
+            'hari' => $request->hari,
+            'jam_mulai' => $request->jam_mulai,
+            'jam_selesai' => $request->jam_selesai,
+            'lokasi' => $request->lokasi
+        ]);
+
+        return $ekskul->fresh();
+    }
 }

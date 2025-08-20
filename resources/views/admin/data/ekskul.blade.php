@@ -14,7 +14,7 @@
                     <span>📊</span>
                     <span>Export</span>
                 </button>
-                <button class="btn btn-primary hover-lift" onclick="openModal('addActivityModal')">
+                <button class="btn btn-primary hover-lift" onclick="addActivityModal('addActivityModal')">
                     <span>➕</span>
                     <span>Tambah Kegiatan</span>
                 </button>

@@ -55,6 +55,22 @@ class EkskulController extends Controller
         }
     }
 
+    public function update(Request $request, EkskulService $ekskulService)
+    {
+        try{
+            $ekskul = $ekskulService->updateEkskul($request);
+
+            return response()->json([
+                'status' => 'success',
+                'request' => $ekskul,
+            ]);
+        }catch(\Throwable $e){
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
     public function getEkskulJson(EkskulService $ekskulService)
     {
         try{

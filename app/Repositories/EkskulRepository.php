@@ -36,13 +36,36 @@ class EkskulRepository implements EkskulRepositoryInterface
         return Ekskul::with(['pembina', 'schedules'])->withCount(['siswa', 'achievements'])->orderBy('id', 'desc')->get();
     }
 
+    public function findEkskulById($id)
+    {
+        return Ekskul::find($id);
+    }
+
     public function createEkskul($arr)
     {
         return Ekskul::create($arr);
     }
 
+    public function updateEkskul($ekskul, $arr)
+    {
+        $ekskul->update($arr);
+        return $ekskul;
+    }
+
     public function createClubSchedule($arr)
     {
         return ClubSchedule::create($arr);
+    }
+
+    public function updateClubSchedule($ekskulId, $arr)
+    {
+        $schedule = ClubSchedule::where('ekskul_id', $ekskulId)->first();
+
+        if($schedule){
+            $schedule->update($arr);
+            return $schedule;
+        }
+
+        return null;
     }
 }
