@@ -9,7 +9,7 @@ class PembinaProfile extends Model
 {
     use HasFactory;
     protected $table = 'pembina_profiles';
-    protected $fillable = ['id', 'user_id', 'jenis_kelamin', 'alamat', 'no_telephone'];
+    protected $fillable = ['id', 'user_id', 'jenis_kelamin', 'alamat', 'no_telephone', 'deskripsi'];
 
     public function user()
     {

@@ -11,12 +11,12 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Nama Lengkap</label>
-                    <input type="text" name="nama" class="form-input" required placeholder="Nama lengkap mentor" />
+                    <input type="text" name="nama" class="form-input" required placeholder="Nama lengkap mentor" id="nama"/>
                     <div class="validation-message">Nama lengkap harus diisi</div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Email</label>
-                    <input type="email" name="email" class="form-input" required placeholder="email@school.edu" />
+                    <input type="email" name="email" class="form-input" required placeholder="email@school.edu" id="emailMentor"/>
                     <div class="validation-message">Email Harus diisi</div>
                 </div>
             </div>
@@ -24,12 +24,12 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Nomor Telepon</label>
-                    <input type="tel" name="no_tel" class="form-input" id="notel" required placeholder="+62 812 3456 7890" />
+                    <input type="tel" name="no_tel" class="form-input notel" id="notel" required placeholder="+62 812 3456 7890" />
                     <div class="validation-message">No telepon</div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Status</label>
-                    <select class="form-select" name="status" required>
+                    <select class="form-select" name="status" required id="statusMentor">
                         <option value="aktif">Aktif</option>
                         <option value="nonaktif">Non-aktif</option>
                     </select>
@@ -38,13 +38,13 @@
 
             <div class="form-group">
                 <label class="form-label">Bio/Deskripsi</label>
-                <textarea class="form-textarea" name="deskripsi" required placeholder="Deskripsi singkat tentang mentor"></textarea>
+                <textarea class="form-textarea" name="deskripsi" required placeholder="Deskripsi singkat tentang mentor" id="deskripsiMentor"></textarea>
                 <div class="validation-message">Deskripsi Harus diisi</div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Alamat</label>
-                <textarea class="form-textarea" name="alamat" required placeholder="Deskripsi singkat tentang mentor"></textarea>
+                <textarea class="form-textarea" name="alamat" required placeholder="Deskripsi singkat tentang mentor" id="alamatMentor"></textarea>
                 <div class="validation-message">Alamat Harus diisi</div>
             </div>
 

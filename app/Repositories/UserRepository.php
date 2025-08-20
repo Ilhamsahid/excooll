@@ -77,6 +77,16 @@ class UserRepository implements UserRepositoryInterface
         return null;
     }
 
+    public function updatePembinaProfile($id, $arr)
+    {
+        $pembinaProfile = PembinaProfile::where('user_id', $id)->first();
+        if($pembinaProfile){
+            $pembinaProfile->update($arr);
+            return $pembinaProfile;
+        }
+        return null;
+    }
+
     public function createPembinaProfile($arr)
     {
         return PembinaProfile::create($arr);

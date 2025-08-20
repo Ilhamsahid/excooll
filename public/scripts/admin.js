@@ -2834,7 +2834,33 @@ function deleteAnnouncement(id) {
 }
 
 function editMentor(id) {
-    showNotification("Edit Mentor", `Mengedit mentor dengan ID: ${id}`, "info");
+    const mentor = sampleData.mentors.find((m) => m.id === id);
+
+    if(mentor){
+        console.log(mentor);
+        document.getElementById('nama').value = mentor.name;
+        document.getElementById('emailMentor').value = mentor.email;
+        document.querySelector('.notel').value = mentor.pembina_profile.no_telephone;
+        document.getElementById('statusMentor').value = mentor.status;
+        document.getElementById('deskripsiMentor').value = mentor.pembina_profile.deskripsi;
+        document.getElementById('alamatMentor').value = mentor.pembina_profile.alamat;
+
+        const form = document.getElementById('addMentorForm');
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            handleFormSubmit(
+                "addMentorForm",
+                "/pembina",
+                "/get-mentors",
+                "mentors",
+                "Mentor berhasil diupdate",
+                "PUT",
+                id
+            );
+        };
+
+        openModal("addMentorModal")
+    }
 }
 
 function viewMentor(id) {

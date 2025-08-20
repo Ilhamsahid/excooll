@@ -31,4 +31,14 @@ class PembinaController extends Controller
             'pembina' => $pembina,
         ]);
     }
+
+    public function update(Request $request, UserService $userService)
+    {
+        $pembina = $userService->updatePembina($request);
+
+        return response()->json([
+            'status' => 'success',
+            'pembina' => $pembina,
+        ]);
+    }
 }

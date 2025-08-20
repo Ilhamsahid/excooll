@@ -91,6 +91,25 @@ class UserService
         return $siswa;
     }
 
+    public function updatePembina($data)
+    {
+        $siswa = $this->repository->findUserById($data['id']);
+
+        $this->repository->updateUser($siswa, [
+            'name' => $data['nama'],
+            'email' => $data['email'],
+            'status' => $data['status'],
+        ]);
+
+        $this->repository->updatePembinaProfile($siswa->id,[
+            'no_telephone' => $data['no_tel'],
+            'deskripsi' => $data['deskripsi'],
+            'alamat' => $data['alamat'],
+        ]);
+
+        return $siswa;
+    }
+
     public function createSiswa(Request $request)
     {
         $siswa = $this->repository->createUser([
