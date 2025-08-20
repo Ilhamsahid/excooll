@@ -2061,6 +2061,25 @@ function addActivityModal(modalId) {
 
     openModal(modalId);
 }
+
+function addStudentModal(modalId){
+    const form = document.getElementById("addStudentForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            "addStudentForm",
+            "/student",
+            "/get-students",
+            "students",
+            "Siswa berhasil ditambahkan",
+            "post",
+            null
+        );
+    };
+
+    openModal(modalId);
+}
+
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.classList.add("active");
@@ -4727,15 +4746,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Setup all form handlers
-    // handleFormSubmit(
-    //     "addStudentForm",
-    //     "/student",
-    //     "/get-students",
-    //     "students",
-    //     "Siswa berhasil ditambahkan",
-    //     "post",
-    //     null
-    // );
     // handleFormSubmit(
     //     "addAnnouncementForm",
     //     "/pengumuman",

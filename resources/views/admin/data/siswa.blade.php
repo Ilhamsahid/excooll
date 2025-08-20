@@ -12,7 +12,7 @@
                     <span>📊</span>
                     <span>Export</span>
                 </button>
-                <button class="btn btn-primary hover-lift" onclick="openModal('addStudentModal')">
+                <button class="btn btn-primary hover-lift" onclick="addStudentModal('addStudentModal')">
                     <span>➕</span>
                     <span>Tambah Siswa</span>
                 </button>
