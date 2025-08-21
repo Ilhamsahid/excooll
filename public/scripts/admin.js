@@ -3295,6 +3295,7 @@ async function handleFormSubmit(
     try {
         const formData = new FormData(form);
 
+        const deleteMethod = method === 'DELETE';
         // Laravel butuh _method kalau PUT/PATCH/DELETE
         if (method === "PUT" || method === "PATCH" || method === "DELETE") {
             formData.append("_method", method);
@@ -3304,7 +3305,7 @@ async function handleFormSubmit(
 
         console.log(url); // cek isi sebelum dikirim
 
-        if (type === "activities") {
+        if (type === "activities" && !deleteMethod) {
             const jadwal = [...formData][4][1].trim();
             const match = jadwal.match(
                 /^(.+?)\s+(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/

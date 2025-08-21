@@ -52,6 +52,12 @@ class EkskulRepository implements EkskulRepositoryInterface
         return $ekskul;
     }
 
+    public function deleteEkskul($ekskul)
+    {
+        $ekskul->delete();
+        return $ekskul;
+    }
+
     public function createClubSchedule($arr)
     {
         return ClubSchedule::create($arr);

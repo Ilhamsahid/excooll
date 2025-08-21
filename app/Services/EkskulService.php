@@ -75,4 +75,13 @@ class EkskulService
 
         return $ekskul->fresh();
     }
+
+    public function deleteEkskul($id)
+    {
+        $ekskul = $this->repository->findEkskulById($id);
+
+        $this->repository->deleteEkskul($ekskul);
+
+        return $ekskul;
+    }
 }

@@ -13,6 +13,7 @@ interface EkskulRepositoryInterface
     public function findEkskulById($id);
     public function createEkskul($arr);
     public function updateEkskul($ekskul, $arr);
+    public function deleteEkskul($ekskul);
     public function createClubSchedule($arr);
     public function updateClubSchedule($ekskulId, $arr);
 }

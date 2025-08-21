@@ -71,6 +71,16 @@ class EkskulController extends Controller
             ], 500);
         }
     }
+
+    public function destroy(Request $request, EkskulService $ekskulService)
+    {
+        $ekskul = $ekskulService->deleteEkskul($request->id);
+
+        return response()->json([
+            'status' => 'success',
+            'request' => $ekskul,
+        ]);
+    }
     public function getEkskulJson(EkskulService $ekskulService)
     {
         try{
