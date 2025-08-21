@@ -2463,6 +2463,7 @@ function viewStudent(id) {
 
 function deleteStudent(id) {
     currentId = id;
+    currentUrl = '/student';
     type = 'students';
     openModal('deleteModal');
 }

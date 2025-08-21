@@ -29,6 +29,16 @@ class SiswaController extends Controller
         ]);
     }
 
+    public function destroy(Request $request, UserService $userService)
+    {
+        $siswa = $userService->deleteUser($request->id);
+
+        return response()->json([
+            'status' => 'success',
+            'siswa' => $siswa,
+        ]);
+    }
+
     public function getSiswaJson(UserService $userService)
     {
         $siswa = $userService->getAllUserWithEkskul();
