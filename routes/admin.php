@@ -20,7 +20,7 @@ Route::middleware(['auth.custom', 'role:admin'])->group(function () {
     Route::put('/approve-all', [PendaftaranController::class, 'approveAll']);
 
     Route::get('/get-mentors', [PembinaController::class, 'getPembinaJson']);
-    Route::get('/get-ekskul', [EkskulController::class, 'getEkskulJson']);
+    Route::get('/get-activities', [EkskulController::class, 'getEkskulJson']);
     Route::get('/get-students', [SiswaController::class, 'getSiswaJson']);
     Route::get('/get-pengumuman', [PengumumanController::class, 'getPengumumanJson']);
 });

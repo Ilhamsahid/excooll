@@ -101,4 +101,9 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::find($id);
     }
+
+    public function deleteUser($user)
+    {
+        return $user->delete();
+    }
 }

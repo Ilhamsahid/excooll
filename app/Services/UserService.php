@@ -71,6 +71,28 @@ class UserService
         return $pembina;
     }
 
+    public function createSiswa(Request $request)
+    {
+        $siswa = $this->repository->createUser([
+            'name' => $request->nama,
+            'email' => $request->email,
+            'password' => Hash::make('password'),
+            'role' => 'siswa',
+            'status' => 'aktif',
+        ]);
+
+        $this->repository->createSiswaProfile([
+            'user_id' => $siswa->id,
+            'nisn' => $request->nisn,
+            'jenis_kelamin' => $request->j_kel,
+            'kelas' => $request->kelas,
+            'alamat' => $request->alamat,
+            'no_telephone' => $request->no_tel,
+        ]);
+
+        return $siswa;
+    }
+
     public function updateSiswa($data)
     {
         $siswa = $this->repository->findUserById($data['id']);
@@ -110,26 +132,12 @@ class UserService
         return $siswa;
     }
 
-    public function createSiswa(Request $request)
+    public function deleteUser($id)
     {
-        $siswa = $this->repository->createUser([
-            'name' => $request->nama,
-            'email' => $request->email,
-            'password' => Hash::make('password'),
-            'role' => 'siswa',
-            'status' => 'aktif',
-        ]);
+        $user = $this->repository->findUserById($id);
+        $user->delete();
 
-        $this->repository->createSiswaProfile([
-            'user_id' => $siswa->id,
-            'nisn' => $request->nisn,
-            'jenis_kelamin' => $request->j_kel,
-            'kelas' => $request->kelas,
-            'alamat' => $request->alamat,
-            'no_telephone' => $request->no_tel,
-        ]);
-
-        return $siswa;
+        return $user;
     }
 
     public function registerNewSiswa(Request $request){

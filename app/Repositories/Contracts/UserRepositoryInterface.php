@@ -20,4 +20,5 @@ interface UserRepositoryInterface
     public function updateSiswaProfile($id, $arr);
     public function updatePembinaProfile($id, $arr);
     public function findUserById($id);
+    public function deleteUser($user);
 }

@@ -12,6 +12,7 @@ let currentPage = {
     users: 1,
 };
 let itemsPerPage = 10;
+let type = null;
 let currentRegistrationStatus = "all"; // simpan status tab aktif
 let filteredData = {};
 
@@ -31,7 +32,11 @@ let performanceMetrics = {
 
 const refreshMap = {
     activities: ["mentors"], // kalau ekskul diubah, mentors ikut refresh
+    mentors: ["activities"],
 };
+
+let currentUrl = null;
+let currentId = null;
 
 // ===== ENHANCED UTILITY FUNCTIONS =====
 function formatDate(dateString) {
@@ -381,8 +386,10 @@ function loadSectionData(sectionName) {
 async function loadPembinaSelect(id) {
     if (id) {
         const activity = sampleData.activities.find((a) => a.id === id);
-        document.getElementById("selectPembina").value = activity.pembina.id;
-        return;
+        if(activity.pembina){
+            document.getElementById("selectPembina").value = activity.pembina.id;
+            return;
+        }
     }
     const response = await fetch("/get-mentors");
     const namePembina = await response.json();
@@ -399,7 +406,7 @@ async function loadPembinaSelect(id) {
 }
 
 async function loadEkskulsSelect() {
-    const response = await fetch("/get-ekskul");
+    const response = await fetch("/get-activities");
     const namePembina = await response.json();
 
     const select = document.getElementById("selectEkskul");
@@ -1183,7 +1190,7 @@ function loadActivitiesTable() {
                     </td>
                     <td>
                         <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                            activity.pembina.name
+                            activity.pembina?.name ?? '<span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;"><span>'
                         }</div>
                     </td>
                     <td>
@@ -2051,7 +2058,7 @@ function addActivityModal(modalId) {
         handleFormSubmit(
             "addActivityForm",
             "/ekskul",
-            "/get-ekskul",
+            "/get-activities",
             "activities",
             "Kegiatan berhasil ditambahkan",
             "post",
@@ -2247,7 +2254,7 @@ function editActivity(id) {
             handleFormSubmit(
                 "addActivityForm",
                 "/ekskul", // base url
-                "/get-ekskul", // refresh url
+                "/get-activities", // refresh url
                 "activities",
                 "Kegiatan berhasil diupdate",
                 "PUT", // method
@@ -2348,32 +2355,10 @@ function viewActivity(id) {
 }
 
 function deleteActivity(id) {
-    if (
-        confirm(
-            "Apakah Anda yakin ingin menghapus kegiatan ini? Tindakan ini tidak dapat dibatalkan."
-        )
-    ) {
-        // Remove from data
-        const index = sampleData.activities.findIndex((a) => a.id === id);
-        if (index > -1) {
-            const activity = sampleData.activities[index];
-            sampleData.activities.splice(index, 1);
-
-            // Update filtered data
-            filteredData.activities = filteredData.activities.filter(
-                (a) => a.id !== id
-            );
-
-            // Reload table
-            loadActivitiesTable();
-
-            showNotification(
-                "Kegiatan Dihapus",
-                `${activity.nama} telah dihapus dari sistem`,
-                "success"
-            );
-        }
-    }
+    currentId = id;
+    currentUrl = '/ekskul';
+    type = 'activities';
+    openModal('deleteModal');
 }
 
 function editStudent(id) {
@@ -2477,26 +2462,9 @@ function viewStudent(id) {
 }
 
 function deleteStudent(id) {
-    if (
-        confirm(
-            "Apakah Anda yakin ingin menghapus siswa ini? Tindakan ini tidak dapat dibatalkan."
-        )
-    ) {
-        const index = sampleData.students.findIndex((s) => s.id === id);
-        if (index > -1) {
-            const student = sampleData.students[index];
-            sampleData.students.splice(index, 1);
-            filteredData.students = filteredData.students.filter(
-                (s) => s.id !== id
-            );
-            loadStudentsTable();
-            showNotification(
-                "Siswa Dihapus",
-                `${student.nama} telah dihapus dari sistem`,
-                "success"
-            );
-        }
-    }
+    currentId = id;
+    type = 'students';
+    openModal('deleteModal');
 }
 
 async function approveRegistration(id, kegiatan) {
@@ -2932,22 +2900,28 @@ function viewMentor(id) {
 }
 
 function deleteMentor(id) {
-    if (confirm("Apakah Anda yakin ingin menghapus mentor ini?")) {
-        const index = sampleData.mentors.findIndex((m) => m.id === id);
-        if (index > -1) {
-            const mentor = sampleData.mentors[index];
-            sampleData.mentors.splice(index, 1);
-            filteredData.mentors = filteredData.mentors.filter(
-                (m) => m.id !== id
-            );
-            loadMentorsTable();
-            showNotification(
-                "Mentor Dihapus",
-                `${mentor.nama} telah dihapus dari sistem`,
-                "success"
-            );
-        }
-    }
+    currentId = id;
+    type = 'mentors';
+    currentUrl = '/pembina';
+    openModal('deleteModal');
+}
+
+function confirmDeleteActivity() {
+    const item = sampleData[type].find((i) => i.id === currentId);
+
+    const form = document.getElementById('deleteForm');
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            "deleteForm",
+            currentUrl,
+            "/get-" + type,
+            type,
+            type + " berhasil dihapus",
+            "DELETE",
+            currentId
+        );
+    };
 }
 
 function editUser(id) {

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('kategori')->nullable();
             $table->integer('max_anggota')->nullable()->default(50);
             $table->string('status')->nullable()->default('aktif');
-            $table->foreignId('pembina_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('pembina_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
     }

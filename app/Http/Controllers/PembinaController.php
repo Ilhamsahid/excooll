@@ -43,4 +43,14 @@ class PembinaController extends Controller
             'pembina' => $pembina,
         ]);
     }
+
+    public function destroy(Request $request, UserService $userService)
+    {
+        $pembina = $userService->deleteUser($request->id);
+
+        return response()->json([
+            'status' => 'success',
+            'request' => $pembina,
+        ]);
+    }
 }

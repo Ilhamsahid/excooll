@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('pembina_profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('deskripsi')->nullable();
             $table->string('jenis_kelamin')->nullable();
             $table->string('alamat')->nullable();
             $table->string('no_telephone', 15)->nullable();
