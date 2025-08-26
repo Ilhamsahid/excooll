@@ -12,7 +12,7 @@
                     <span>📊</span>
                     <span>Export</span>
                 </button>
-                <button class="btn btn-primary hover-lift" onclick="openModal('addUserModal')">
+                <button class="btn btn-primary hover-lift" onclick="addUserModal('addUserModal')">
                     <span>➕</span>
                     <span>Tambah Pengguna</span>
                 </button>
@@ -28,7 +28,6 @@
                             <th>Username</th>
                             <th>Email</th>
                             <th>Role</th>
-                            <th>Last Login</th>
                             <th>Status</th>
                             <th>Aksi</th>
                         </tr>

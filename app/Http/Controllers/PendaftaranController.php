@@ -20,6 +20,18 @@ class PendaftaranController extends Controller
         return response()->json(['status' => 'success']);
     }
 
+    public function rejectRegistration(Request $request)
+    {
+        $user = User::find($request->idUser);
+
+        $user->ekskuls()->updateExistingPivot(
+            $request->idEkskul,
+            ['status' => 'ditolak'],
+        );
+
+        return response()->json(['status' => 'success']);
+    }
+
     public function approveAll(Request $request)
     {
         foreach($request->pendingRegistrations as $penRegis){

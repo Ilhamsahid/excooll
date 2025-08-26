@@ -662,21 +662,23 @@ function loadActivities(ekskulUser) {
         }
 
         let buttonClass = isMyEkskul
-            ? window.currentUser.ekskuls[i].pivot.status == "pending"
+            ? window.currentUser.ekskuls[i].pivot.status == "pending" || window.currentUser.ekskuls[i].pivot.status == "ditolak"
                 ? "btn btn-disabled"
                 : "btn btn-success"
             : window.currentUser
-            ? ekskulUser.length >= 3 || window.currentUser.role == "admin"
+            ? ekskulUser.length >= 3 || window.currentUser.role != "siswa"
                 ? "btn btn-disabled"
                 : "btn btn-primary"
             : "btn btn-disabled";
 
         let buttonText = isMyEkskul
-            ? window.currentUser.ekskuls[i].pivot.status == "pending"
+            ? window.currentUser.ekskuls[i].pivot.status == "pending" 
                 ? "Menunggu permintaan"
+                : window.currentUser.ekskuls[i].pivot.status == "ditolak"
+                ? 'Permintaan ditolak'
                 : "✨ Kelola Ekskul Saya"
             : window.currentUser
-            ? ekskulUser.length >= 3 || window.currentUser.role == "admin"
+            ? ekskulUser.length >= 3 || window.currentUser.role != "siswa"
                 ? "🔒 Akses Terbatas"
                 : "✨ Bergabung dengan Kegiatan"
             : "🔒 Login untuk Bergabung";
@@ -684,13 +686,13 @@ function loadActivities(ekskulUser) {
         let buttonAction = isMyEkskul
             ? window.currentUser.ekskuls[i].pivot.status == "pending"
                 ? `errorModal('Menunggu Permintaan', 'Tunggu Admin Atau Pembina mengonfirmasi kamu untuk bergabung')`
-                : ""
+                : `errorModal('Permintaan Ditolak', 'Permintaan untuk bergabung di ekskul ${window.currentUser.ekskuls[i].nama} ditolak oleh admin atau pembina')`
             : window.currentUser
-            ? ekskulUser.length >= 3 || window.currentUser.role == "admin"
-                ? window.currentUser.role == "admin"
+            ? ekskulUser.length >= 3 || window.currentUser.role != "siswa"
+                ? window.currentUser.role != "siswa"
                     ? `errorModal(
                 'Akses Ditolak',
-                'Admin tidak diperkenankan untuk bergabung ke ekstrakurikuler',
+                '${window.currentUser.role} tidak diperkenankan untuk bergabung ke ekstrakurikuler',
                 )`
                     : `errorModal(
                 'Batas maksimal ekskul',

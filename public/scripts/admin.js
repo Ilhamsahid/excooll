@@ -3,6 +3,7 @@ let currentTheme = localStorage.getItem("theme") || "light";
 let currentSection = "dashboard";
 let notificationId = 0;
 let charts = {};
+let currentUserId = null;
 let currentPage = {
     activities: 1,
     students: 1,
@@ -15,6 +16,8 @@ let itemsPerPage = 10;
 let type = null;
 let currentRegistrationStatus = "all"; // simpan status tab aktif
 let filteredData = {};
+let isRegistration = false;
+let nameKegiatan = null;
 
 // Enhanced touch detection for better mobile experience
 let isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
@@ -32,7 +35,9 @@ let performanceMetrics = {
 
 const refreshMap = {
     activities: ["mentors"], // kalau ekskul diubah, mentors ikut refresh
-    mentors: ["activities"],
+    students: ['users'],
+    mentors: ["activities", 'users'],
+    users: ["students", "mentors"],
 };
 
 let currentUrl = null;
@@ -386,8 +391,9 @@ function loadSectionData(sectionName) {
 async function loadPembinaSelect(id) {
     if (id) {
         const activity = sampleData.activities.find((a) => a.id === id);
-        if(activity.pembina){
-            document.getElementById("selectPembina").value = activity.pembina.id;
+        if (activity.pembina) {
+            document.getElementById("selectPembina").value =
+                activity.pembina.id;
             return;
         }
     }
@@ -438,7 +444,6 @@ function loadDashboardData() {
     animateCountUp("achievements", 0, 42, 2200);
 
     // Load activity feed
-    loadActivityFeed();
 
     // Load charts
     loadDashboardCharts();
@@ -484,31 +489,6 @@ function animateCountUp(elementId, start, end, duration) {
     requestAnimationFrame(update);
 }
 
-function loadActivityFeed() {
-    const feed = document.getElementById("activityFeed");
-    feed.innerHTML = "";
-
-    sampleData.activities_recent.forEach((activity, index) => {
-        const item = document.createElement("div");
-        item.className = "activity-item";
-        item.style.animationDelay = `${index * 50}ms`;
-        item.innerHTML = `
-                    <div class="activity-icon animate-float">${activity.icon}</div>
-                    <div class="activity-content">
-                        <div class="activity-title">${activity.title}</div>
-                        <div class="activity-description">${activity.description}</div>
-                        <div class="activity-time">${activity.time}</div>
-                    </div>
-                `;
-        feed.appendChild(item);
-
-        // Animate item appearance
-        setTimeout(() => {
-            item.style.opacity = "1";
-            item.style.transform = "translateX(0)";
-        }, index * 50);
-    });
-}
 
 // ===== ENHANCED CHARTS SYSTEM =====
 function loadDashboardCharts() {
@@ -1190,7 +1170,8 @@ function loadActivitiesTable() {
                     </td>
                     <td>
                         <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                            activity.pembina?.name ?? '<span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;"><span>'
+                            activity.pembina?.name ??
+                            '<span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;"><span>'
                         }</div>
                     </td>
                     <td>
@@ -1298,12 +1279,18 @@ function loadStudentsTable() {
                                 }</div>
                                 <div style="font-size: var(--font-size-xs); color: var(--text-tertiary);">
                                     ${
-                                        student.siswa_profile.jenis_kelamin ===
-                                        "laki-laki"
-                                            ? "👨"
-                                            : "👩"
+                                        student.siswa_profile?.jenis_kelamin
+                                            ? student.siswa_profile
+                                                  .jenis_kelamin === "laki-laki"
+                                                ? "👨"
+                                                : "👩"
+                                            : "-"
                                     } ${
-            student.siswa_profile.jenis_kelamin ? "Laki-laki" : "Perempuan"
+            student.siswa_profile?.jenis_kelamin
+                ? student.siswa_profile?.jenis_kelamin
+                    ? "Laki-laki"
+                    : "Perempuan"
+                : ""
         }
                                 </div>
                             </div>
@@ -1316,7 +1303,7 @@ function loadStudentsTable() {
                     </td>
                     <td>
                         <span class="badge badge-info hover-scale">${
-                            student.siswa_profile.kelas
+                            student.siswa_profile?.kelas ?? "-"
                         }</span>
                     </td>
                     <td>
@@ -1470,15 +1457,13 @@ function loadRegistrationsTable(status = "all") {
                             <button class="btn btn-success btn-sm hover-lift" onclick="approveRegistration(${item.siswa_id}, '${item.kegiatan}')" title="Setujui">
                                 ✅
                             </button>
-                            <button class="btn btn-danger btn-sm hover-scale" onclick="rejectRegistration(${item.siswa_id})" title="Tolak">
+                            <button class="btn btn-danger btn-sm hover-scale" onclick="rejectRegistration(${item.siswa_id}, '${item.kegiatan}')" title="Tolak">
                                 ❌
                             </button>
                         `
                         : ""
                 }
-                <button class="btn btn-ghost btn-sm hover-lift" onclick="viewRegistration(${
-                    item.siswa_id
-                })" title="Lihat Detail">
+                <button class="btn btn-ghost btn-sm hover-lift" onclick="viewRegistration(${item.siswa_id}, '${item.kegiatan}')" title="Lihat Detail">
                     👁️
                 </button>
             </div>
@@ -1634,7 +1619,8 @@ function loadMentorsTable() {
                                 }</div>
                                 <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); display: flex; align-items: center; gap: var(--space-2);">
                                     <span>📞 ${
-                                        mentor.pembina_profile.no_telephone
+                                        mentor.pembina_profile?.no_telephone ??
+                                        "-"
                                     }</span>
                                 </div>
                             </div>
@@ -1658,8 +1644,14 @@ function loadMentorsTable() {
                     <td>
                         ${`
                                     <div class="table-address" style="font-size: var(--font-size-); color: var(--text-tertiary); margin-top: var(--space-1); display: flex; align-items: center; gap: var(--space-1);" title="">
-                                        <span class="address-text">${mentor.pembina_profile.alamat}</span>
-                                        <div class="tooltip">${mentor.pembina_profile.alamat}</div>
+                                        <span class="address-text">${
+                                            mentor.pembina_profile?.alamat ??
+                                            '<span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;"></span>'
+                                        }</span>
+                                        <div class="tooltip">${
+                                            mentor.pembina_profile?.alamat ??
+                                            '<span class="badge badge-secondary" style="font-size: 10px; padding: 2px 6px;"></span>'
+                                        }</div>
                                     </div>
                                 `}
                     </td>
@@ -1722,29 +1714,18 @@ function loadUsersTable() {
         row.innerHTML = `
                     <td>
                         <div style="font-weight: var(--font-weight-bold); color: var(--text-primary);">#${
-                            user.id
+                            index + startIndex + 1
                         }</div>
                     </td>
                     <td>
                         <div style="display: flex; align-items: center; gap: var(--space-3);">
                             <div style="width: 40px; height: 40px; border-radius: var(--radius-xl); background: linear-gradient(135deg, var(--info-500), var(--info-600)); color: white; display: flex; align-items: center; justify-content: center; font-weight: var(--font-weight-bold); font-size: var(--font-size-sm);">
-                                ${user.username.charAt(0).toUpperCase()}
+                                ${user.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
                                 <div style="font-weight: var(--font-weight-semibold); color: var(--text-primary);">${
-                                    user.username
+                                    user.name
                                 }</div>
-                                ${
-                                    user.loginCount
-                                        ? `
-                                            <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-1);">
-                                                ${formatNumber(
-                                                    user.loginCount
-                                                )} login
-                                            </div>
-                                        `
-                                        : ""
-                                }
                             </div>
                         </div>
                     </td>
@@ -1755,28 +1736,20 @@ function loadUsersTable() {
                     </td>
                     <td>
                         <span class="badge hover-scale ${
-                            user.role === "Admin"
+                            user.role === "admin"
                                 ? "badge-danger"
-                                : user.role === "Mentor"
+                                : user.role === "pembina"
                                 ? "badge-warning"
                                 : "badge-info"
                         }">
                             ${
-                                user.role === "Admin"
+                                user.role === "admin"
                                     ? "👑 Admin"
-                                    : user.role === "Mentor"
-                                    ? "👨‍🏫 Mentor"
+                                    : user.role === "pembina"
+                                    ? "👨‍🏫 Pembina"
                                     : "👨‍🎓 Siswa"
                             }
                         </span>
-                    </td>
-                    <td>
-                        <div style="font-weight: var(--font-weight-medium); color: var(--text-primary); font-size: var(--font-size-xs);">${
-                            user.lastLogin
-                        }</div>
-                        <div style="font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-1);">
-                            ${getTimeAgo(user.lastLogin)}
-                        </div>
                     </td>
                     <td>
                         <span class="badge badge-success hover-scale">${
@@ -2035,6 +2008,42 @@ function updatePagination(type, totalItems) {
     paginationContainer.innerHTML = paginationHTML;
 }
 
+document.getElementById("role").addEventListener("change", function () {
+    const user = sampleData.users.find((u) => u.id === currentId);
+    console.log(user);
+
+    let pembinaInput = document.getElementById("nUser");
+    if (this.value === "siswa") {
+        pembinaInput.style.display = "block";
+        document.querySelector('.nisn').value = user.siswa_profile?.nisn ?? ''
+    } else {
+        pembinaInput.style.display = "none";
+    }
+});
+
+function updateBadge() {
+    // Update badges in navigation
+    console.log(sampleData);
+    let allRows = sampleData.registrations.flatMap((registration) => {
+        return registration.siswa.map((s) => ({
+            status: s.pivot.status,
+        }));
+    });
+
+    document.getElementById("activitiesBadge").textContent =
+        sampleData.activities.length;
+    document.getElementById("studentsBadge").textContent =
+        sampleData.students.length;
+    document.getElementById("registrationsBadge").textContent = allRows.filter(
+        (s) => s.status == "pending"
+    ).length;
+    document.getElementById("announcementsBadge").textContent =
+        sampleData.announcements.length;
+    document.getElementById("mentorsBadge").textContent =
+        sampleData.mentors.length;
+    document.getElementById("notificationsBadge").textContent = "3";
+}
+
 function changePage(type, page) {
     currentPage[type] = page;
     // INSTANT PAGE CHANGE - NO LOADING
@@ -2069,7 +2078,7 @@ function addActivityModal(modalId) {
     openModal(modalId);
 }
 
-function addStudentModal(modalId){
+function addStudentModal(modalId) {
     const form = document.getElementById("addStudentForm");
     form.onsubmit = (e) => {
         e.preventDefault();
@@ -2087,14 +2096,14 @@ function addStudentModal(modalId){
     openModal(modalId);
 }
 
-function addAnnouncementModal(modalId){
+function addAnnouncementModal(modalId) {
     const form = document.getElementById("addAnnouncementForm");
     form.onsubmit = (e) => {
         e.preventDefault();
         handleFormSubmit(
             "addAnnouncementForm",
             "/pengumuman",
-            "/get-pengumuman",
+            "/get-announcements",
             "announcements",
             "Pengumuman berhasil dipublikasi",
             "post",
@@ -2105,8 +2114,8 @@ function addAnnouncementModal(modalId){
     openModal(modalId);
 }
 
-function addMentorModal(modalId){
-    const form = document.getElementById('addMentorForm');
+function addMentorModal(modalId) {
+    const form = document.getElementById("addMentorForm");
 
     form.onsubmit = (e) => {
         e.preventDefault();
@@ -2116,6 +2125,26 @@ function addMentorModal(modalId){
             "/get-mentors",
             "mentors",
             "Mentor berhasil ditambahkan",
+            "post",
+            null
+        );
+    };
+
+    openModal(modalId);
+}
+
+function addUserModal(modalId) {
+    const form = document.getElementById("addUserForm");
+
+    form.onsubmit = (e) => {
+        e.preventDefault();
+
+        handleFormSubmit(
+            "addUserForm",
+            "/users",
+            "/get-users",
+            "users",
+            "Pengguna berhasil ditambahkan",
             "post",
             null
         );
@@ -2356,42 +2385,48 @@ function viewActivity(id) {
 
 function deleteActivity(id) {
     currentId = id;
-    currentUrl = '/ekskul';
-    type = 'activities';
-    openModal('deleteModal');
+    currentUrl = "/ekskul";
+    type = "activities";
+    openModal("deleteModal");
 }
 
 function editStudent(id) {
     const student = sampleData.students.find((s) => s.id === id);
 
-    if(student){
+    if (student) {
         currentStudentId = id;
 
-        document.getElementById("headerStudentModal").textContent = "Edit Siswa";
+        document.getElementById("headerStudentModal").textContent =
+            "Edit Siswa";
         document.getElementById("name").value = student.name;
         document.getElementById("email").value = student.email;
-        document.getElementById("class").value = student.siswa_profile.kelas;
-        document.getElementById("notel").value = student.siswa_profile.no_telephone;
-        document.getElementById("nisn").value = student.siswa_profile.nisn;
-        document.getElementById("j_kel").value = student.siswa_profile.jenis_kelamin;
-        document.getElementById("alamat").value = student.siswa_profile.alamat;
+        document.getElementById("class").value =
+            student.siswa_profile?.kelas ?? "";
+        document.getElementById("notel").value =
+            student.siswa_profile?.no_telephone ?? null;
+        document.getElementById("nisn").value =
+            student.siswa_profile?.nisn ?? null;
+        document.getElementById("j_kel").value =
+            student.siswa_profile?.jenis_kelamin ?? "";
+        document.getElementById("alamat").value =
+            student.siswa_profile?.alamat ?? null;
 
-        const form = document.getElementById('addStudentForm');
+        const form = document.getElementById("addStudentForm");
         form.onsubmit = (e) => {
             e.preventDefault();
 
             handleFormSubmit(
-                'addStudentForm',
-                '/student',
-                '/get-students',
-                'students',
-                'Siswa berhasil diupdate',
-                'PUT',
+                "addStudentForm",
+                "/student",
+                "/get-students",
+                "students",
+                "Siswa berhasil diupdate",
+                "PUT",
                 id
             );
         };
 
-        openModal("addStudentModal")
+        openModal("addStudentModal");
     }
 }
 
@@ -2463,9 +2498,9 @@ function viewStudent(id) {
 
 function deleteStudent(id) {
     currentId = id;
-    currentUrl = '/student';
-    type = 'students';
-    openModal('deleteModal');
+    currentUrl = "/student";
+    type = "students";
+    openModal("deleteModal");
 }
 
 async function approveRegistration(id, kegiatan) {
@@ -2509,31 +2544,24 @@ async function approveRegistration(id, kegiatan) {
         sampleData["students"] = [...data];
         filteredData["students"] = [...sampleData.students]; // reset filter biar ikut keupdate
         loadStudentsTable();
+        updateBadge();
     }
 }
 
-function rejectRegistration(id) {
-    if (confirm("Apakah Anda yakin ingin menolak pendaftaran ini?")) {
-        const registration = sampleData.registrations.find((r) => r.id === id);
-        if (registration) {
-            registration.status = "rejected";
-            loadRegistrationsTable();
-            showNotification(
-                "Pendaftaran Ditolak",
-                `Pendaftaran ${registration.siswa} telah ditolak`,
-                "warning"
-            );
-        }
-    }
+function rejectRegistration(id, kegiatan) {
+    currentId = id;
+    isRegistration = true;
+    nameKegiatan = kegiatan;
+    openModal('deleteModal');
 }
 
-function viewRegistration(id) {
+function viewRegistration(id, kegiatan) {
     found = null;
     parent = null;
 
     sampleData.registrations.forEach((reg) => {
         const siswa = reg.siswa.find((s) => s.id === id);
-        if (siswa) {
+        if (siswa && kegiatan == reg.nama) {
             found = siswa;
             parent = reg;
         }
@@ -2680,31 +2708,33 @@ async function approveAllPending() {
         sampleData["students"] = [...data];
         filteredData["students"] = [...sampleData.students]; // reset filter biar ikut keupdate
         loadStudentsTable();
+        updateBadge();
     }
 }
 
 function editAnnouncement(id) {
     const announcement = sampleData.announcements.find((a) => a.id === id);
 
-    if(announcement){
+    if (announcement) {
         console.log(announcement);
 
-        document.getElementById('pengumuman').textContent = 'Edit Pengumuman';
-        document.getElementById('judul').value = announcement.judul;
-        document.getElementById('isi').value = announcement.isi;
-        document.getElementById('selectEkskul').value = announcement.ekskul.id;
-        document.getElementById('tipe').value = announcement.tipe;
-        document.getElementById('tanggal').value = announcement.tanggal_pengumuman;
-        document.getElementById('lokasi').value = announcement.lokasi;
+        document.getElementById("pengumuman").textContent = "Edit Pengumuman";
+        document.getElementById("judul").value = announcement.judul;
+        document.getElementById("isi").value = announcement.isi;
+        document.getElementById("selectEkskul").value = announcement.ekskul.id;
+        document.getElementById("tipe").value = announcement.tipe;
+        document.getElementById("tanggal").value =
+            announcement.tanggal_pengumuman;
+        document.getElementById("lokasi").value = announcement.lokasi;
 
-        const form = document.getElementById('addAnnouncementForm');
+        const form = document.getElementById("addAnnouncementForm");
         form.onsubmit = (e) => {
             e.preventDefault();
 
             handleFormSubmit(
                 "addAnnouncementForm",
                 "/pengumuman",
-                "/get-pengumuman",
+                "/get-announcements",
                 "announcements",
                 "Pengumuman berhasil diupdate",
                 "PUT",
@@ -2712,7 +2742,7 @@ function editAnnouncement(id) {
             );
         };
 
-        openModal('addAnnouncementModal')
+        openModal("addAnnouncementModal");
     }
 }
 
@@ -2784,37 +2814,28 @@ function publishAnnouncement(id) {
 }
 
 function deleteAnnouncement(id) {
-    if (confirm("Apakah Anda yakin ingin menghapus pengumuman ini?")) {
-        const index = sampleData.announcements.findIndex((a) => a.id === id);
-        if (index > -1) {
-            const announcement = sampleData.announcements[index];
-            sampleData.announcements.splice(index, 1);
-            filteredData.announcements = filteredData.announcements.filter(
-                (a) => a.id !== id
-            );
-            loadAnnouncementsGrid();
-            showNotification(
-                "Pengumuman Dihapus",
-                `${announcement.judul} telah dihapus`,
-                "success"
-            );
-        }
-    }
+    currentId = id;
+    currentUrl = "/pengumuman";
+    type = "announcements";
+    openModal("deleteModal");
 }
 
 function editMentor(id) {
     const mentor = sampleData.mentors.find((m) => m.id === id);
 
-    if(mentor){
+    if (mentor) {
         console.log(mentor);
-        document.getElementById('nama').value = mentor.name;
-        document.getElementById('emailMentor').value = mentor.email;
-        document.querySelector('.notel').value = mentor.pembina_profile.no_telephone;
-        document.getElementById('statusMentor').value = mentor.status;
-        document.getElementById('deskripsiMentor').value = mentor.pembina_profile.deskripsi;
-        document.getElementById('alamatMentor').value = mentor.pembina_profile.alamat;
+        document.getElementById("nama").value = mentor.name;
+        document.getElementById("emailMentor").value = mentor.email;
+        document.querySelector(".notel").value =
+            mentor.pembina_profile.no_telephone;
+        document.getElementById("statusMentor").value = mentor.status;
+        document.getElementById("deskripsiMentor").value =
+            mentor.pembina_profile.deskripsi;
+        document.getElementById("alamatMentor").value =
+            mentor.pembina_profile.alamat;
 
-        const form = document.getElementById('addMentorForm');
+        const form = document.getElementById("addMentorForm");
         form.onsubmit = (e) => {
             e.preventDefault();
             handleFormSubmit(
@@ -2828,7 +2849,7 @@ function editMentor(id) {
             );
         };
 
-        openModal("addMentorModal")
+        openModal("addMentorModal");
     }
 }
 
@@ -2902,35 +2923,123 @@ function viewMentor(id) {
 
 function deleteMentor(id) {
     currentId = id;
-    type = 'mentors';
-    currentUrl = '/pembina';
-    openModal('deleteModal');
+    type = "mentors";
+    currentUrl = "/pembina";
+    openModal("deleteModal");
 }
 
-function confirmDeleteActivity() {
-    const item = sampleData[type].find((i) => i.id === currentId);
+function confirmDelete() {
+    if(!isRegistration){
+        const item = sampleData[type].find((i) => i.id === currentId);
 
-    const form = document.getElementById('deleteForm');
-    form.onsubmit = (e) => {
+        const form = document.getElementById("deleteForm");
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            handleFormSubmit(
+                "deleteForm",
+                currentUrl,
+                "/get-" + type,
+                type,
+                type + " berhasil dihapus",
+                "DELETE",
+                currentId
+            );
+        };
+        return;
+    }
+
+    console.log(currentId);
+    const form = document.getElementById("deleteForm");
+    form.onsubmit = async (e) =>  {
         e.preventDefault();
-        handleFormSubmit(
-            "deleteForm",
-            currentUrl,
-            "/get-" + type,
-            type,
-            type + " berhasil dihapus",
-            "DELETE",
-            currentId
-        );
+        found = null;
+        parent = null;
+
+        sampleData.registrations.forEach((reg) => {
+            const siswa = reg.siswa.find((s) => s.id === currentId);
+            if (siswa && nameKegiatan == reg.nama) {
+                found = siswa;
+                parent = reg;
+            }
+        });
+
+        if(found){
+            found.pivot.status = 'ditolak';
+            loadRegistrationsTable(currentRegistrationStatus);
+            showNotification(
+                "Pendaftaran Disetujui",
+                `Pendaftaran ${found.name} di ${parent.nama} telah ditolak`,
+                "success"
+            );
+
+            closeModal('deleteModal')
+
+            await fetch(`/registration-reject`, {
+                method: "PUT", // pakai PUT karena update
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                },
+                body: JSON.stringify({
+                    idUser: found.id,
+                    idEkskul: parent.id,
+                }),
+            });
+
+            let resStudent = await fetch("/get-students" + "?t=" + Date.now());
+            let data = await resStudent.json();
+
+            sampleData["students"] = [...data];
+            filteredData["students"] = [...sampleData.students]; // reset filter biar ikut keupdate
+            loadStudentsTable();
+            updateBadge();
+        }
     };
 }
 
 function editUser(id) {
-    showNotification(
-        "Edit Pengguna",
-        `Mengedit pengguna dengan ID: ${id}`,
-        "info"
-    );
+    const user = sampleData.users.find((u) => u.id === id);
+
+    if (user) {
+        currentId = id;
+        currentUserId = id;
+
+        document.getElementById("username").value = user.name;
+        document.getElementById("emailuser").value = user.email;
+        document.getElementById("role").value = user.role;
+        document.getElementById("status").value = user.status;
+        document.getElementById("registerPassword").value = "";
+        document.getElementById("registerPassword").removeAttribute("required");
+        document.getElementById("confirmPassword").value = "";
+        document.getElementById("confirmPassword").removeAttribute("required");
+
+        console.log(user);
+        if (user.role === "siswa") {
+            document.getElementById("nUser").style.display = "block";
+            document.querySelector(".nisn").value = user.siswa_profile.nisn;
+        } else {
+            document.getElementById("nUser").style.display = "none";
+            document.querySelector(".nisn").removeAttribute("required");
+        }
+
+        const form = document.getElementById("addUserForm");
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            handleFormSubmit(
+                "addUserForm",
+                "/users",
+                "/get-users",
+                "users",
+                "Users berhasil diupdate",
+                "PUT",
+                id
+            );
+        };
+    }
+
+    openModal("addUserModal");
 }
 
 function viewUser(id) {
@@ -2946,7 +3055,7 @@ function viewUser(id) {
 
 function deleteUser(id) {
     const user = sampleData.users.find((u) => u.id === id);
-    if (user && user.role === "Admin") {
+    if (user && user.role === "admin") {
         showNotification(
             "Tidak Diizinkan",
             "Tidak dapat menghapus akun admin",
@@ -2955,20 +3064,10 @@ function deleteUser(id) {
         return;
     }
 
-    if (confirm("Apakah Anda yakin ingin menghapus pengguna ini?")) {
-        const index = sampleData.users.findIndex((u) => u.id === id);
-        if (index > -1) {
-            const user = sampleData.users[index];
-            sampleData.users.splice(index, 1);
-            filteredData.users = filteredData.users.filter((u) => u.id !== id);
-            loadUsersTable();
-            showNotification(
-                "Pengguna Dihapus",
-                `${user.username} telah dihapus dari sistem`,
-                "success"
-            );
-        }
-    }
+    currentId = id;
+    currentUrl = "/users";
+    type = "users";
+    openModal("deleteModal");
 }
 
 // ===== NEW ENHANCED FUNCTIONS =====
@@ -3293,10 +3392,27 @@ async function handleFormSubmit(
         '<div class="loading-spinner"></div><span>Menyimpan...</span>';
     submitBtn.disabled = true;
 
+    if (type == "users") {
+        const password = document.getElementById("registerPassword").value;
+        const confirmPassword =
+            document.getElementById("confirmPassword").value;
+
+        if (password !== confirmPassword) {
+            showNotification(
+                "Kesalahan!",
+                "Kata sandi tidak cocok! Silakan coba lagi.",
+                "error"
+            );
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            return;
+        }
+    }
+
     try {
         const formData = new FormData(form);
 
-        const deleteMethod = method === 'DELETE';
+        const deleteMethod = method === "DELETE";
         // Laravel butuh _method kalau PUT/PATCH/DELETE
         if (method === "PUT" || method === "PATCH" || method === "DELETE") {
             formData.append("_method", method);
@@ -3350,6 +3466,7 @@ async function handleFormSubmit(
             loadPembinaSelect(null);
             loadEkskulsSelect();
             loadSectionData(currentSection);
+            updateBadge();
 
             showNotification("Berhasil", successMessage, "success");
             closeModal(formId.replace("Form", "Modal"));
@@ -3668,19 +3785,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }));
     });
 
-    // Update badges in navigation
-    document.getElementById("activitiesBadge").textContent =
-        sampleData.activities.length;
-    document.getElementById("studentsBadge").textContent =
-        sampleData.students.length;
-    document.getElementById("registrationsBadge").textContent = allRows.filter(
-        (s) => s.status == "pending"
-    ).length;
-    document.getElementById("announcementsBadge").textContent =
-        sampleData.announcements.length;
-    document.getElementById("mentorsBadge").textContent =
-        sampleData.mentors.length;
-    document.getElementById("notificationsBadge").textContent = "3";
 
     loadPembinaSelect(null);
     loadEkskulsSelect();
@@ -4841,15 +4945,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Setup all form handlers
-    // handleFormSubmit(
-    //     "addUserForm",
-    //     "",
-    //     "",
-    //     "users",
-    //     "Pengguna berhasil ditambahkan",
-    //     "post",
-    //     null
-    // );
 
     // Setup settings form
     document
@@ -4887,25 +4982,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    let allRows = sampleData.registrations.flatMap((registration) => {
-        return registration.siswa.map((s) => ({
-            status: s.pivot.status,
-        }));
-    });
-
     // Update navigation badges
-    document.getElementById("activitiesBadge").textContent =
-        sampleData.activities.length;
-    document.getElementById("studentsBadge").textContent =
-        sampleData.students.length;
-    document.getElementById("registrationsBadge").textContent = allRows.filter(
-        (s) => s.status === "pending"
-    ).length;
-    document.getElementById("announcementsBadge").textContent =
-        sampleData.announcements.length;
-    document.getElementById("mentorsBadge").textContent =
-        sampleData.mentors.length;
-    document.getElementById("notificationsBadge").textContent = "3";
+    updateBadge();
 
     // Enhanced responsive handling
     window.addEventListener(

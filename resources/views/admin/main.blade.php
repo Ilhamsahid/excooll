@@ -223,6 +223,7 @@
     @include('admin.forms.student-modal')
     @include('admin.forms.announcements-modal')
     @include('admin.forms.mentor-modal')
+    @include('admin.forms.user-modal')
 
     @include('admin.data.modal.activity-detail')
     @include('admin.data.modal.student-detail')

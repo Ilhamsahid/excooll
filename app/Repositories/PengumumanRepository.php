@@ -23,8 +23,13 @@ class PengumumanRepository implements PengumumanRepositoryInterface
         return $announc;
     }
 
+    public function deleteAnnouncement($announc)
+    {
+        return $announc->delete();
+    }
     public function findAnnouncById($id)
     {
         return Pengumuman::find($id);
     }
+
 }

@@ -47,4 +47,13 @@ class PengumumanService
 
         return $announc;
     }
+
+    public function deleteAnnounc($id)
+    {
+        $announc = $this->repository->findAnnouncById($id);
+
+        $this->repository->deleteAnnouncement($announc);
+
+        return $announc;
+    }
 }

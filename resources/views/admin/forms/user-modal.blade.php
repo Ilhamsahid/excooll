@@ -13,42 +13,52 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Username</label>
-                    <input type="text" class="form-input" required placeholder="username" />
+                    <input type="text" id="username" class="form-input" required placeholder="username" name="name"/>
+                    <div class="validation-message">Username Harus diisi</div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-input" required placeholder="email@domain.com" />
+                    <input type="email" id="emailuser" class="form-input" required placeholder="email@domain.com" name="email"/>
+                    <div class="validation-message">Email Harus diisi</div>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" class="form-input" required placeholder="Password" />
+                    <input type="password" id="registerPassword" class="form-input" required placeholder="Password" name="password"/>
+                    <div class="validation-message">Password Harus diisi</div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Konfirmasi Password</label>
-                    <input type="password" class="form-input" required placeholder="Konfirmasi Password" />
+                    <input type="password" id="confirmPassword" class="form-input" required placeholder="Konfirmasi Password"/>
+                    <div class="validation-message">Konfirmasi kata sandi harus diisi</div>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Role</label>
-                    <select class="form-select" required>
+                    <select class="form-select" id="role" required name="role">
                         <option value="">Pilih Role</option>
                         <option value="admin">Admin</option>
-                        <option value="mentor">Mentor</option>
-                        <option value="student">Siswa</option>
+                        <option value="pembina">Pembina</option>
+                        <option value="siswa">Siswa</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Status</label>
-                    <select class="form-select" required>
+                    <select class="form-select" id="status" required name="status">
                         <option value="aktif">Aktif</option>
                         <option value="nonaktif">Non-aktif</option>
                     </select>
                 </div>
+            </div>
+
+            <div class="form-group" style="display: none" id="nUser">
+                <label class="form-label">Nisn</label>
+                <input type="tel" name="nisn" class="form-input nisn" id="nisn" required placeholder="0000223213" />
+                <div class="validation-message">Nisn Harus diisi</div>
             </div>
 
             <div

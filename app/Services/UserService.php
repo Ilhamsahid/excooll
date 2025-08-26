@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Nisn;
 use App\Models\PembinaProfile;
 use App\Models\SiswaProfile;
+use Illuminate\Support\Facades\Log;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -43,12 +44,82 @@ class UserService
         return $this->repository->getAllPembina();
     }
 
+    public function getAllUser()
+    {
+        return $this->repository->getAllUser();
+    }
+
     public function createUser(Request $request){
         $data = $request->only(['name', 'email', 'password']);
         $data['role'] = 'siswa';
         $data['password'] = Hash::make($data['password']);
 
         return $this->repository->createUser($data);
+    }
+
+    public function updateUser($data)
+    {
+        $user = $this->repository->findUserById($data['id']);
+
+        $this->repository->updateUser($user, [
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'role' => $data['role'],
+            'status' => $data['status'],
+        ]);
+
+        if($user->role === 'siswa'){
+            if(!$this->repository->findSiswaProfileByIdUser($user->id)){
+                $this->repository->createSiswaProfile([
+                    'user_id' => $user->id,
+                    'nisn' => $data['nisn'],
+                ]);
+                return;
+            }
+            $this->repository->updateSiswaProfile($user->id, [
+                'nisn' => $data['nisn'],
+            ]);
+        }
+
+        if($user->role === 'pembina'){
+            if($user->ekskuls()){
+                $user->ekskuls()->detach();
+            }
+            if(!$this->repository->findPembinaProfileByIdUser($user->id)){
+                $this->repository->createPembinaProfile([
+                    'user_id' => $user->id,
+                ]);
+            }
+        }
+
+        return $user;
+    }
+
+    public function createNewUser($data)
+    {
+        $user = $this->repository->createUser([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role' => $data['role'],
+            'status' => $data['status'],
+        ]);
+
+        if($user->role == 'siswa'){
+            SiswaProfile::create([
+                'user_id' => $user->id,
+                'nisn' => $data['nisn']
+            ]);
+        }
+
+        if($user->role == 'pembina'){
+            $this->repository->createPembinaProfile([
+                'user_id' => $user->id
+            ]);
+        }
+
+        return $user;
     }
 
     public function createPembina(Request $request)

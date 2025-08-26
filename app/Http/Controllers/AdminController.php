@@ -17,7 +17,8 @@ class AdminController extends Controller
         $kelas = $userService->getKelas();
         $pengumuman = $pengumumanService->getAll();
         $pembina = $userService->getAllPembina();
+        $pengguna = $userService->getAllUser();
 
-        return view('admin.main', compact('ekstra', 'siswa', 'pendaftaran', 'kelas', 'pengumuman', 'pembina'));
+        return view('admin.main', compact('ekstra', 'siswa', 'pendaftaran', 'kelas', 'pengumuman', 'pembina', 'pengguna'));
     }
 }

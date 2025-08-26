@@ -31,6 +31,16 @@ class PengumumanController extends Controller
         ]);
     }
 
+    public function destroy(Request $request, PengumumanService $pengumumanService)
+    {
+        $pengumuman = $pengumumanService->deleteAnnounc($request->id);
+
+        return response()->json([
+            'status' => 'success',
+            'request' => $pengumuman,
+        ]);
+    }
+
     public function getPengumumanJson(PengumumanService $pengumumanService)
     {
         $pengumuman = $pengumumanService->getAll();

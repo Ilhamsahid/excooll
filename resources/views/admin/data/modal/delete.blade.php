@@ -29,7 +29,7 @@
                 <span>Batal</span>
             </button>
             <form id="deleteForm">
-                <button class="btn btn-danger hover-lift" type="submit" onclick="confirmDeleteActivity()">
+                <button class="btn btn-danger hover-lift" type="submit" onclick="confirmDelete()">
                     <input type="hidden" name="id">
                     <span>🗑️</span>
                     <span>Ya, Hapus</span>

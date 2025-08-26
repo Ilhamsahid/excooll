@@ -19,6 +19,11 @@ class UserRepository implements UserRepositoryInterface
         return User::with('pembinaProfile', 'ekskulDibina')->where('role', 'pembina')->orderBy('id', 'desc')->get();
     }
 
+    public function getAllUser()
+    {
+        return User::with('siswaProfile')->orderBy('id', 'desc')->get();
+    }
+
     public function getUserWithEkskul()
     {
         return User::with('ekskuls', 'siswaProfile')->where('id', Auth::user()->id)->first() ?? '';
@@ -62,13 +67,18 @@ class UserRepository implements UserRepositoryInterface
     }
 
     public function updateUser($user, $arr){
+        if(empty($arr['password'])){
+            unset($arr['password']);
+        }else{
+            $arr['password'] = Hash::make($arr['password']);
+        }
         $user->update($arr);
         return $user;
     }
 
     public function updateSiswaProfile($id, $arr)
     {
-        $siswaProfile = SiswaProfile::where('user_id', $id)->first();
+        $siswaProfile = $this->findSiswaProfileByIdUser($id);
 
         if($siswaProfile){
             $siswaProfile->update($arr);
@@ -77,14 +87,24 @@ class UserRepository implements UserRepositoryInterface
         return null;
     }
 
+    public function findSiswaProfileByIdUser($id)
+    {
+        return SiswaProfile::where('user_id', $id)->first();
+    }
+
     public function updatePembinaProfile($id, $arr)
     {
-        $pembinaProfile = PembinaProfile::where('user_id', $id)->first();
+        $pembinaProfile = $this->findPembinaProfileByIdUser($id);
         if($pembinaProfile){
             $pembinaProfile->update($arr);
             return $pembinaProfile;
         }
         return null;
+    }
+
+    public function findPembinaProfileByIdUser($id)
+    {
+        return PembinaProfile::where('user_id', $id)->first();
     }
 
     public function createPembinaProfile($arr)

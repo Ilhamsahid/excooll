@@ -11,6 +11,7 @@ interface UserRepositoryInterface
     public function getUserWithEkskul();
     public function getUserWithEkskulApproved();
     public function getAllUserWithEkskul();
+    public function getAllUser();
     public function cekUserStudentWithEmail($request, $id);
     public function cekUserWithEmail($request);
     public function createUser($arr);
@@ -20,5 +21,7 @@ interface UserRepositoryInterface
     public function updateSiswaProfile($id, $arr);
     public function updatePembinaProfile($id, $arr);
     public function findUserById($id);
+    public function findPembinaProfileByIdUser($id);
+    public function findSiswaProfileByIdUser($id);
     public function deleteUser($user);
 }
