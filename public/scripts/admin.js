@@ -2018,6 +2018,7 @@ document.getElementById("role").addEventListener("change", function () {
         document.querySelector('.nisn').value = user.siswa_profile?.nisn ?? ''
     } else {
         pembinaInput.style.display = "none";
+        document.querySelector('.nisn').removeAttribute('required');
     }
 });
 
@@ -2384,9 +2385,12 @@ function viewActivity(id) {
 }
 
 function deleteActivity(id) {
+    const activities = sampleData.activities.find((s) => s.id === id);
     currentId = id;
     currentUrl = "/ekskul";
     type = "activities";
+    document.getElementById('nameObject').textContent = 'Apakah Anda yakin ingin menghapus kegiatan ini?';
+    document.getElementById('deleteObjectName').textContent = activities.nama;
     openModal("deleteModal");
 }
 
@@ -2497,9 +2501,14 @@ function viewStudent(id) {
 }
 
 function deleteStudent(id) {
+    const student = sampleData.students.find((s) => s.id === id);
     currentId = id;
     currentUrl = "/student";
     type = "students";
+
+    document.getElementById('nameObject').textContent = 'Apakah Anda yakin ingin menghapus siswa ini?';
+    document.getElementById('deleteObjectName').textContent = student.name;
+
     openModal("deleteModal");
 }
 
@@ -2814,9 +2823,14 @@ function publishAnnouncement(id) {
 }
 
 function deleteAnnouncement(id) {
+    const announcement = sampleData.announcements.find((a) => a.id === id);
     currentId = id;
     currentUrl = "/pengumuman";
     type = "announcements";
+
+    document.getElementById('nameObject').textContent = 'Apakah Anda yakin ingin menghapus pengumuman ini?';
+    document.getElementById('deleteObjectName').textContent = announcement.ekskul.nama;
+
     openModal("deleteModal");
 }
 
@@ -2922,9 +2936,14 @@ function viewMentor(id) {
 }
 
 function deleteMentor(id) {
+    const mentor = sampleData.mentors.find((m) => m.id === id);
+
     currentId = id;
     type = "mentors";
     currentUrl = "/pembina";
+
+    document.getElementById('nameObject').textContent = 'Apakah Anda yakin ingin menghapus Mentor/pembina ini?';
+    document.getElementById('deleteObjectName').textContent = mentor.name;
     openModal("deleteModal");
 }
 

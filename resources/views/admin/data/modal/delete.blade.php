@@ -12,11 +12,11 @@
                 ⚠️
             </div>
             <h4
-                style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-4); color: var(--text-primary);">
-                Apakah Anda yakin ingin menghapus kegiatan ini?
+                style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-4); color: var(--text-primary);" id="nameObject">
+                Apakah Anda yakin ingin menghapus kegiatan ini? 
             </h4>
             <p style="color: var(--text-secondary); margin-bottom: var(--space-2);">
-                <strong id="deleteActivityName">Nama kegiatan akan ditampilkan di sini</strong>
+                <strong id="deleteObjectName"></strong>
             </p>
             <p style="color: var(--text-tertiary); font-size: var(--font-size-sm);">
                 Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data terkait kegiatan ini.

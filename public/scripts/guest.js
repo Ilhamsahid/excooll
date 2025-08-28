@@ -1251,17 +1251,14 @@ document
             window.currentUser = data.user;
             window.user = data.user;
 
-            // Untuk user biasa, misal load data dan update UI secara dinamis
-            let responseEkskul = await fetch("/json/true", {
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document
-                        .querySelector('meta[name="csrf-token"]')
-                        .getAttribute("content"),
-                },
-            });
-
-            let dataEkskul = await responseEkskul.json();
+            const [dataEkskul] = await Promise.all([
+                fetch("/json/true", {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                    },
+                }).then(res => res.json())
+            ]);
 
             if (data.user.role === "admin") {
                 sessionStorage.setItem(
