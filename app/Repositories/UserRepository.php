@@ -19,6 +19,19 @@ class UserRepository implements UserRepositoryInterface
         return User::with('pembinaProfile', 'ekskulDibina')->where('role', 'pembina')->orderBy('id', 'desc')->get();
     }
 
+    public function getAllPembinaWithoutEkskul(){
+        $pembinaAll = User::with(['pembinaProfile', 'ekskulDibina' ])->where('role', 'pembina')->orderBy('id', 'desc')->get();
+        $pembinaP = [];
+
+        foreach($pembinaAll as $pembina){
+            if(!$pembina->ekskulDibina->count()){
+                $pembinaP[] = $pembina;
+            }
+        }
+
+        return $pembinaP;
+    }
+
     public function getAllUser()
     {
         return User::with('siswaProfile')->orderBy('id', 'desc')->get();

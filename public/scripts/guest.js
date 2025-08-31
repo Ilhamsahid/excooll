@@ -66,7 +66,10 @@ function toggleTheme() {
     const themeToggles = document.querySelectorAll(".theme-toggle");
     const mobileThemeIcon = document.getElementById("mobileThemeIcon");
 
-    if (body.getAttribute("data-theme") === "dark") {
+    const isDark = body.getAttribute("data-theme") === "dark";
+
+    if (isDark) {
+        // Switch ke Light
         body.removeAttribute("data-theme");
         themeToggles.forEach((toggle) => {
             if (toggle.textContent.includes("Ganti")) {
@@ -78,6 +81,7 @@ function toggleTheme() {
         if (mobileThemeIcon) mobileThemeIcon.textContent = "🌙";
         localStorage.setItem("theme", "light");
     } else {
+        // Switch ke Dark
         body.setAttribute("data-theme", "dark");
         themeToggles.forEach((toggle) => {
             if (toggle.textContent.includes("Ganti")) {
@@ -662,7 +666,8 @@ function loadActivities(ekskulUser) {
         }
 
         let buttonClass = isMyEkskul
-            ? window.currentUser.ekskuls[i].pivot.status == "pending" || window.currentUser.ekskuls[i].pivot.status == "ditolak"
+            ? window.currentUser.ekskuls[i].pivot.status == "pending" ||
+              window.currentUser.ekskuls[i].pivot.status == "ditolak"
                 ? "btn btn-disabled"
                 : "btn btn-success"
             : window.currentUser
@@ -672,10 +677,10 @@ function loadActivities(ekskulUser) {
             : "btn btn-disabled";
 
         let buttonText = isMyEkskul
-            ? window.currentUser.ekskuls[i].pivot.status == "pending" 
+            ? window.currentUser.ekskuls[i].pivot.status == "pending"
                 ? "Menunggu permintaan"
                 : window.currentUser.ekskuls[i].pivot.status == "ditolak"
-                ? 'Permintaan ditolak'
+                ? "Permintaan ditolak"
                 : "✨ Kelola Ekskul Saya"
             : window.currentUser
             ? ekskulUser.length >= 3 || window.currentUser.role != "siswa"
@@ -1255,12 +1260,14 @@ document
                 fetch("/json/true", {
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                        "X-CSRF-TOKEN": document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute("content"),
                     },
-                }).then(res => res.json())
+                }).then((res) => res.json()),
             ]);
 
-            if (data.user.role === "admin") {
+            if (data.user.role === "admin" || data.user.role === "pembina") {
                 sessionStorage.setItem(
                     "dataEkskul",
                     JSON.stringify(dataEkskul)
@@ -1268,7 +1275,7 @@ document
                 sessionStorage.setItem("isAdminLogin", "true");
                 sessionStorage.setItem("loginSuccessUI", "pending");
 
-                window.location.href = "/ekstrasmexa/admin/dashboard";
+                window.location.href = `/ekstrasmexa/${data.user.role}/dashboard`;
             } else {
                 showNotification(
                     "Berhasil Masuk!",

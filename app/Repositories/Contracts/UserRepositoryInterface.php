@@ -8,6 +8,7 @@ interface UserRepositoryInterface
 {
     public function getAllStudentWithRelation();
     public function getAllPembina();
+    public function getAllPembinaWithoutEkskul();
     public function getUserWithEkskul();
     public function getUserWithEkskulApproved();
     public function getAllUserWithEkskul();

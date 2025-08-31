@@ -3,6 +3,7 @@ let currentTheme = localStorage.getItem("theme") || "light";
 let currentSection = "dashboard";
 let notificationId = 0;
 let charts = {};
+let count = 0;
 let currentUserId = null;
 let currentPage = {
     activities: 1,
@@ -35,8 +36,8 @@ let performanceMetrics = {
 
 const refreshMap = {
     activities: ["mentors"], // kalau ekskul diubah, mentors ikut refresh
-    students: ['users'],
-    mentors: ["activities", 'users'],
+    students: ["users"],
+    mentors: ["activities", "users"],
     users: ["students", "mentors"],
 };
 
@@ -388,33 +389,53 @@ function loadSectionData(sectionName) {
     }
 }
 
-async function loadPembinaSelect(id) {
-    if (id) {
-        const activity = sampleData.activities.find((a) => a.id === id);
-        if (activity.pembina) {
-            document.getElementById("selectPembina").value =
-                activity.pembina.id;
-            return;
-        }
-    }
-    const response = await fetch("/get-mentors");
-    const namePembina = await response.json();
-
+async function loadPembinaSelect(id, isEdit) {
     const select = document.getElementById("selectPembina");
+
+    // reset default
     select.innerHTML = '<option value="">Pilih Pembina</option>';
 
+    let currentPembinaId = null;
+
+    // kalau sedang edit, render pembina yang dipilih dulu (tanpa fetch)
+    if (id) {
+        const activity = sampleData.activities.find((a) => a.id === id);
+        if (activity && activity.pembina) {
+            currentPembinaId = activity.pembina.id;
+
+            const option = document.createElement("option");
+            option.value = activity.pembina.id;
+            option.textContent = activity.pembina.name;
+            select.appendChild(option);
+
+            // langsung set jadi selected biar gak delay
+            select.value = activity.pembina.id;
+        }
+    }
+
+    if(!isEdit){
+        select.remove(1); // hapus option ke-2 (index mulai dari 0)
+    }
+
+    // setelah itu baru fetch list pembina lain
+    const response = await fetch("/get-mentors-without-ekskul");
+    const namePembina = await response.json();
+
     namePembina.forEach((element) => {
-        const option = document.createElement("option");
-        option.value = element.id;
-        option.textContent = element.name;
-        select.appendChild(option);
+        // jangan duplicate kalau sama dengan pembina yang dipilih
+        if (element.id !== currentPembinaId) {
+            const option = document.createElement("option");
+            option.value = element.id;
+            option.textContent = element.name;
+            select.appendChild(option);
+        }
     });
 }
+
 
 async function loadEkskulsSelect() {
     const response = await fetch("/get-activities");
     const namePembina = await response.json();
-
     const select = document.getElementById("selectEkskul");
     select.innerHTML = '<option value="">Pilih Ekskul</option>';
 
@@ -488,7 +509,6 @@ function animateCountUp(elementId, start, end, duration) {
 
     requestAnimationFrame(update);
 }
-
 
 // ===== ENHANCED CHARTS SYSTEM =====
 function loadDashboardCharts() {
@@ -1463,7 +1483,9 @@ function loadRegistrationsTable(status = "all") {
                         `
                         : ""
                 }
-                <button class="btn btn-ghost btn-sm hover-lift" onclick="viewRegistration(${item.siswa_id}, '${item.kegiatan}')" title="Lihat Detail">
+                <button class="btn btn-ghost btn-sm hover-lift" onclick="viewRegistration(${
+                    item.siswa_id
+                }, '${item.kegiatan}')" title="Lihat Detail">
                     👁️
                 </button>
             </div>
@@ -2015,10 +2037,10 @@ document.getElementById("role").addEventListener("change", function () {
     let pembinaInput = document.getElementById("nUser");
     if (this.value === "siswa") {
         pembinaInput.style.display = "block";
-        document.querySelector('.nisn').value = user.siswa_profile?.nisn ?? ''
+        document.querySelector(".nisn").value = user.siswa_profile?.nisn ?? "";
     } else {
         pembinaInput.style.display = "none";
-        document.querySelector('.nisn').removeAttribute('required');
+        document.querySelector(".nisn").removeAttribute("required");
     }
 });
 
@@ -2062,6 +2084,7 @@ function changePage(type, page) {
 
 // ===== ENHANCED MODAL FUNCTIONS =====
 function addActivityModal(modalId) {
+    loadPembinaSelect(null, false);
     const form = document.getElementById("addActivityForm");
     form.onsubmit = (e) => {
         e.preventDefault();
@@ -2265,7 +2288,7 @@ function editActivity(id) {
     if (activity) {
         currentActivityId = id;
 
-        loadPembinaSelect(id);
+        loadPembinaSelect(id, true);
         document.getElementById("judulActivity").textContent = "Edit Kegiatan";
         document.getElementById("nameActivity").value = activity.nama;
         document.getElementById("deskripsiActivity").value = activity.deskripsi;
@@ -2389,8 +2412,9 @@ function deleteActivity(id) {
     currentId = id;
     currentUrl = "/ekskul";
     type = "activities";
-    document.getElementById('nameObject').textContent = 'Apakah Anda yakin ingin menghapus kegiatan ini?';
-    document.getElementById('deleteObjectName').textContent = activities.nama;
+    document.getElementById("nameObject").textContent =
+        "Apakah Anda yakin ingin menghapus kegiatan ini?";
+    document.getElementById("deleteObjectName").textContent = activities.nama;
     openModal("deleteModal");
 }
 
@@ -2506,8 +2530,9 @@ function deleteStudent(id) {
     currentUrl = "/student";
     type = "students";
 
-    document.getElementById('nameObject').textContent = 'Apakah Anda yakin ingin menghapus siswa ini?';
-    document.getElementById('deleteObjectName').textContent = student.name;
+    document.getElementById("nameObject").textContent =
+        "Apakah Anda yakin ingin menghapus siswa ini?";
+    document.getElementById("deleteObjectName").textContent = student.name;
 
     openModal("deleteModal");
 }
@@ -2561,7 +2586,7 @@ function rejectRegistration(id, kegiatan) {
     currentId = id;
     isRegistration = true;
     nameKegiatan = kegiatan;
-    openModal('deleteModal');
+    openModal("deleteModal");
 }
 
 function viewRegistration(id, kegiatan) {
@@ -2828,8 +2853,10 @@ function deleteAnnouncement(id) {
     currentUrl = "/pengumuman";
     type = "announcements";
 
-    document.getElementById('nameObject').textContent = 'Apakah Anda yakin ingin menghapus pengumuman ini?';
-    document.getElementById('deleteObjectName').textContent = announcement.ekskul.nama;
+    document.getElementById("nameObject").textContent =
+        "Apakah Anda yakin ingin menghapus pengumuman ini?";
+    document.getElementById("deleteObjectName").textContent =
+        announcement.ekskul.nama;
 
     openModal("deleteModal");
 }
@@ -2942,13 +2969,14 @@ function deleteMentor(id) {
     type = "mentors";
     currentUrl = "/pembina";
 
-    document.getElementById('nameObject').textContent = 'Apakah Anda yakin ingin menghapus Mentor/pembina ini?';
-    document.getElementById('deleteObjectName').textContent = mentor.name;
+    document.getElementById("nameObject").textContent =
+        "Apakah Anda yakin ingin menghapus Mentor/pembina ini?";
+    document.getElementById("deleteObjectName").textContent = mentor.name;
     openModal("deleteModal");
 }
 
 function confirmDelete() {
-    if(!isRegistration){
+    if (!isRegistration) {
         const item = sampleData[type].find((i) => i.id === currentId);
 
         const form = document.getElementById("deleteForm");
@@ -2969,7 +2997,7 @@ function confirmDelete() {
 
     console.log(currentId);
     const form = document.getElementById("deleteForm");
-    form.onsubmit = async (e) =>  {
+    form.onsubmit = async (e) => {
         e.preventDefault();
         found = null;
         parent = null;
@@ -2982,8 +3010,8 @@ function confirmDelete() {
             }
         });
 
-        if(found){
-            found.pivot.status = 'ditolak';
+        if (found) {
+            found.pivot.status = "ditolak";
             loadRegistrationsTable(currentRegistrationStatus);
             showNotification(
                 "Pendaftaran Disetujui",
@@ -2991,7 +3019,7 @@ function confirmDelete() {
                 "success"
             );
 
-            closeModal('deleteModal')
+            closeModal("deleteModal");
 
             await fetch(`/registration-reject`, {
                 method: "PUT", // pakai PUT karena update
@@ -3482,7 +3510,7 @@ async function handleFormSubmit(
                     filteredData[relatedType] = [...relData];
                 }
             }
-            loadPembinaSelect(null);
+            loadPembinaSelect(null, false);
             loadEkskulsSelect();
             loadSectionData(currentSection);
             updateBadge();
@@ -3804,8 +3832,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }));
     });
 
-
-    loadPembinaSelect(null);
+    loadPembinaSelect(null, false);
     loadEkskulsSelect();
     // Enhanced responsive handling
     window.addEventListener(

@@ -44,6 +44,11 @@ class UserService
         return $this->repository->getAllPembina();
     }
 
+    public function getAllPembinaWithoutEkskul()
+    {
+        return $this->repository->getAllPembinaWithoutEkskul();
+    }
+
     public function getAllUser()
     {
         return $this->repository->getAllUser();

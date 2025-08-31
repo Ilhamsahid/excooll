@@ -7,13 +7,6 @@ use Illuminate\Http\Request;
 
 class PembinaController extends Controller
 {
-    public function getPembinaJson(UserService $userService)
-    {
-        $pembina = $userService->getAllPembina();
-
-        return response()->json($pembina);
-    }
-
     public function store(UserService $userService, Request $request)
     {
         $pembina = $userService->createPembina($request);
@@ -52,5 +45,19 @@ class PembinaController extends Controller
             'status' => 'success',
             'request' => $pembina,
         ]);
+    }
+
+    public function getPembinaJson(UserService $userService)
+    {
+        $pembina = $userService->getAllPembina();
+
+        return response()->json($pembina);
+    }
+
+    public function getPembinaWithoutEkskulJson(UserService $userService)
+    {
+        $pembina = $userService->getAllPembinaWithoutEkskul();
+
+        return response()->json($pembina);
     }
 }
