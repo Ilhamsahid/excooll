@@ -11,9 +11,11 @@ class SiswaController extends Controller
     {
         $siswa = $userService->createSiswa($request);
 
+        $siswa->load(['ekskuls', 'siswaProfile']);
+
         return response()->json([
             'status' => 'success',
-            'siswa' => $siswa,
+            'item' => $siswa,
         ]);
     }
 
@@ -23,9 +25,11 @@ class SiswaController extends Controller
             'id', 'nama', 'email', 'kelas', 'nisn', 'no_tel', 'j_kel', 'alamat'
         ]));
 
+        $siswa->load(['ekskuls', 'siswaProfile']);
+
         return response()->json([
             'status' => 'success',
-            'data' => $siswa,
+            'item' => $siswa,
         ]);
     }
 
@@ -35,7 +39,7 @@ class SiswaController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'siswa' => $siswa,
+            'item' => $siswa,
         ]);
     }
 

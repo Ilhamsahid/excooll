@@ -11,7 +11,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
     protected $table = 'users';
-    protected $fillable = ['name', 'email', 'password', 'role', 'created_at'];
+    protected $fillable = ['name', 'email', 'password', 'role', 'status', 'created_at'];
 
     public function pembinaProfile()
     {

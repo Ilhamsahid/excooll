@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 
 class PembinaController extends Controller
 {
+
+    public function index()
+    {
+        return view('pembina.main');
+    }
+
     public function store(UserService $userService, Request $request)
     {
         $pembina = $userService->createPembina($request);
@@ -19,9 +25,11 @@ class PembinaController extends Controller
             ]);
         }
 
+        $pembina->load(['ekskulDibina', 'pembinaProfile']);
+
         return response()->json([
             'status' => 'success',
-            'pembina' => $pembina,
+            'item' => $pembina,
         ]);
     }
 
@@ -31,9 +39,11 @@ class PembinaController extends Controller
             'id', 'nama', 'email', 'status', 'no_tel', 'deskripsi', 'alamat'
         ]));
 
+        $pembina->load(['ekskulDibina', 'pembinaProfile']);
+
         return response()->json([
             'status' => 'success',
-            'pembina' => $pembina,
+            'item' => $pembina,
         ]);
     }
 
@@ -41,9 +51,11 @@ class PembinaController extends Controller
     {
         $pembina = $userService->deleteUser($request->id);
 
+        $pembina->load(['ekskulDibina', 'pembinaProfile']);
+
         return response()->json([
             'status' => 'success',
-            'request' => $pembina,
+            'item' => $pembina,
         ]);
     }
 

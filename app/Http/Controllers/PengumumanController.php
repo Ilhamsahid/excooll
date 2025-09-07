@@ -13,9 +13,11 @@ class PengumumanController extends Controller
             'ekskul_id', 'isi', 'judul', 'tanggal', 'tipe', 'lokasi'
         ]));
 
+        $pengumuman->load(['ekskul']);
+
         return response()->json( [
             'status' => 'success',
-            'data' => $pengumuman,
+            'item' => $pengumuman,
         ]);
     }
 
@@ -25,9 +27,11 @@ class PengumumanController extends Controller
             'id', 'ekskul_id', 'judul', 'isi', 'tipe', 'tanggal', 'lokasi'
         ]));
 
+        $announc->load(['ekskul']);
+
         return response()->json([
             'status' => 'success',
-            'announc' => $announc,
+            'item' => $announc,
         ]);
     }
 
@@ -37,7 +41,7 @@ class PengumumanController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'request' => $pengumuman,
+            'item' => $pengumuman,
         ]);
     }
 

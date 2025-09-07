@@ -33,7 +33,7 @@ class EkskulRepository implements EkskulRepositoryInterface
 
     public function getAllEkskulWithRelation(): collection
     {
-        return Ekskul::with(['pembina', 'schedules'])->withCount(['siswa', 'achievements'])->orderBy('id', 'desc')->get();
+        return Ekskul::with(['pembina.pembinaProfile', 'pembina.ekskulDibina', 'schedules'])->withCount(['siswa', 'achievements'])->orderBy('id', 'desc')->get();
     }
 
     public function findEkskulById($id)

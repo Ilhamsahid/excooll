@@ -413,7 +413,7 @@ async function loadPembinaSelect(id, isEdit) {
         }
     }
 
-    if(!isEdit){
+    if (!isEdit) {
         select.remove(1); // hapus option ke-2 (index mulai dari 0)
     }
 
@@ -431,7 +431,6 @@ async function loadPembinaSelect(id, isEdit) {
         }
     });
 }
-
 
 async function loadEkskulsSelect() {
     const response = await fetch("/get-activities");
@@ -2046,7 +2045,6 @@ document.getElementById("role").addEventListener("change", function () {
 
 function updateBadge() {
     // Update badges in navigation
-    console.log(sampleData);
     let allRows = sampleData.registrations.flatMap((registration) => {
         return registration.siswa.map((s) => ({
             status: s.pivot.status,
@@ -3429,49 +3427,42 @@ async function handleFormSubmit(
     const form = document.getElementById(formId);
     if (!form) return;
 
-    if (id) {
-        url = url + "/" + id;
-    }
+    if (id) url += `/${id}`;
 
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML =
-        '<div class="loading-spinner"></div><span>Menyimpan...</span>';
-    submitBtn.disabled = true;
 
-    if (type == "users") {
-        const password = document.getElementById("registerPassword").value;
-        const confirmPassword =
-            document.getElementById("confirmPassword").value;
+    const setLoading = (loading) => {
+        submitBtn.disabled = loading;
+        submitBtn.innerHTML = loading
+            ? '<div class="loading-spinner"></div><span>Menyimpan...</span>'
+            : originalText;
+    };
 
-        if (password !== confirmPassword) {
-            showNotification(
-                "Kesalahan!",
-                "Kata sandi tidak cocok! Silakan coba lagi.",
-                "error"
-            );
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-            return;
-        }
+    setLoading(true);
+
+    // 🔹 Validasi khusus users
+    if (type === "users" && !validatePassword()) {
+        showNotification("Kesalahan!", "Kata sandi tidak cocok!", "error");
+        setLoading(false);
+        return;
     }
 
     try {
         const formData = new FormData(form);
 
-        const deleteMethod = method === "DELETE";
-        // Laravel butuh _method kalau PUT/PATCH/DELETE
-        if (method === "PUT" || method === "PATCH" || method === "DELETE") {
+        const originalMethod = method;
+        // 🔹 Laravel butuh _method untuk PUT/PATCH/DELETE
+        if (["PUT", "PATCH", "DELETE"].includes(method)) {
             formData.append("_method", method);
-            formData.append("id", id);
+            if (id) formData.append("id", id);
             method = "POST";
         }
 
-        console.log(url); // cek isi sebelum dikirim
-
-        if (type === "activities" && !deleteMethod) {
-            const jadwal = [...formData][4][1].trim();
-            const match = jadwal.match(
+        // 🔹 Parsing khusus activities
+        if (type === "activities" && method !== "DELETE") {
+            const jadwal = formData.get("jadwal")?.trim();
+            const match = jadwal?.match(
                 /^(.+?)\s+(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})$/
             );
             if (match) {
@@ -3481,8 +3472,9 @@ async function handleFormSubmit(
             }
         }
 
+        // 🔹 Kirim request
         const res = await fetch(url, {
-            method: method,
+            method,
             headers: {
                 "X-CSRF-TOKEN": document.querySelector(
                     'meta[name="csrf-token"]'
@@ -3491,25 +3483,31 @@ async function handleFormSubmit(
             body: formData,
         });
 
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP Error: ${res.status}`);
+        }
+
+
         const data = await res.json();
-        console.log(data);
+        console.log("Server Response:", data);
 
         if (data.status === "success") {
-            const resData = await fetch(urlData + "?t=" + Date.now());
-            const dataUrl = await resData.json();
-            sampleData[type] = [...dataUrl];
-            filteredData[type] = [...dataUrl];
-
-            if (refreshMap[type]) {
-                for (const relatedType of refreshMap[type]) {
-                    const resRel = await fetch(
-                        `/get-${relatedType}?t=` + Date.now()
-                    );
-                    const relData = await resRel.json();
-                    sampleData[relatedType] = [...relData];
-                    filteredData[relatedType] = [...relData];
-                }
+            if (data.item) {
+                updateLocalData(type, originalMethod, data.item, id);
+            } else {
+                await refreshData(type, urlData);
             }
+
+            // if (refreshMap[type] && type != 'users') {
+            //     for (const relatedType of refreshMap[type]) {
+            //         if(relatedType !== type){
+            //             await refreshData(relatedType, `/get-${relatedType}`);
+            //         }
+            //     }
+            // }
+
+            // 🔹 Update UI
             loadPembinaSelect(null, false);
             loadEkskulsSelect();
             loadSectionData(currentSection);
@@ -3527,11 +3525,241 @@ async function handleFormSubmit(
         }
     } catch (err) {
         console.error(err);
-        showNotification("Error", err, "error");
+        showNotification("Error", err.message || err, "error");
+    } finally {
+        setLoading(false);
+    }
+}
+
+/* 🔹 Helper: validasi password */
+function validatePassword() {
+    const password = document.getElementById("registerPassword")?.value;
+    const confirmPassword = document.getElementById("confirmPassword")?.value;
+    return password === confirmPassword;
+}
+
+/* 🔹 Helper: update data lokal biar gak fetch ulang semua */
+function updateLocalData(type, method, item, id = null) {
+    if (type === "users") {
+        // pastikan arrays ada
+        if (!sampleData.students) sampleData.students = [];
+        if (!sampleData.mentors) sampleData.mentors = [];
+        if (!filteredData.students) filteredData.students = [];
+        if (!filteredData.mentors) filteredData.mentors = [];
+
+        const role = item.role; // "siswa" atau "pembina"
+
+        if (method === "post") {
+            sampleData[type].unshift(item);
+            filteredData[type].unshift(item);
+            if (role === "siswa") {
+                sampleData.students.unshift(item);
+                filteredData.students.unshift(item);
+            } else if (role === "pembina") {
+                sampleData.mentors.unshift(item);
+                filteredData.mentors.unshift(item);
+            }
+        } else if (["PUT", "PATCH"].includes(method) && id) {
+            // cek role lama di array
+            const idx = sampleData[type].findIndex((d) => d.id == id);
+            if (idx !== -1) {
+                sampleData[type][idx] = item;
+                filteredData[type][idx] = item;
+            }
+
+            const oldStudentIdx = sampleData.students.findIndex(d => d.id == id);
+            const oldMentorIdx = sampleData.mentors.findIndex(d => d.id == id);
+
+            // hapus dari array lama
+            if (oldStudentIdx !== -1) {
+                sampleData.students.splice(oldStudentIdx, 1);
+                filteredData.students.splice(oldStudentIdx, 1);
+            }
+            if (oldMentorIdx !== -1) {
+                sampleData.mentors.splice(oldMentorIdx, 1);
+                filteredData.mentors.splice(oldMentorIdx, 1);
+            }
+
+            // masukkan ke array baru sesuai role terbaru
+            if (role === "siswa") {
+                sampleData.students.unshift(item);
+                filteredData.students.unshift(item);
+            } else if (role === "pembina") {
+                sampleData.mentors.unshift(item);
+                filteredData.mentors.unshift(item);
+            }
+        } else if (method === "DELETE" && id) {
+            sampleData[type] = sampleData[type].filter((d) => d.id != id);
+            filteredData[type] = filteredData[type].filter((d) => d.id != id);
+            sampleData.students = sampleData.students.filter(d => d.id != id);
+            filteredData.students = filteredData.students.filter(d => d.id != id);
+            sampleData.mentors = sampleData.mentors.filter(d => d.id != id);
+            filteredData.mentors = filteredData.mentors.filter(d => d.id != id);
+        }
+
+        return; // selesai khusus users
     }
 
-    submitBtn.innerHTML = originalText;
-    submitBtn.disabled = false;
+    if(type === "activities"){
+        if (!sampleData.mentors) sampleData.mentors = [];
+        if (method === "post"){
+            sampleData[type].unshift(item);
+            filteredData[type].unshift(item);
+
+            const pembina = sampleData[type][0].pembina;
+
+            const idxSample = sampleData.mentors.findIndex((p) => p.id == pembina.id);
+            if(idxSample !== -1){
+                sampleData.mentors[idxSample] = pembina;
+            }
+
+            const idxFiltered = sampleData.mentors.findIndex((p) => p.id == pembina.id);
+            if(idxFiltered !== -1){
+                filteredData.mentors[idxFiltered] = pembina;
+            }
+        }else if(["PUT", "PATCH"].includes(method) && id){
+            const idx = sampleData[type].findIndex((d) => d.id == id);
+            let oldPembina = sampleData[type][idx].pembina;
+            if (idx !== -1) {
+                sampleData[type][idx] = item;
+                filteredData[type][idx] = item;
+            }
+            const pembina = sampleData[type][idx].pembina;
+
+            const oldIdxSample = sampleData.mentors.findIndex((p) => p.id == oldPembina?.id);
+            const idxSample = sampleData.mentors.findIndex((p) => p.id == pembina.id);
+            if(idxSample !== -1){
+                if(oldPembina) sampleData.mentors[oldIdxSample].ekskul_dibina = [];
+                sampleData.mentors[idxSample] = pembina;
+            }
+
+            const oldIdxFiltered = filteredData.mentors.findIndex((p) => p.id == oldPembina?.id);
+            const idxFiltered = filteredData.mentors.findIndex((p) => p.id == pembina.id);
+            if(idxSample !== -1){
+                if(oldPembina) filteredData.mentors[oldIdxFiltered].ekskul_dibina = [];
+                filteredData.mentors[idxFiltered] = pembina;
+            }
+        }else if(method === "DELETE" && id){
+            const idx = sampleData[type].findIndex((p) => p.id == id);
+            const pembina = sampleData[type][idx].pembina;
+
+            sampleData[type] = sampleData[type].filter((d) => d.id != id);
+            filteredData[type] = filteredData[type].filter((d) => d.id != id);
+
+            const idxSample = sampleData.mentors.findIndex((d) => d.id == pembina.id);
+
+            sampleData.mentors[idxSample].ekskul_dibina = [];
+        }
+
+        return;
+    }
+
+    if(type === "students"){
+        if(!sampleData.users) sampleData.users = [];
+
+        if(method === "post"){
+            if(!sampleData.users) sampleData.users = [];
+            sampleData[type].unshift(item);
+            filteredData[type].unshift(item);
+            sampleData.users.unshift(item);
+            filteredData.users.unshift(item);
+        }else if(["PUT", "PATCH"].includes(method) && id){
+            const idx = sampleData[type].findIndex((d) => d.id == id);
+            if (idx !== -1) {
+                sampleData[type][idx] = item;
+                filteredData[type][idx] = item;
+            }
+
+            // UPDATE DI USERS
+            const siswa = sampleData[type][idx];
+
+            const idxSample = sampleData.users.findIndex((u) => u.id == siswa.id);
+            sampleData.users[idxSample] = item;
+            const idxFiltered = filteredData.users.findIndex((u) => u.id == siswa.id);
+            filteredData.users[idxFiltered] = item;
+        }else if(method === "DELETE" && id){
+            sampleData[type] = sampleData[type].filter((d) => d.id != id);
+            filteredData[type] = filteredData[type].filter((d) => d.id != id);
+
+            sampleData.users = sampleData.users.filter((d) => d.id != id);
+            filteredData.users = filteredData.users.filter((d) => d.id != id);
+        }
+
+        return;
+    }
+
+    if(type === 'mentors'){
+        if(sampleData.users) sampleData.users = [];
+
+        if (method === "post"){
+            if(sampleData.users) sampleData.users = [];
+
+            sampleData[type].unshift(item);
+            filteredData[type].unshift(item);
+            sampleData.users.unshift(item);
+            filteredData.users.unshift(item);
+        }else if(["PUT", "PATCH"].includes(method) && id){
+            const idx = sampleData[type].findIndex((d) => d.id == id);
+            if (idx !== -1) {
+                sampleData[type][idx] = item;
+                filteredData[type][idx] = item;
+            }
+
+            // UPDATE DI USERS dan KEGIATAN
+            const pembina = sampleData[type][idx];
+            const idxKegiatan = sampleData.activities.findIndex((a) => a.pembina.id == pembina.id)
+
+            const idxSample = sampleData.users.findIndex((u) => u.id == pembina.id);
+            const idxFiltered = filteredData.users.findIndex((u) => u.id == pembina.id);
+
+            sampleData.users[idxSample] = item;
+            filteredData.users[idxFiltered] = item;
+            if(sampleData.activities[idxKegiatan]) sampleData.activities[idxKegiatan].pembina = item;
+            if(filteredData.activities[idxKegiatan]) filteredData.activities[idxKegiatan].pembina = item;
+        } else if(method === "DELETE" && id) {
+            const idx = sampleData[type].findIndex((d) => d.id == id);
+            const pembina = sampleData[type][idx];
+            sampleData[type] = sampleData[type].filter((d) => d.id != id);
+            filteredData[type] = filteredData[type].filter((d) => d.id != id);
+
+            // Delete Di USERS dan Kegiatan
+            const idxKegiatan = sampleData.activities.findIndex((a) => a.pembina.id == pembina.id)
+
+            sampleData.users = sampleData.users.filter((d) => d.id != id);
+            filteredData.users = filteredData.users.filter((d) => d.id != id);
+            if(sampleData.activities) sampleData.activities[idxKegiatan].pembina = null;
+            if(filteredData.activities) filteredData.activities[idxKegiatan].pembina = null;
+        }
+
+        return;
+    }
+
+    if (!sampleData[type]) sampleData[type] = [];
+    if (!filteredData[type]) filteredData[type] = [];
+
+    if (method === "post") {
+        console.log(sampleData[type]);
+        sampleData[type].unshift(item);
+        filteredData[type].unshift(item);
+    } else if (["PUT", "PATCH"].includes(method) && id) {
+        const idx = sampleData[type].findIndex((d) => d.id == id);
+        if (idx !== -1) {
+            sampleData[type][idx] = item;
+            filteredData[type][idx] = item;
+        }
+    } else if (method === "DELETE" && id) {
+        sampleData[type] = sampleData[type].filter((d) => d.id != id);
+        filteredData[type] = filteredData[type].filter((d) => d.id != id);
+    }
+}
+
+/* 🔹 Helper: refresh data dari server (fallback / relasi) */
+async function refreshData(type, url) {
+    const res = await fetch(url + "?t=" + Date.now());
+    if (!res.ok) throw new Error(`Gagal fetch ${type}`);
+    const data = await res.json();
+    sampleData[type] = [...data];
+    filteredData[type] = [...data];
 }
 
 // Clear form validation

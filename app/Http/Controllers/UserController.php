@@ -13,31 +13,44 @@ class UserController extends Controller
             'name', 'email', 'password', 'role', 'status', 'nisn'
         ]));
 
+        $user->load(['pembinaProfile', 'siswaProfile', 'ekskulDibina', 'ekskuls']);
+
         return response()->json([
             'status' => 'success',
-            'request' => $user,
+            'item' => $user,
         ]);
     }
 
     public function update(Request $request, UserService $userService) 
     {
-        $user = $userService->updateUser($request->only([
-            'id', 'name', 'email', 'password', 'role', 'status', 'nisn'
-        ]));
+        try{
+            $user = $userService->updateUser($request->only([
+                'id', 'name', 'email', 'password', 'role', 'status', 'nisn'
+            ]));
 
-        return response()->json([
-            'status' => 'success',
-            'request' => $user
-        ]);
+            $user->load(['pembinaProfile', 'ekskuls', 'siswaProfile', 'ekskulDibina']);
+
+            return response()->json([
+                'status' => 'success',
+                'item' => $user
+            ]);
+        }catch(\Throwable $e){
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function destroy(Request $request, UserService $userService)
     {
         $user = $userService->deleteUser($request->id);
 
+        $user->load(['pembinaProfile', 'siswaProfile', 'ekskulDibina', 'ekskuls']);
+
         return response()->json([
             'status' => 'success',
-            'user' => $user,
+            'item' => $user,
         ]);
     }
 

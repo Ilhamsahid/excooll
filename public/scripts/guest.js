@@ -60,68 +60,43 @@ function hideNotification(id) {
     }
 }
 
-// Theme Toggle
-function toggleTheme() {
+// Terapkan theme
+function applyTheme(theme) {
     const body = document.body;
     const themeToggles = document.querySelectorAll(".theme-toggle");
     const mobileThemeIcon = document.getElementById("mobileThemeIcon");
 
-    const isDark = body.getAttribute("data-theme") === "dark";
+    body.setAttribute("data-theme", theme);
 
-    if (isDark) {
-        // Switch ke Light
-        body.removeAttribute("data-theme");
+    if (theme === "dark") {
         themeToggles.forEach((toggle) => {
-            if (toggle.textContent.includes("Ganti")) {
-                toggle.innerHTML = "<span>🌙</span> Ganti Tema";
-            } else {
-                toggle.textContent = "🌙";
-            }
-        });
-        if (mobileThemeIcon) mobileThemeIcon.textContent = "🌙";
-        localStorage.setItem("theme", "light");
-    } else {
-        // Switch ke Dark
-        body.setAttribute("data-theme", "dark");
-        themeToggles.forEach((toggle) => {
-            if (toggle.textContent.includes("Ganti")) {
-                toggle.innerHTML = "<span>☀️</span> Ganti Tema";
-            } else {
-                toggle.textContent = "☀️";
-            }
+            toggle.innerHTML = toggle.textContent.includes("Ganti")
+                ? "<span>☀️</span> Ganti Tema"
+                : "☀️";
         });
         if (mobileThemeIcon) mobileThemeIcon.textContent = "☀️";
-        localStorage.setItem("theme", "dark");
+    } else {
+        themeToggles.forEach((toggle) => {
+            toggle.innerHTML = toggle.textContent.includes("Ganti")
+                ? "<span>🌙</span> Ganti Tema"
+                : "🌙";
+        });
+        if (mobileThemeIcon) mobileThemeIcon.textContent = "🌙";
     }
 }
 
-// Load saved theme
-function loadTheme() {
-    const savedTheme = localStorage.getItem("theme");
-    const themeToggles = document.querySelectorAll(".theme-toggle");
-    const mobileThemeIcon = document.getElementById("mobileThemeIcon");
+// Toggle theme
+function toggleTheme() {
+    const currentTheme = document.body.getAttribute("data-theme") || "light"; 
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    localStorage.setItem("theme", newTheme);
+    applyTheme(newTheme);
+}
 
-    if (savedTheme === "dark") {
-        document.body.setAttribute("data-theme", "dark");
-        themeToggles.forEach((toggle) => {
-            if (toggle.textContent.includes("Ganti")) {
-                toggle.innerHTML = "<span>☀️</span> Ganti Tema";
-            } else {
-                toggle.textContent = "☀️";
-            }
-        });
-        if (mobileThemeIcon) mobileThemeIcon.textContent = "☀️";
-    } else {
-        document.body.setAttribute("data-theme", "light"); // tambahin ini
-        themeToggles.forEach((toggle) => {
-            if (toggle.textContent.includes("Ganti")) {
-                toggle.innerHTML = "<span>🌙</span> Ganti Tema";
-            } else {
-                toggle.textContent = "🌙";
-            }
-        });
-        if (mobileThemeIcon) mobileThemeIcon.textContent = "🌙";
-    }
+// Load theme saat halaman dibuka
+function loadTheme() {
+    const savedTheme = localStorage.getItem("theme") || "light"; // default light
+    applyTheme(savedTheme);
 }
 
 // Mobile Menu

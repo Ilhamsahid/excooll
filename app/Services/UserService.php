@@ -74,16 +74,20 @@ class UserService
             'status' => $data['status'],
         ]);
 
+        $user = $this->repository->findUserById($data['id']);
+
         if($user->role === 'siswa'){
             if(!$this->repository->findSiswaProfileByIdUser($user->id)){
                 $this->repository->createSiswaProfile([
                     'user_id' => $user->id,
                     'nisn' => $data['nisn'],
                 ]);
-                return;
             }
             $this->repository->updateSiswaProfile($user->id, [
                 'nisn' => $data['nisn'],
+                'jenis_kelamin' => $user->pembinaProfile?->jenis_kelamin ?? null,
+                'no_telephone' => $user->pembinaProfile?->no_telephone ?? null,
+                'alamat' => $user->pembinaProfile?->alamat ?? null,
             ]);
         }
 
@@ -91,11 +95,18 @@ class UserService
             if($user->ekskuls()){
                 $user->ekskuls()->detach();
             }
+
             if(!$this->repository->findPembinaProfileByIdUser($user->id)){
                 $this->repository->createPembinaProfile([
                     'user_id' => $user->id,
                 ]);
             }
+
+            $this->repository->updatePembinaProfile($user->id, [
+                'jenis_kelamin' => $user->siswaProfile?->jenis_kelamin ?? null,
+                'no_telephone' => $user->siswaProfile?->no_telephone ?? null,
+                'alamat' => $user->siswaProfile?->alamat ?? null,
+            ]);
         }
 
         return $user;

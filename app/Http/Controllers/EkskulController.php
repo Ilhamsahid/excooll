@@ -43,9 +43,12 @@ class EkskulController extends Controller
         try {
             $ekskul = $ekskulService->createEkskul($request);
 
+            $ekskul->load(['pembina.pembinaProfile', 'pembina.ekskulDibina', 'schedules']); // pastikan relasi ikut
+            $ekskul->loadCount(['siswa', 'achievements']);
+
             return response()->json([
                 'status' => 'success',
-                'ekskul' => $ekskul,
+                'item' => $ekskul,
             ]);
         } catch (\Throwable $e) {
             return response()->json([
@@ -60,9 +63,12 @@ class EkskulController extends Controller
         try{
             $ekskul = $ekskulService->updateEkskul($request);
 
+            $ekskul->load(['pembina.pembinaProfile', 'pembina.ekskulDibina', 'schedules']); // pastikan relasi ikut
+            $ekskul->loadCount(['siswa', 'achievements']);
+
             return response()->json([
                 'status' => 'success',
-                'request' => $ekskul,
+                'item' => $ekskul,
             ]);
         }catch(\Throwable $e){
             return response()->json([
@@ -76,9 +82,11 @@ class EkskulController extends Controller
     {
         $ekskul = $ekskulService->deleteEkskul($request->id);
 
+        $ekskul->load(['pembina.pembinaProfile', 'pembina.ekskulDibina', 'schedules']); // pastikan relasi ikut
+
         return response()->json([
             'status' => 'success',
-            'request' => $ekskul,
+            'item' => $ekskul,
         ]);
     }
     public function getEkskulJson(EkskulService $ekskulService)
