@@ -16,7 +16,8 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, $role): Response
     {
         if (! $request->user() || $request->user()->role !== $role) {
-            abort(403, 'Unauthorized');
+            session(['unauthorized_redirect' => true, 'role' => $request->user()->role]);
+            return redirect('ekstrasmexa/unauthorized-access');
         }
 
         return $next($request);

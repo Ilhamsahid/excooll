@@ -20,3 +20,11 @@ Route::get('/json/{true}', [GuestController::class, 'getUserEkskul']);
 Route::get('/csrf-token', function () {
     return ['csrf_token' => csrf_token()];
 });
+
+Route::get('ekstrasmexa/unauthorized-access',function(){
+    if(!session()->pull('unauthorized_redirect', false)){
+        abort(404);
+    }
+
+    return view('components.auth.unauthorized', ['role' => session('role')]);
+});

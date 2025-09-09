@@ -10,7 +10,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth.custom', 'role:admin'])->group(function () {
-    Route::get('/ekstrasmexa/admin/{any}', [AdminController::class, 'index'])->where('any', '.*');
+    Route::get('/ekstrasmexa/admin/{any}', [AdminController::class, 'index'])->where('any', '.*')->name('dashboard.admin');
 
     Route::resource('pembina', PembinaController::class);
     Route::resource('student', SiswaController::class);

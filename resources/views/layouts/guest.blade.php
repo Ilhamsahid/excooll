@@ -19,6 +19,10 @@
         window.user = @json($userWithEkskulApproved);
         window.ekskulsUser = @json($ekskulsUser);
         console.log(window.currentUser);
+
+        if(window.currentUser.role == "pembina"){
+            window.currentUser.ekskuls = window.currentUser.ekskul_dibina;
+        }
     </script>
     <script src="{{ asset('scripts/guest.js') }}"></script>
 </body>

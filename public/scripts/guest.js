@@ -626,7 +626,6 @@ function loadActivities(ekskulUser) {
     let flag = false;
 
     for (let i = 0; i < itemsToShow.length; i++) {
-        console.log();
         const activity = itemsToShow[i];
         const card = document.createElement("div");
         card.className = "card";
@@ -641,8 +640,8 @@ function loadActivities(ekskulUser) {
         }
 
         let buttonClass = isMyEkskul
-            ? window.currentUser.ekskuls[i].pivot.status == "pending" ||
-              window.currentUser.ekskuls[i].pivot.status == "ditolak"
+            ? window.currentUser.ekskuls[i].pivot?.status == "pending" ||
+              window.currentUser.ekskuls[i].pivot?.status == "ditolak"
                 ? "btn btn-disabled"
                 : "btn btn-success"
             : window.currentUser
@@ -652,9 +651,9 @@ function loadActivities(ekskulUser) {
             : "btn btn-disabled";
 
         let buttonText = isMyEkskul
-            ? window.currentUser.ekskuls[i].pivot.status == "pending"
+            ? window.currentUser.ekskuls[i].pivot?.status == "pending"
                 ? "Menunggu permintaan"
-                : window.currentUser.ekskuls[i].pivot.status == "ditolak"
+                : window.currentUser.ekskuls[i].pivot?.status == "ditolak"
                 ? "Permintaan ditolak"
                 : "✨ Kelola Ekskul Saya"
             : window.currentUser
@@ -664,9 +663,11 @@ function loadActivities(ekskulUser) {
             : "🔒 Login untuk Bergabung";
 
         let buttonAction = isMyEkskul
-            ? window.currentUser.ekskuls[i].pivot.status == "pending"
+            ? window.currentUser.ekskuls[i].pivot?.status == "pending"
                 ? `errorModal('Menunggu Permintaan', 'Tunggu Admin Atau Pembina mengonfirmasi kamu untuk bergabung')`
-                : `errorModal('Permintaan Ditolak', 'Permintaan untuk bergabung di ekskul ${window.currentUser.ekskuls[i].nama} ditolak oleh admin atau pembina')`
+                : window.currentUser.role == "pembina"
+                    ? `toDashboard('pembina')`
+                    : `errorModal('Permintaan Ditolak', 'Permintaan untuk bergabung di ekskul ${window.currentUser.ekskuls[i].nama} ditolak oleh admin atau pembina')`
             : window.currentUser
             ? ekskulUser.length >= 3 || window.currentUser.role != "siswa"
                 ? window.currentUser.role != "siswa"
@@ -727,6 +728,10 @@ function errorModal(title, message) {
     newMessage.textContent = message;
 
     openModal("errorModal");
+}
+
+function toDashboard(role){
+    location.href = `ekstrasmexa/${role}/dashboard`;
 }
 
 // Load Announcements with pagination

@@ -39,7 +39,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function getUserWithEkskul()
     {
-        return User::with('ekskuls', 'siswaProfile')->where('id', Auth::user()->id)->first() ?? '';
+        return User::with('ekskuls', 'siswaProfile', 'ekskulDibina')->where('id', Auth::user()->id)->first() ?? '';
     }
 
     public function getUserWithEkskulApproved()

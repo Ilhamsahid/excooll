@@ -31,6 +31,7 @@ class GuestController extends Controller
         $userWithEkskulApproved = Auth::user() ? $this->userService->getUserWithEkskulApproved() : '';
         $ekskulsUser = $user ?  $this->getUserEkskul(false): '';
 
+
         return view('guest.dashboard.index', compact('ekskuls', 'announcements', 'recentActivities', 'user', 'ekskulsUser', 'userWithEkskulApproved'));
     }
 
@@ -38,17 +39,18 @@ class GuestController extends Controller
     public function getUserEkskul($bool)
     {
         $user = $this->userService->getUserWithEkskul();
-        if(!$user->ekskuls->isEmpty()){
-            foreach($user->ekskuls as $u){
+        $conditionUser = $user->role == "pembina" ? $user->ekskulDibina : $user->ekskuls;
+        if(!$conditionUser->isEmpty()){
+            foreach($conditionUser as $u){
                 $idEkskul[] = $u->id;
             }
             $ekskulsUser =  $this->ekskulService->getEkskulByEkskulUser($idEkskul);
         }
 
         if($bool){
-            return !$user->ekskuls->isEmpty() ? response()->json($ekskulsUser) : response()->json();
+            return !$conditionUser->isEmpty() ? response()->json($ekskulsUser) : response()->json();
         }
 
-        return !$user->ekskuls->isEmpty() ?  $ekskulsUser : '';
+        return !$conditionUser->isEmpty() ?  $ekskulsUser : '';
     }
 }

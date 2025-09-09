@@ -86,15 +86,5 @@
             </div>
         </div>
 
-        <!-- NEW SECTION FOR ENHANCED FEATURES -->
-        <div class="nav-section">
-            <div class="nav-section-title">Tools</div>
-            <div class="nav-item">
-                <a href="#" class="nav-link" onclick="navigate(event, 'calendar')" data-section="calendar">
-                    <span class="nav-icon">📅</span>
-                    <span class="nav-text">Kalender</span>
-                </a>
-            </div>
-        </div>
     </nav>
 </aside>
