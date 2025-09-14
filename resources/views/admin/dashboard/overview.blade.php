@@ -115,7 +115,7 @@
                     <span>📢</span>
                     <span>Buat Pengumuman</span>
                 </button>
-                <button class="btn btn-warning hover-lift" onclick="openModal('addMentorModal')">
+                <button class="btn btn-warning hover-lift" onclick="addMentorModal('addMentorModal')">
                     <span>👨‍🏫</span>
                     <span>Tambah Mentor</span>
                 </button>

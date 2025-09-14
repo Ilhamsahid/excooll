@@ -9,7 +9,12 @@ function setTheme(theme) {
     localStorage.setItem("theme", currentTheme);
 
     const themeIcon = document.getElementById("themeIcon");
-    themeIcon.textContent = currentTheme === "light" ? "🌙" : "☀️";
+    const themeIconMobile = document.getElementById("themeIconMobile");
+
+    if (themeIcon)
+        themeIcon.textContent = currentTheme === "light" ? "🌙" : "☀️";
+    if (themeIconMobile)
+        themeIconMobile.textContent = currentTheme === "light" ? "🌙" : "☀️";
 
     // Enhanced theme transition effect
     document.body.style.transition = "all 0.3s ease";
@@ -36,7 +41,12 @@ function toggleTheme() {
 function loadTheme() {
     document.body.setAttribute("data-theme", currentTheme);
     const themeIcon = document.getElementById("themeIcon");
-    themeIcon.textContent = currentTheme === "light" ? "🌙" : "☀️";
+    const themeIconMobile = document.getElementById("themeIconMobile");
+
+    if (themeIcon)
+        themeIcon.textContent = currentTheme === "light" ? "🌙" : "☀️";
+    if (themeIconMobile)
+        themeIconMobile.textContent = currentTheme === "light" ? "🌙" : "☀️";
 
     // Apply system theme preference if no saved theme
     if (!localStorage.getItem("theme")) {
@@ -106,26 +116,28 @@ function closeNotification(id) {
     }
 }
 
-// ===== ACTION FUNCTIONS =====
-function showLoginOptions() {
-    showNotification(
-        "Opsi Login",
-        "Silakan pilih jenis akun Anda: Admin, Instruktur, atau Siswa untuk mengakses area yang sesuai",
-        "info",
-        4000
-    );
-
-    // Simulate login modal or redirect
-    setTimeout(() => {
-        showNotification(
-            "Login Required",
-            "Fitur login akan mengarahkan Anda ke halaman login yang sesuai dengan peran Anda",
-            "warning",
-            3000
-        );
-    }, 1500);
+// ===== DESKTOP SPECIFIC FUNCTIONS =====
+function updateCurrentTime() {
+    const timeElement = document.getElementById("currentTime");
+    if (timeElement) {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+        });
+        timeElement.textContent = timeString;
+    }
 }
 
+function updateConnectionStatus() {
+    const statusElement = document.getElementById("connectionStatus");
+    if (statusElement) {
+        statusElement.textContent = navigator.onLine ? "Online" : "Offline";
+    }
+}
+
+// ===== ACTION FUNCTIONS =====
 function contactSupport() {
     showNotification(
         "Menghubungi Support",
@@ -134,7 +146,6 @@ function contactSupport() {
         6000
     );
 
-    // Enhanced contact info with animation
     setTimeout(() => {
         showNotification(
             "Jam Operasional",
@@ -145,6 +156,33 @@ function contactSupport() {
     }, 2000);
 }
 
+function showHelp() {
+    showNotification(
+        "Panduan Bantuan",
+        "T: Toggle tema, B: Kembali ke beranda, H: Bantuan, Enter: Hubungi support. Gunakan navigasi untuk akses cepat",
+        "info",
+        6000
+    );
+}
+
+function showPrivacy() {
+    showNotification(
+        "Kebijakan Privasi",
+        "EkstraKu berkomitmen melindungi privasi dan data pengguna sesuai dengan standar keamanan terbaik",
+        "info",
+        5000
+    );
+}
+
+function showTerms() {
+    showNotification(
+        "Syarat Layanan",
+        "Silakan baca syarat dan ketentuan penggunaan sistem EkstraKu sebelum melakukan registrasi",
+        "info",
+        4000
+    );
+}
+
 function requestAccess() {
     showNotification(
         "Request Akses Diproses",
@@ -153,7 +191,6 @@ function requestAccess() {
         5000
     );
 
-    // Show additional information
     setTimeout(() => {
         showNotification(
             "Informasi Request",
@@ -172,7 +209,6 @@ function reportIssue() {
         5000
     );
 
-    // Show tracking info
     setTimeout(() => {
         const reportId =
             "RPT-" + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -183,23 +219,6 @@ function reportIssue() {
             6000
         );
     }, 2000);
-}
-
-// ===== ENHANCED SECURITY MONITORING =====
-function logSecurityEvent() {
-    const timestamp = new Date().toISOString();
-    const userAgent = navigator.userAgent;
-    const referrer = document.referrer || "Direct Access";
-
-    console.log("🔒 Security Event Logged:", {
-        timestamp,
-        event: "Unauthorized Access Attempt",
-        userAgent,
-        referrer,
-        url: window.location.href,
-    });
-
-    // In production, this would send to security monitoring service
 }
 
 // ===== ENHANCED KEYBOARD SHORTCUTS =====
@@ -230,7 +249,7 @@ function setupKeyboardShortcuts() {
         // B for back to home
         if (e.key.toLowerCase() === "b") {
             e.preventDefault();
-            window.location.href = "guest.html";
+            goHome();
         }
 
         // Enter to contact support
@@ -239,15 +258,6 @@ function setupKeyboardShortcuts() {
             contactSupport();
         }
     });
-}
-
-function showHelp() {
-    showNotification(
-        "Panduan Bantuan",
-        "T: Toggle tema, B: Kembali ke beranda, H: Bantuan, Enter: Hubungi support. Gunakan tombol di bawah untuk navigasi",
-        "info",
-        6000
-    );
 }
 
 // ===== ENHANCED MOBILE DETECTION AND OPTIMIZATION =====
@@ -302,23 +312,6 @@ function detectMobileAndOptimize() {
     });
 }
 
-// ===== ENHANCED ANALYTICS AND TRACKING =====
-function trackPageView() {
-    const pageData = {
-        page: "unauthorized",
-        timestamp: new Date().toISOString(),
-        referrer: document.referrer || "Direct",
-        userAgent: navigator.userAgent,
-        theme: currentTheme,
-        screenSize: `${window.innerWidth}x${window.innerHeight}`,
-        language: navigator.language,
-    };
-
-    console.log("📊 Page View Tracked:", pageData);
-
-    // In production, this would send analytics data to tracking service
-}
-
 // ===== ENHANCED ERROR HANDLING =====
 window.addEventListener("error", function (e) {
     console.error("🚨 JavaScript Error:", e.error);
@@ -340,100 +333,26 @@ window.addEventListener("unhandledrejection", function (e) {
     );
 });
 
-// ===== ENHANCED ACCESSIBILITY =====
-function enhanceAccessibility() {
-    // Add skip link for screen readers
-    const skipLink = document.createElement("a");
-    skipLink.href = "#main-content";
-    skipLink.textContent = "Skip to main content";
-    skipLink.style.cssText = `
-                position: absolute;
-                left: -10000px;
-                top: auto;
-                width: 1px;
-                height: 1px;
-                overflow: hidden;
-            `;
-    skipLink.addEventListener("focus", function () {
-        this.style.cssText = `
-                    position: fixed;
-                    left: 6px;
-                    top: 6px;
-                    background: var(--bg-surface);
-                    color: var(--text-primary);
-                    padding: 8px 16px;
-                    border-radius: 4px;
-                    box-shadow: var(--shadow-lg);
-                    z-index: 10000;
-                    text-decoration: none;
-                `;
-    });
-    skipLink.addEventListener("blur", function () {
-        this.style.cssText = `
-                    position: absolute;
-                    left: -10000px;
-                    top: auto;
-                    width: 1px;
-                    height: 1px;
-                    overflow: hidden;
-                `;
-    });
-    document.body.insertBefore(skipLink, document.body.firstChild);
-
-    // Add main content ID
-    const mainCard = document.querySelector(".unauthorized-card");
-    mainCard.id = "main-content";
-    mainCard.setAttribute("role", "main");
-    mainCard.setAttribute("aria-labelledby", "page-title");
-
-    // Add IDs for accessibility
-    const title = document.querySelector(".unauthorized-title");
-    title.id = "page-title";
-    title.setAttribute("role", "heading");
-    title.setAttribute("aria-level", "1");
-
-    console.log("♿ Accessibility enhancements applied");
-}
-
-// ===== ENHANCED PERFORMANCE MONITORING =====
-function monitorPerformance() {
-    const perfData = {
-        loadTime: performance.now(),
-        memoryUsed: performance.memory
-            ? Math.round(performance.memory.usedJSHeapSize / 1024 / 1024) + "MB"
-            : "N/A",
-        connectionType: navigator.connection
-            ? navigator.connection.effectiveType
-            : "Unknown",
-        viewport: `${window.innerWidth}x${window.innerHeight}`,
-    };
-
-    console.log("⚡ Performance Metrics:", perfData);
-
-    // Monitor frame rate
-    let frameCount = 0;
-    function countFrames() {
-        frameCount++;
-        if (frameCount === 60) {
-            console.log("🎞️ Frame Rate: Good (60fps achieved in 1 second)");
-            return;
-        }
-        requestAnimationFrame(countFrames);
+function checkDevice() {
+    const isDesktop = window.innerWidth >= 1024;
+    if (isDesktop) {
+        document.getElementById("mobilenav").style.display = "none";
+    } else {
+        document.getElementById("mobilenav").style.display = "flex";
     }
-    requestAnimationFrame(countFrames);
 }
 
 // ===== INITIALIZATION =====
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("🚀 Initializing EkstraKu Unauthorized Page...");
+    checkDevice();
+
+    window.addEventListener("resize", checkDevice);
+    console.log("🚀 Initializing Enhanced EkstraKu Unauthorized Page...");
 
     const startTime = performance.now();
 
     // Load theme
     loadTheme();
-
-    // Log security event
-    logSecurityEvent();
 
     // Setup keyboard shortcuts
     setupKeyboardShortcuts();
@@ -441,69 +360,44 @@ document.addEventListener("DOMContentLoaded", function () {
     // Detect and optimize for mobile
     detectMobileAndOptimize();
 
-    // Track page view
-    trackPageView();
+    // Start time updates for desktop
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
 
-    // Enhance accessibility
-    enhanceAccessibility();
+    // Monitor connection status
+    updateConnectionStatus();
+    window.addEventListener("online", function () {
+        updateConnectionStatus();
+        showNotification(
+            "Koneksi Restored",
+            "Koneksi internet telah pulih. Semua fitur sekarang tersedia kembali.",
+            "success",
+            3000
+        );
+    });
 
-    // Monitor performance
-    monitorPerformance();
+    window.addEventListener("offline", function () {
+        updateConnectionStatus();
+        showNotification(
+            "Koneksi Terputus",
+            "Koneksi internet terputus. Beberapa fitur mungkin tidak tersedia.",
+            "error",
+            5000
+        );
+    });
 
     // Enhanced responsive handling
     window.addEventListener("resize", function () {
         detectMobileAndOptimize();
     });
 
-    // Add focus management
-    const focusableElements = document.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-
-    // Trap focus within the card
-    document.addEventListener("keydown", function (e) {
-        if (e.key === "Tab") {
-            const firstElement = focusableElements[0];
-            const lastElement = focusableElements[focusableElements.length - 1];
-
-            if (e.shiftKey) {
-                if (document.activeElement === firstElement) {
-                    e.preventDefault();
-                    lastElement.focus();
-                }
-            } else {
-                if (document.activeElement === lastElement) {
-                    e.preventDefault();
-                    firstElement.focus();
-                }
-            }
-        }
-    });
-
-    // Auto-focus first button for better UX
-    setTimeout(() => {
-        const firstButton = document.querySelector(".btn-primary");
-        if (firstButton && !("ontouchstart" in window)) {
-            firstButton.focus();
-        }
-    }, 1000);
-
     const endTime = performance.now();
     console.log(
-        `✅ Page initialized successfully in ${Math.round(
+        `✅ Enhanced page initialized successfully in ${Math.round(
             endTime - startTime
         )}ms`
     );
 
-    // Show welcome notification
-    setTimeout(() => {
-        showNotification(
-            "Akses Dibatasi",
-            "Halaman yang Anda coba akses memerlukan otentikasi. Silakan login atau hubungi administrator untuk bantuan.",
-            "warning",
-            5000
-        );
-    }, 1500);
 
     // Add ripple animation CSS
     const rippleStyle = document.createElement("style");
@@ -518,133 +412,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.head.appendChild(rippleStyle);
 });
 
-// ===== ENHANCED URL MONITORING =====
-function monitorAccess() {
-    const currentUrl = window.location.href;
-    const referrer = document.referrer;
-
-    // Check for suspicious access patterns
-    const suspiciousPatterns = [
-        "admin",
-        "instructor",
-        "student",
-        "dashboard",
-        "management",
-        "settings",
-        "config",
-        "api",
-    ];
-
-    const isSuspicious = suspiciousPatterns.some(
-        (pattern) =>
-            currentUrl.toLowerCase().includes(pattern) ||
-            referrer.toLowerCase().includes(pattern)
-    );
-
-    if (isSuspicious) {
-        console.warn("🔍 Suspicious access detected:", {
-            currentUrl,
-            referrer,
-        });
-
-        showNotification(
-            "Akses Dimonitor",
-            "Aktivitas akses ini telah dicatat untuk keperluan keamanan sistem",
-            "warning",
-            4000
-        );
-    }
-}
-
-// ===== SERVICE WORKER SUPPORT =====
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-        console.log(
-            "🔧 Service Worker support detected - Ready for offline functionality"
-        );
-    });
-}
-
-// ===== ENHANCED BROWSER COMPATIBILITY =====
-function checkBrowserCompatibility() {
-    const features = {
-        css_grid: CSS.supports("display", "grid"),
-        css_flexbox: CSS.supports("display", "flex"),
-        css_variables: CSS.supports("color", "var(--test)"),
-        backdrop_filter: CSS.supports("backdrop-filter", "blur(1px)"),
-        intersection_observer: "IntersectionObserver" in window,
-        local_storage: "localStorage" in window,
-    };
-
-    const incompatibleFeatures = Object.entries(features)
-        .filter(([key, value]) => !value)
-        .map(([key]) => key);
-
-    if (incompatibleFeatures.length > 0) {
-        showNotification(
-            "Browser Compatibility",
-            `Beberapa fitur mungkin tidak bekerja optimal. Disarankan menggunakan browser modern seperti Chrome, Firefox, atau Safari terbaru.`,
-            "warning",
-            6000
-        );
-    }
-
-    console.log("🌐 Browser Compatibility:", features);
-}
-
-// ===== FINAL INITIALIZATION =====
-document.addEventListener("DOMContentLoaded", function () {
-    // Run compatibility check
-    checkBrowserCompatibility();
-
-    history.replaceState({ page: "home" }, "Home Page", "/home");
-
-    // Monitor access patterns
-    monitorAccess();
-
-    // Add enhanced interaction tracking
-    let interactionCount = 0;
-    document.addEventListener("click", function (e) {
-        interactionCount++;
-        console.log(
-            `🖱️ User Interaction #${interactionCount}:`,
-            e.target.tagName
-        );
-    });
-
-    // Enhanced page visibility API
-    document.addEventListener("visibilitychange", function () {
-        if (document.hidden) {
-            console.log("👁️ Page hidden at:", new Date().toISOString());
-        } else {
-            console.log("👁️ Page visible at:", new Date().toISOString());
-        }
-    });
-
-    // Network status monitoring
-    window.addEventListener("online", function () {
-        showNotification(
-            "Koneksi Restored",
-            "Koneksi internet telah pulih. Semua fitur sekarang tersedia kembali.",
-            "success",
-            3000
-        );
-    });
-
-    window.addEventListener("offline", function () {
-        showNotification(
-            "Koneksi Terputus",
-            "Koneksi internet terputus. Beberapa fitur mungkin tidak tersedia.",
-            "error",
-            5000
-        );
-    });
-
-    console.log("🎯 All systems initialized successfully!");
-});
-
 // ===== MEMORY CLEANUP =====
 window.addEventListener("beforeunload", function () {
-    // Cleanup any intervals or event listeners
     console.log("🧹 Cleaning up resources before page unload");
 });
