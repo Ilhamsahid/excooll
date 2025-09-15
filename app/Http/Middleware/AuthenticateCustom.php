@@ -16,7 +16,7 @@ class AuthenticateCustom
     public function handle(Request $request, Closure $next): Response
     {
         if(!$request->user()){
-            return redirect('/ekstrasmexa');
+            abort(404);
         }
 
         return $next($request);

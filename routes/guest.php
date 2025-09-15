@@ -9,7 +9,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/ekstrasmexa', [GuestController::class, 'index']);
+Route::get('/ekstrasmexa', [GuestController::class, 'index'])->name('ekstrasmexa');
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -26,5 +26,9 @@ Route::get('ekstrasmexa/unauthorized-access',function(){
         abort(404);
     }
 
-    return view('components.auth.unauthorized', ['role' => session('role')]);
+    return abort(403);
 });
+
+Route::fallback(function () {
+    abort(404);
+})->middleware('web');
