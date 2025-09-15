@@ -10,6 +10,24 @@ class PembinaController extends Controller
 
     public function index()
     {
+        $path = request()->path();
+        $lastSegment = collect(explode('/', $path))->last();
+
+        $sections = [
+            "dashboard",
+            "profile",
+            "calendar",
+            "attendance",
+            "activities",
+            "announcements",
+            "students",
+            "applications",
+        ];
+
+        if(!in_array($lastSegment, $sections)){
+            abort(404);
+        }
+
         return view('pembina.main');
     }
 

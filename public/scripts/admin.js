@@ -336,8 +336,6 @@ function showSection(sectionName) {
 
     // Save current section
     localStorage.setItem("currentSection", sectionName);
-
-    // Update URL without refresh (if browser supports it)
 }
 
 window.addEventListener("popstate", function (event) {

@@ -176,6 +176,23 @@ function loadSidebarState() {
     }
 }
 
+function navigate(event, sectionName) {
+    event.preventDefault();
+    history.pushState(
+        { section: sectionName },
+        "",
+        `/ekstrasmexa/pembina/${sectionName}`
+    );
+
+    showSection(sectionName);
+}
+
+window.addEventListener("popstate", function (event) {
+    if (event.state && event.state.section) {
+        showSection(event.state.section);
+    }
+});
+
 // ===== SECTION MANAGEMENT =====
 function showSection(sectionName) {
     // Remove active class from all sections and navigation
@@ -1172,7 +1189,6 @@ document.addEventListener("DOMContentLoaded", function () {
     loadTheme();
     loadSidebarState();
 
-    // Load initial section
     const urlHash = window.location.hash.slice(1);
     const savedSection = localStorage.getItem("currentSection");
     const initialSection = urlHash || savedSection || "dashboard";
@@ -1181,6 +1197,13 @@ document.addEventListener("DOMContentLoaded", function () {
         showSection(initialSection);
     } else {
         showSection("dashboard");
+    }
+
+    let path = window.location.pathname.split("/").pop(); // ambil bagian terakhir URL
+    if (path) {
+        showSection(path);
+    } else {
+        showSection("dashboard"); // default
     }
 
     // Set up event listeners

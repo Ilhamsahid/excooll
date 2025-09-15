@@ -19,6 +19,26 @@ class AdminController extends Controller
         $pembina = $userService->getAllPembina();
         $pengguna = $userService->getAllUser();
 
-        return view('admin.main', compact('ekstra', 'siswa', 'pendaftaran', 'kelas', 'pengumuman', 'pembina', 'pengguna'));
+        $path = request()->path(); 
+        $lastSegment = collect(explode('/', $path))->last();
+
+        $sections = [
+            'dashboard', 
+            'analytics',
+            'activities',
+            'students',
+            'registrations',
+            'announcements',
+            'mentors',
+            'users',
+            'settings',
+            'reports',
+        ];
+
+        if (!in_array($lastSegment, $sections)) {
+            abort(404);
+        }
+
+        return view('admin.main', compact('ekstra', 'siswa', 'pendaftaran', 'kelas', 'pengumuman', 'pembina', 'pengguna', 'lastSegment'));
     }
 }
