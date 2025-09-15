@@ -19,6 +19,7 @@ let currentRegistrationStatus = "all"; // simpan status tab aktif
 let filteredData = {};
 let isRegistration = false;
 let nameKegiatan = null;
+let filterRegistration = {};
 
 // Enhanced touch detection for better mobile experience
 let isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
@@ -361,7 +362,7 @@ function loadSectionData(sectionName) {
             loadStudentsTable();
             break;
         case "registrations":
-            loadRegistrationsTable(currentRegistrationStatus);
+            loadRegistrationsTable(currentRegistrationStatus, filterRegistration);
             break;
         case "announcements":
             loadAnnouncementsGrid();
@@ -1355,7 +1356,7 @@ function loadStudentsTable() {
     updatePagination("students", data.length);
 }
 
-function loadRegistrationsTable(status = "all") {
+function loadRegistrationsTable(status = "all", filter = null) {
     // Flatten data dari registration.siswa
     let allRows = getFilteredData("registrations").flatMap((registration) => {
         return registration.siswa.map((s) => ({
@@ -1376,10 +1377,24 @@ function loadRegistrationsTable(status = "all") {
         return new Date(b.tanggal) - new Date(a.tanggal);
     });
 
-    filteredRows = allRows;
+    filteredRows = [...allRows];
+
+    if(filter){
+        filteredRows = filteredRows.filter((row) =>
+            (!filter.grade || row.kelas == filter.grade) &&
+            (!filter.activity || row.kegiatan.includes(filter.activity)) &&
+            (!filter.searchInput ||
+                row.nama.toLowerCase().includes(filter.searchInput) ||
+                row.email.toLowerCase().includes(filter.searchInput) ||
+                row.kegiatan.toLowerCase().includes(filter.searchInput)
+            )
+        );
+
+        registrationFiltered = filteredRows;
+    }
 
     if (status !== "all") {
-        filteredRows = allRows.filter((row) => row.status === status);
+        filteredRows = filteredRows.filter((row) => row.status === status);
     }
 
     const tbody = document.getElementById("registrationsTableBody");
@@ -1401,7 +1416,7 @@ function loadRegistrationsTable(status = "all") {
                         </td>
                     </tr>
                 `;
-        updateRegistrationTabs();
+        updateRegistrationTabs(registrationFiltered);
         updatePagination(
             "registrations",
             filteredRows.length === 0 ? 0 : filteredRows.length
@@ -1492,7 +1507,7 @@ function loadRegistrationsTable(status = "all") {
         tbody.appendChild(row);
     });
 
-    updateRegistrationTabs();
+    updateRegistrationTabs(registrationFiltered);
     updatePagination(
         "registrations",
         filteredRows.length === 0 ? 0 : filteredRows.length
@@ -1895,7 +1910,7 @@ function filterStudents() {
 
     filteredData.students = sampleData.students.filter((student) => {
         const matchesGrade =
-            !gradeFilter || student.siswa_profile.kelas === gradeFilter;
+            !gradeFilter || student.siswa_profile?.kelas === gradeFilter;
         const matchesActivity =
             !activityFilter ||
             student.ekskuls.some((e) =>
@@ -1915,6 +1930,39 @@ function filterStudents() {
     loadStudentsTable();
 }
 
+function filterRegistrations(){
+    const gradeFilter = document.getElementById('studentRegistrationFilter').value;
+    const activityFilter = document.getElementById('studentRegEkskulFilter').value;
+    const searchInput = document.getElementById('registrationSearchInput').value.toLowerCase();
+
+    let registration = getFilteredData("registrations").flatMap((registration) => {
+        return registration.siswa.map((s) => ({
+            siswa_id: s.id,
+            nama: s.name,
+            email: s.email,
+            kelas: s.siswa_profile.kelas,
+            kegiatan: registration.nama,
+            tanggal: s.pivot.created_at,
+            status: s.pivot.status,
+        }))
+        .filter(
+            (reg) => 
+                !gradeFilter || reg.kelas == gradeFilter
+        );
+    });
+
+    currentPage.registrations = 1;
+    filteredRows = registration;
+    filterRegistration = {
+        grade: gradeFilter,
+        activity: activityFilter,
+        searchInput: searchInput
+    }
+    loadRegistrationsTable(currentRegistrationStatus, filterRegistration);
+
+    return filterRegistration;
+}
+
 function filterRegistrationsByStatus(status) {
     // Update tab active state
     document
@@ -1927,20 +1975,15 @@ function filterRegistrationsByStatus(status) {
         .classList.add("active");
 
     currentRegistrationStatus = status;
-    loadRegistrationsTable(currentRegistrationStatus);
+    filter = filterRegistrations();
+    loadRegistrationsTable(currentRegistrationStatus, filter);
 }
 
-function updateRegistrationTabs() {
-    let allRows = getFilteredData("registrations").flatMap((registration) => {
-        return registration.siswa.map((s) => ({
-            status: s.pivot.status,
-        }));
-    });
-
-    const all = allRows.length;
-    const pending = allRows.filter((r) => r.status === "pending").length;
-    const approved = allRows.filter((r) => r.status === "diterima").length;
-    const rejected = allRows.filter((r) => r.status === "ditolak").length;
+function updateRegistrationTabs(registrations) {
+    const all = registrations.length;
+    const pending = registrations.filter((r) => r.status === "pending").length;
+    const approved = registrations.filter((r) => r.status === "diterima").length;
+    const rejected = registrations.filter((r) => r.status === "ditolak").length;
 
     document.getElementById("regTabAll").textContent = `Semua (${all})`;
     document.getElementById(

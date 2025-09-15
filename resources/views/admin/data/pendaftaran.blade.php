@@ -19,6 +19,32 @@
             </div>
         </div>
 
+        <div class="filters-section">
+            <div class="filter-group">
+                <label class="form-label">Kelas</label>
+                <select class="form-select" id="studentRegistrationFilter" onchange="filterRegistrations()">
+                    <option value="">Semua Kelas</option>
+                    @foreach ($kelas as $k)
+                        <option value="{{ $k }}">{{ $k }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Kegiatan</label>
+                <select class="form-select" id="studentRegEkskulFilter" onchange="filterRegistrations()">
+                    <option value="">Semua Ekstra</option>
+                    @foreach ($ekstra as $eks)
+                        <option value="{{ $eks->nama }}">{{ $eks->nama }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="filter-group search">
+                <label class="form-label">Pencarian</label>
+                <input type="text" class="form-input" placeholder="Cari siswa..." id="registrationSearchInput"
+                    oninput="filterRegistrations()" />
+            </div>
+        </div>
+
         <div class="tabs-container">
             <button class="tab-btn active hover-scale" onclick="filterRegistrationsByStatus('all')" id="regTabAll">
                 Semua (0)
