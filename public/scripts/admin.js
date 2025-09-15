@@ -1944,11 +1944,7 @@ function filterRegistrations(){
             kegiatan: registration.nama,
             tanggal: s.pivot.created_at,
             status: s.pivot.status,
-        }))
-        .filter(
-            (reg) => 
-                !gradeFilter || reg.kelas == gradeFilter
-        );
+        }));
     });
 
     currentPage.registrations = 1;
@@ -1961,6 +1957,26 @@ function filterRegistrations(){
     loadRegistrationsTable(currentRegistrationStatus, filterRegistration);
 
     return filterRegistration;
+}
+
+function filterAnnouncements() {
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const ekskulFilter = document.getElementById('ekskulFilter').value;
+    const announcInput = document.getElementById('announcementSearchInput').value.toLowerCase();
+
+    filteredData.announcements = sampleData.announcements.filter((announc) => {
+        const matchesCategory = !categoryFilter || announc.ekskul.kategori == categoryFilter;
+        const matchesEkskul = !ekskulFilter || announc.ekskul.nama == ekskulFilter;
+        const matchesInput = !announcInput ||
+        announc.judul.toLowerCase().includes(announcInput) ||
+        announc.ekskul.nama.toLowerCase().includes(announcInput) ||
+        announc.ekskul.kategori.toLowerCase().includes(announcInput);
+
+        return matchesCategory && matchesEkskul && matchesInput;
+    });
+
+    currentPage.announcements = 1;
+    loadAnnouncementsGrid();
 }
 
 function filterRegistrationsByStatus(status) {

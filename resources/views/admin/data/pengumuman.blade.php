@@ -19,6 +19,34 @@
             </div>
         </div>
 
+        <div class="filters-section">
+            <div class="filter-group">
+                <label class="form-label">Kategori</label>
+                <select class="form-select" id="categoryFilter" onchange="filterAnnouncements()">
+                    <option value="">Semua Kategori</option>
+                    <option value="olahraga">Olahraga</option>
+                    <option value="seni">Seni & Budaya</option>
+                    <option value="akademik">Akademik</option>
+                    <option value="teknologi">Teknologi</option>
+                    <option value="sosial">Sosial</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Kegiatan</label>
+                <select class="form-select" id="ekskulFilter" onchange="filterAnnouncements()">
+                    <option value="">Semua Ekstra</option>
+                    @foreach ($ekstra as $eks)
+                        <option value="{{ $eks->nama }}">{{ $eks->nama }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="filter-group search">
+                <label class="form-label">Pencarian</label>
+                <input type="text" class="form-input" placeholder="Cari judul pengumuman..." id="announcementSearchInput"
+                    oninput="filterAnnouncements()" />
+            </div>
+        </div>
+
         <div class="announcements-grid" id="announcementsGrid"></div>
 
         <div class="pagination" id="announcementsPagination"></div>
