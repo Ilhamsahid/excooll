@@ -19,6 +19,25 @@
             </div>
         </div>
 
+        <div class="filters-section">
+            <div class="filter-group">
+                <label class="form-label">Kategori</label>
+                <select class="form-select" id="ekskulPembinaFilter" onchange="filterPembina()">
+                    <option value="">Semua Kategori</option>
+                    <option value="olahraga">Olahraga</option>
+                    <option value="seni">Seni & Budaya</option>
+                    <option value="akademik">Akademik</option>
+                    <option value="teknologi">Teknologi</option>
+                    <option value="sosial">Sosial</option>
+                </select>
+            </div>
+            <div class="filter-group search">
+                <label class="form-label">Pencarian</label>
+                <input type="text" class="form-input" placeholder="Cari pembina..." id="searchPembina"
+                    oninput="filterPembina()" />
+            </div>
+        </div>
+
         <div class="table-container">
             <div class="table-wrapper">
                 <table class="table">

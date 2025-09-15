@@ -1979,6 +1979,23 @@ function filterAnnouncements() {
     loadAnnouncementsGrid();
 }
 
+function filterPembina() {
+    const ekskulFilter = document.getElementById('ekskulPembinaFilter').value;
+    const searchInput = document.getElementById('searchPembina').value.toLowerCase();
+
+    filteredData.mentors = sampleData.mentors.filter((mentor) => {
+        const matchesEkskul = !ekskulFilter || mentor.ekskul_dibina[0]?.kategori == ekskulFilter;
+        const matchesSearch = !searchInput ||
+        mentor.name.toLowerCase().includes(searchInput) ||
+        mentor.email.toLowerCase().includes(searchInput);
+
+        return matchesEkskul && matchesSearch;
+    });
+
+    currentPage.mentors = 1;
+    loadMentorsTable();
+}
+
 function filterRegistrationsByStatus(status) {
     // Update tab active state
     document
