@@ -1996,6 +1996,25 @@ function filterPembina() {
     loadMentorsTable();
 }
 
+function filterUser() {
+    const roleUser = document.getElementById("roleFilter").value;
+    const statusUser = document.getElementById("statusFilter").value;
+    const searchUser = document.getElementById("searchUser").value.toLowerCase();
+
+    filteredData.users = sampleData.users.filter((user) => {
+        const matchesRole = !roleUser || user.role == roleUser;
+        const matchesStatus = !statusUser || user.status == statusUser;
+        const matchesSearch = !searchUser ||
+        user.name.toLowerCase().includes(searchUser) ||
+        user.email.toLowerCase().includes(searchUser);
+
+        return matchesRole && matchesStatus && matchesSearch;
+    });
+
+    currentPage.users = 1;
+    loadUsersTable();
+}
+
 function filterRegistrationsByStatus(status) {
     // Update tab active state
     document

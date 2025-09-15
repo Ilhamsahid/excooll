@@ -19,6 +19,31 @@
             </div>
         </div>
 
+        <div class="filters-section">
+            <div class="filter-group">
+                <label class="form-label">Role</label>
+                <select class="form-select" id="roleFilter" onchange="filterUser()">
+                    <option value="">Semua Role</option>
+                    <option value="admin">Admin</option>
+                    <option value="pembina">Pembina</option>
+                    <option value="siswa">Siswa</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="statusFilter" onchange="filterUser()">
+                    <option value="">Semua status</option>
+                    <option value="aktif">aktif</option>
+                    <option value="nonaktif">nonaktif</option>
+                </select>
+            </div>
+            <div class="filter-group search">
+                <label class="form-label">Pencarian</label>
+                <input type="text" class="form-input" placeholder="Cari users..." id="searchUser"
+                    oninput="filterUser()" />
+            </div>
+        </div>
+
         <div class="table-container">
             <div class="table-wrapper">
                 <table class="table">
