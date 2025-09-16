@@ -8,7 +8,7 @@
                     font-weight: var(--font-weight-bold);
                     margin-bottom: var(--space-4);
                     color: white;
-                  ">
+                  " id="namaDashboard">
                 Selamat Datang, Ahmad Surya! 👋
             </h1>
             <p
@@ -17,7 +17,8 @@
                     opacity: 0.9;
                     margin-bottom: var(--space-6);
                     color: white;
-                  ">
+                  "
+                  id="deskripsiDashboard">
                 Kelola ekstrakurikuler Klub Basket dengan mudah dan pantau
                 perkembangan siswa secara real-time
             </p>
@@ -60,7 +61,7 @@
                 <div class="stat-icon animate-float">👥</div>
             </div>
             <div class="stat-number" id="totalStudents">85</div>
-            <div class="stat-label">Total Siswa Klub Basket</div>
+            <div class="stat-label" id="cardEkskul">Total Siswa Klub Basket</div>
             <div class="stat-change positive">
                 <span class="stat-change-icon">↗</span>
                 <span>+5 siswa bulan ini</span>
@@ -93,13 +94,13 @@
 
         <div class="stat-card secondary">
             <div class="stat-header">
-                <div class="stat-icon animate-float">🏆</div>
+                <div class="stat-icon animate-float">📅</div>
             </div>
             <div class="stat-number" id="achievements">7</div>
-            <div class="stat-label">Prestasi Semester Ini</div>
+            <div class="stat-label">Absensi Hari Ini</div>
             <div class="stat-change positive">
                 <span class="stat-change-icon">↗</span>
-                <span>+2 prestasi baru</span>
+                <span>+5 absensi baru</span>
             </div>
         </div>
     </div>

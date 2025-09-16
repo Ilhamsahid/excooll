@@ -62,7 +62,15 @@ class UserRepository implements UserRepositoryInterface
 
     public function getUserNow($id)
     {
-        return User::with(['ekskuLDibina', 'pembinaProfile', 'siswaProfile', 'ekskuls'])->where('id', $id)->first();
+        return User::with([
+            'ekskulDibina' => function ($q) {
+                $q->withCount('siswa');
+        },
+        'pembinaProfile',
+        'siswaProfile',
+        'ekskuls'
+        ])
+        ->where('id', $id)->first();
     }
 
     public function cekUserStudentWithEmail($request, $id)

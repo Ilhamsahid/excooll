@@ -30,6 +30,9 @@
 
     <div id="notificationContainer" class="notification-container"></div>
 
+    <script>
+        let pembina = @json($pembina);
+    </script>
     <script src="{{ asset('scripts/pembina.js') }}"></script>
 </body>
 

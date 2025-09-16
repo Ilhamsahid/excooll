@@ -322,7 +322,11 @@ function loadSectionData(sectionName) {
 
 function loadDashboardData() {
     // Animate counters with Klub Basket specific data
-    animateCounter("totalStudents", 85);
+    document.getElementById("namaDashboard").innerText = `Selamat Datang, ${pembina.name}! 👋`;
+    document.getElementById("deskripsiDashboard").innerText = `Kelola ekstrakurikuler ${pembina.ekskul_dibina[0].nama} dengan mudah dan pantau perkembangan siswa secara real-time`;
+    document.getElementById("cardEkskul").textContent = `Total siswa ${pembina.ekskul_dibina[0].nama}`;
+
+    animateCounter("totalStudents", pembina.ekskul_dibina[0].siswa_count);
     animateCounter("totalActivities", 12);
     animateCounter("achievements", 7);
 
