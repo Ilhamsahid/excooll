@@ -121,10 +121,10 @@
                     Kelas XI IPA 2 • NISN: 0012345678 • Datang: 15:25
                 </div>
                 <div class="attendance-actions">
-                    <button class="btn btn-ghost btn-sm" onclick="viewStudentProfile('ahmad_rizki')">
+                    <button class="btn btn-ghost btn-sm" onclick="viewAttendanceProfile('ahmad_rizki')">
                         👤 Profil
                     </button>
-                    <button class="btn btn-ghost btn-sm" onclick="editAttendanceStatus('ahmad_rizki')">
+                    <button class="btn btn-ghost btn-sm" onclick="editAttendanceProfile('ahmad_rizki')">
                         ✏️ Edit
                     </button>
                 </div>

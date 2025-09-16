@@ -7,6 +7,56 @@ let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let selectedDate = null;
 
+const studentsData = {
+    ahmad_rizki: {
+        name: "Ahmad Rizki Pratama",
+        nisn: "0012345678",
+        class: "XI IPA 2",
+        email: "ahmad.rizki@student.school.id",
+        phone: "+62 812-1234-5678",
+        position: "Point Guard",
+        status: "Tim Inti",
+        attendanceRate: 96,
+        totalSessions: 50,
+        presentCount: 48,
+        lateCount: 2,
+        absentCount: 0,
+        recentAttendance: [
+            {
+                date: "2025-03-15",
+                status: "present",
+                time: "15:25",
+                activity: "Latihan Basket Reguler",
+            },
+            {
+                date: "2025-03-14",
+                status: "present",
+                time: "15:30",
+                activity: "Latihan Shooting",
+            },
+            {
+                date: "2025-03-13",
+                status: "late",
+                time: "15:45",
+                activity: "Latihan Fisik",
+                notes: "Terlambat 15 menit",
+            },
+            {
+                date: "2025-03-12",
+                status: "present",
+                time: "15:28",
+                activity: "Latihan Taktik",
+            },
+            {
+                date: "2025-03-11",
+                status: "present",
+                time: "15:30",
+                activity: "Latihan Reguler",
+            },
+        ],
+    },
+};
+
 // Sample schedule data for Klub Basket only
 const basketSchedules = {
     "2025-03-15": [
@@ -690,6 +740,389 @@ function filterAttendance(status) {
             card.style.display = cardStatus ? "block" : "none";
         }
     });
+
+    showSection("attendance");
+}
+
+function viewAttendanceProfile(studentId) {
+    const student = studentsData[studentId];
+    if (!student) {
+        showNotification("Error", "Data siswa tidak ditemukan", "error");
+        return;
+    }
+
+    const content = document.getElementById("attendanceProfileContent");
+    content.innerHTML = `
+          <div style="text-align: center; margin-bottom: var(--space-6);">
+            <div style="width: 80px; height: 80px; border-radius: var(--radius-2xl); background: linear-gradient(135deg, var(--primary-600), var(--primary-500)); display: flex; align-items: center; justify-content: center; color: white; font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin: 0 auto var(--space-4); box-shadow: var(--shadow-lg);">
+              ${student.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+            </div>
+            <h3 style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--text-primary); margin-bottom: var(--space-2);">
+              ${student.name}
+            </h3>
+            <p style="color: var(--text-secondary); margin-bottom: var(--space-4);">
+              ${student.class} • ${student.nisn} • ${student.position}
+            </p>
+            <span class="badge badge-${
+                student.status === "Tim Inti"
+                    ? "success"
+                    : student.status === "Reserve"
+                    ? "warning"
+                    : "primary"
+            }">${student.status}</span>
+          </div>
+
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-6);">
+            <div class="stat-card success" style="padding: var(--space-3); margin: 0;">
+              <div class="stat-number" style="font-size: var(--font-size-xl);">${
+                  student.attendanceRate
+              }%</div>
+              <div class="stat-label" style="font-size: var(--font-size-xs);">Tingkat Kehadiran</div>
+            </div>
+            <div class="stat-card" style="padding: var(--space-3); margin: 0;">
+              <div class="stat-number" style="font-size: var(--font-size-xl);">${
+                  student.presentCount
+              }</div>
+              <div class="stat-label" style="font-size: var(--font-size-xs);">Total Hadir</div>
+            </div>
+            <div class="stat-card warning" style="padding: var(--space-3); margin: 0;">
+              <div class="stat-number" style="font-size: var(--font-size-xl);">${
+                  student.lateCount
+              }</div>
+              <div class="stat-label" style="font-size: var(--font-size-xs);">Terlambat</div>
+            </div>
+            <div class="stat-card error" style="padding: var(--space-3); margin: 0;">
+              <div class="stat-number" style="font-size: var(--font-size-xl);">${
+                  student.absentCount
+              }</div>
+              <div class="stat-label" style="font-size: var(--font-size-xs);">Tidak Hadir</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: var(--space-6);">
+            <h4 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-4); color: var(--text-primary);">
+              📊 Riwayat Absensi Terbaru
+            </h4>
+            <div style="max-height: 300px; overflow-y: auto;">
+              ${student.recentAttendance
+                  .map(
+                      (record) => `
+                <div class="activity-item" style="margin-bottom: var(--space-2);">
+                  <div class="activity-icon" style="width: 40px; height: 40px; font-size: var(--font-size-sm);">
+                    ${
+                        record.status === "present"
+                            ? "✅"
+                            : record.status === "late"
+                            ? "⏰"
+                            : "❌"
+                    }
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-title">${record.activity}</div>
+                    <div class="activity-description">
+                      ${formatDate(record.date)} • ${
+                          record.time || "Tidak hadir"
+                      }
+                      ${record.notes ? ` • ${record.notes}` : ""}
+                    </div>
+                    <div class="activity-time">
+                      <span class="badge badge-${
+                          record.status === "present"
+                              ? "success"
+                              : record.status === "late"
+                              ? "warning"
+                              : "danger"
+                      }">
+                        ${
+                            record.status === "present"
+                                ? "HADIR"
+                                : record.status === "late"
+                                ? "TERLAMBAT"
+                                : "TIDAK HADIR"
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              `
+                  )
+                  .join("")}
+            </div>
+          </div>
+
+          <div style="display: flex; gap: var(--space-4); justify-content: center; margin-top: var(--space-6);">
+            <button class="btn btn-primary" onclick="editAttendanceRecord('${studentId}')">
+              ✏️ Edit Absensi
+            </button>
+            <button class="btn btn-secondary" onclick="contactStudent('${studentId}')">
+              💬 Kontak Siswa
+            </button>
+          </div>
+        `;
+
+    openModal("attendanceProfileModal");
+}
+
+function editAttendanceRecord(studentId) {
+    const student = studentsData[studentId];
+    if (!student) {
+        showNotification("Error", "Data siswa tidak ditemukan", "error");
+        return;
+    }
+
+    // Close attendance profile modal if open
+    closeModal("attendanceProfileModal");
+
+    // Populate edit form with student data
+    document.getElementById("editStudentName").value = student.name;
+    document.getElementById("editAttendanceDate").value = new Date()
+        .toISOString()
+        .split("T")[0];
+    document.getElementById("editActivityName").value =
+        "Latihan Basket Reguler";
+
+    // Get current attendance status from the most recent record
+    const latestRecord = student.recentAttendance[0];
+    if (latestRecord) {
+        document.getElementById("editAttendanceStatus").value =
+            latestRecord.status;
+        document.getElementById("editArrivalTime").value =
+            latestRecord.time || "";
+        document.getElementById("editAttendanceNotes").value =
+            latestRecord.notes || "";
+
+        if (latestRecord.status === "late" && latestRecord.time) {
+            const scheduledTime = new Date(`2025-03-15 15:30:00`);
+            const arrivalTime = new Date(`2025-03-15 ${latestRecord.time}:00`);
+            const lateMinutes = Math.max(
+                0,
+                (arrivalTime - scheduledTime) / (1000 * 60)
+            );
+            document.getElementById("editLateMinutes").value =
+                Math.round(lateMinutes);
+        }
+    }
+
+    // Store student ID for form submission
+    document.getElementById("editAttendanceForm").dataset.studentId = studentId;
+
+    openModal("editAttendanceModal");
+}
+
+function viewActivityDetails(activityId) {
+    const activity = activitiesData[activityId];
+    if (!activity) {
+        showNotification("Error", "Data kegiatan tidak ditemukan", "error");
+        return;
+    }
+
+    const content = document.getElementById("activityDetailsContent");
+    content.innerHTML = `
+          <div style="margin-bottom: var(--space-6);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-4); flex-wrap: wrap; gap: var(--space-3);">
+              <div>
+                <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--text-primary); margin-bottom: var(--space-2);">
+                  ${activity.name}
+                </h3>
+                <div style="display: flex; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-3);">
+                  <span class="badge badge-primary">${activity.category}</span>
+                  <span class="badge badge-info">${activity.level}</span>
+                  <span class="badge badge-${
+                      activity.status === "completed"
+                          ? "success"
+                          : activity.status === "ongoing"
+                          ? "warning"
+                          : "gray"
+                  }">${activity.status.toUpperCase()}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6);">
+              <div>
+                <strong>📅 Tanggal:</strong><br>
+                ${activity.date}
+              </div>
+              <div>
+                <strong>⏰ Waktu:</strong><br>
+                ${activity.time}
+              </div>
+              <div>
+                <strong>📍 Lokasi:</strong><br>
+                ${activity.location}
+              </div>
+              <div>
+                <strong>👥 Peserta:</strong><br>
+                ${activity.participants} siswa
+              </div>
+              <div>
+                <strong>💰 Budget:</strong><br>
+                ${activity.budget}
+              </div>
+              <div>
+                <strong>👨‍🏫 PIC:</strong><br>
+                ${activity.pic}
+              </div>
+            </div>
+
+            <div style="margin-bottom: var(--space-6);">
+              <h4 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-3); color: var(--text-primary);">
+                📝 Deskripsi Kegiatan
+              </h4>
+              <p style="color: var(--text-secondary); line-height: var(--line-height-relaxed);">
+                ${activity.description}
+              </p>
+            </div>
+
+            ${
+                activity.requirements
+                    ? `
+              <div style="margin-bottom: var(--space-6);">
+                <h4 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-3); color: var(--text-primary);">
+                  📋 Persyaratan
+                </h4>
+                <ul style="color: var(--text-secondary); padding-left: var(--space-4);">
+                  ${activity.requirements
+                      .map(
+                          (req) =>
+                              `<li style="margin-bottom: var(--space-1);">${req}</li>`
+                      )
+                      .join("")}
+                </ul>
+              </div>
+            `
+                    : ""
+            }
+
+            ${
+                activity.schedule
+                    ? `
+              <div style="margin-bottom: var(--space-6);">
+                <h4 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-3); color: var(--text-primary);">
+                  ⏰ Jadwal Kegiatan
+                </h4>
+                <div style="display: grid; gap: var(--space-2);">
+                  ${activity.schedule
+                      .map(
+                          (item) => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-3); background: var(--bg-accent); border-radius: var(--radius-lg);">
+                      <span style="font-weight: var(--font-weight-semibold); color: var(--primary-600);">${item.time}</span>
+                      <span style="color: var(--text-secondary);">${item.activity}</span>
+                    </div>
+                  `
+                      )
+                      .join("")}
+                </div>
+              </div>
+            `
+                    : ""
+            }
+
+            ${
+                activity.result
+                    ? `
+              <div style="margin-bottom: var(--space-6);">
+                <h4 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-3); color: var(--text-primary);">
+                  🏆 Hasil Pertandingan
+                </h4>
+                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--space-3);">
+                  <div class="stat-card success" style="padding: var(--space-3); margin: 0;">
+                    <div class="stat-number" style="font-size: var(--font-size-xl);">${
+                        activity.result.score
+                    }</div>
+                    <div class="stat-label" style="font-size: var(--font-size-xs);">Skor Final</div>
+                  </div>
+                  <div class="stat-card" style="padding: var(--space-3); margin: 0;">
+                    <div class="stat-number" style="font-size: var(--font-size-xl);">${
+                        activity.result.mvp
+                    }</div>
+                    <div class="stat-label" style="font-size: var(--font-size-xs);">MVP</div>
+                  </div>
+                  <div class="stat-card secondary" style="padding: var(--space-3); margin: 0;">
+                    <div class="stat-number" style="font-size: var(--font-size-xl);">${
+                        activity.result.audience
+                    }</div>
+                    <div class="stat-label" style="font-size: var(--font-size-xs);">Penonton</div>
+                  </div>
+                </div>
+                ${
+                    activity.highlights
+                        ? `
+                  <div style="margin-top: var(--space-4);">
+                    <strong>📈 Highlights:</strong>
+                    <ul style="margin-top: var(--space-2); color: var(--text-secondary); padding-left: var(--space-4);">
+                      ${activity.highlights
+                          .map(
+                              (highlight) =>
+                                  `<li style="margin-bottom: var(--space-1);">${highlight}</li>`
+                          )
+                          .join("")}
+                    </ul>
+                  </div>
+                `
+                        : ""
+                }
+              </div>
+            `
+                    : ""
+            }
+
+            ${
+                activity.materials
+                    ? `
+              <div style="margin-bottom: var(--space-6);">
+                <h4 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-3); color: var(--text-primary);">
+                  📚 Materi Workshop
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3);">
+                  ${activity.materials
+                      .map(
+                          (material) => `
+                    <div style="padding: var(--space-3); background: var(--bg-accent); border-radius: var(--radius-lg); text-align: center;">
+                      <span style="color: var(--text-secondary);">${material}</span>
+                    </div>
+                  `
+                      )
+                      .join("")}
+                </div>
+              </div>
+            `
+                    : ""
+            }
+
+            <div style="display: flex; gap: var(--space-4); justify-content: center; margin-top: var(--space-8); flex-wrap: wrap;">
+              <button class="btn btn-primary" onclick="editActivity('${activityId}')">
+                ✏️ Edit Kegiatan
+              </button>
+              ${
+                  activity.status === "upcoming"
+                      ? `
+                <button class="btn btn-success" onclick="startActivity('${activityId}')">
+                  ▶️ Mulai Kegiatan
+                </button>
+              `
+                      : ""
+              }
+              ${
+                  activity.status === "ongoing"
+                      ? `
+                <button class="btn btn-warning" onclick="endActivity('${activityId}')">
+                  ⏹️ Selesaikan
+                </button>
+              `
+                      : ""
+              }
+              <button class="btn btn-secondary" onclick="shareActivity('${activityId}')">
+                🔗 Bagikan
+              </button>
+            </div>
+          </div>
+        `;
+
+    openModal("activityDetailsModal");
 }
 
 function filterActivities() {

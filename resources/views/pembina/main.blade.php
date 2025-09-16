@@ -35,4 +35,8 @@
     @include('pembina.forms.attendance')
 
     @include('pembina.forms.profile')
+
+    @include('pembina.data.modal.attendance-profile')
+
+    @include('pembina.forms.edit-attendance')
 @endsection
