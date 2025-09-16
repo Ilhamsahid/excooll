@@ -54,6 +54,11 @@ class UserService
         return $this->repository->getAllUser();
     }
 
+    public function getUserNow($id)
+    {
+        return $this->repository->getUserNow($id);
+    }
+
     public function createUser(Request $request){
         $data = $request->only(['name', 'email', 'password']);
         $data['role'] = 'siswa';

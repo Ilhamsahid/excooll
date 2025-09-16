@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PembinaController extends Controller
 {
 
-    public function index()
+    public function index(UserService $userService)
     {
         $path = request()->path();
         $lastSegment = collect(explode('/', $path))->last();
@@ -28,7 +29,9 @@ class PembinaController extends Controller
             abort(404);
         }
 
-        return view('pembina.main');
+        $pembina = $userService->getUserNow(Auth::user()->id);
+
+        return view('pembina.main', compact('pembina'));
     }
 
     public function store(UserService $userService, Request $request)
