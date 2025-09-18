@@ -1,7 +1,7 @@
 <div id="activityModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 class="modal-title">Buat Kegiatan - Klub Basket</h3>
+            <h3 class="modal-title">Buat Kegiatan - {{ $pembina->ekskulDibina[0]->nama }}</h3>
             <button class="close-btn" onclick="closeModal('activityModal')" aria-label="Close">
                 &times;
             </button>

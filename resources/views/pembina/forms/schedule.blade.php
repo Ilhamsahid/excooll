@@ -1,25 +1,13 @@
 <div id="scheduleModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 class="modal-title">Tambah Jadwal Baru - Klub Basket</h3>
+            <h3 class="modal-title">Tambah Jadwal Baru - {{ $pembina->ekskulDibina[0]->nama }}</h3>
             <button class="close-btn" onclick="closeModal('scheduleModal')" aria-label="Close">
                 &times;
             </button>
         </div>
 
         <form id="scheduleForm" onsubmit="handleScheduleSubmit(event)">
-            <div class="form-group">
-                <label class="form-label">Jenis Kegiatan</label>
-                <select class="form-select" required>
-                    <option value="">Pilih Jenis</option>
-                    <option value="latihan">Latihan Reguler</option>
-                    <option value="workshop">Workshop/Pelatihan</option>
-                    <option value="kompetisi">Kompetisi/Lomba</option>
-                    <option value="pertandingan">Pertandingan</option>
-                    <option value="meeting">Rapat/Meeting</option>
-                </select>
-            </div>
-
             <div class="form-group">
                 <label class="form-label">Nama Kegiatan</label>
                 <input type="text" class="form-input" required placeholder="Masukkan nama kegiatan" />

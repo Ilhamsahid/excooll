@@ -283,11 +283,11 @@ function showSection(sectionName) {
     const titles = {
         dashboard: "Dashboard Pembina",
         profile: "Profile Pembina",
-        calendar: "Calendar - Klub Basket",
-        attendance: "Attendance - Klub Basket",
-        activities: "Activities - Klub Basket",
-        announcements: "Announcements - Klub Basket",
-        students: "Students - Klub Basket",
+        calendar: "Calendar - " + pembina.ekskul_dibina[0].nama,
+        attendance: "Attendance - " + pembina.ekskul_dibina[0].nama,
+        activities: "Activities - " + pembina.ekskul_dibina[0].nama,
+        announcements: "Announcements - " + pembina.ekskul_dibina[0].nama,
+        students: "Students - " + pembina.ekskul_dibina[0].nama,
         applications: "Aplikasi Siswa",
     };
 
@@ -636,6 +636,7 @@ function selectDate(dateString, dayElement) {
     // Add selection to clicked date
     dayElement.classList.add("selected");
     selectedDate = dateString;
+    console.log(selectedDate);
 
     // Show schedules for selected date
     showSchedulesForDate(dateString);

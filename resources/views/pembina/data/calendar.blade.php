@@ -3,7 +3,7 @@
         <div class="card card-elevated">
             <div class="card-header">
                 <div>
-                    <h3 class="card-title">Calendar - Klub Basket</h3>
+                    <h3 class="card-title">Calendar - {{ $pembina->ekskulDibina[0]->nama }}</h3>
                     <p class="card-subtitle">
                         Kelola jadwal kegiatan dengan kalender interaktif
                     </p>
