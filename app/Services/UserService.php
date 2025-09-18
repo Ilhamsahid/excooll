@@ -219,6 +219,7 @@ class UserService
             'no_telephone' => $data['no_tel'],
             'deskripsi' => $data['deskripsi'],
             'alamat' => $data['alamat'],
+            'jenis_kelamin' => $data['jenis_kelamin'],
         ]);
 
         return $siswa;

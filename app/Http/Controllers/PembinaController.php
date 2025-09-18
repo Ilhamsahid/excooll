@@ -57,7 +57,7 @@ class PembinaController extends Controller
     public function update(Request $request, UserService $userService)
     {
         $pembina = $userService->updatePembina($request->only([
-            'id', 'nama', 'email', 'status', 'no_tel', 'deskripsi', 'alamat'
+            'id', 'nama', 'email', 'status', 'no_tel', 'deskripsi', 'alamat', 'jenis_kelamin'
         ]));
 
         $pembina->load(['ekskulDibina', 'pembinaProfile']);

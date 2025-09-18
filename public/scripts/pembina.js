@@ -7,6 +7,15 @@ let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let selectedDate = null;
 
+const keyMap = {
+    nama: "name",
+    email: "email",
+    no_tel: "pembina_profile.no_telephone",
+    deskripsi: "pembina_profile.deskripsi",
+    jenis_kelamin: "pembina_profile.jenis_kelamin",
+    alamat: "pembina_profile.alamat",
+};
+
 const studentsData = {
     ahmad_rizki: {
         name: "Ahmad Rizki Pratama",
@@ -322,9 +331,15 @@ function loadSectionData(sectionName) {
 
 function loadDashboardData() {
     // Animate counters with Klub Basket specific data
-    document.getElementById("namaDashboard").innerText = `Selamat Datang, ${pembina.name}! 👋`;
-    document.getElementById("deskripsiDashboard").innerText = `Kelola ekstrakurikuler ${pembina.ekskul_dibina[0].nama} dengan mudah dan pantau perkembangan siswa secara real-time`;
-    document.getElementById("cardEkskul").textContent = `Total siswa ${pembina.ekskul_dibina[0].nama}`;
+    document.getElementById(
+        "namaDashboard"
+    ).innerText = `Selamat Datang, ${pembina.name}! 👋`;
+    document.getElementById(
+        "deskripsiDashboard"
+    ).innerText = `Kelola ekstrakurikuler ${pembina.ekskul_dibina[0].nama} dengan mudah dan pantau perkembangan siswa secara real-time`;
+    document.getElementById(
+        "cardEkskul"
+    ).textContent = `Total siswa ${pembina.ekskul_dibina[0].nama}`;
 
     animateCounter("totalStudents", pembina.ekskul_dibina[0].siswa_count);
     animateCounter("totalActivities", 12);
@@ -1228,6 +1243,35 @@ function closeModal(modalId) {
     }
 }
 
+function editProfileModal(modalName) {
+    getElementValue(
+        [
+            "nameProfileForm",
+            "jkProfile",
+            "noTelProfileForm",
+            "emailProfileForm",
+            "alamatProfileForm",
+            "deskripsiProfileForm",
+        ],
+        [
+            pembina.name,
+            pembina.pembina_profile.jenis_kelamin,
+            pembina.pembina_profile.no_telephone,
+            pembina.email,
+            pembina.pembina_profile.alamat,
+            pembina.pembina_profile.deskripsi,
+        ]
+    );
+
+    openModal(modalName);
+
+    const form = document.getElementById("profileForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(pembina.id, form, `/pembina`, "PUT");
+    };
+}
+
 // ===== FORM HANDLERS =====
 function handleScheduleSubmit(event) {
     event.preventDefault();
@@ -1270,16 +1314,6 @@ function handleAttendanceSubmit(event) {
     closeModal("attendanceModal");
 }
 
-function handleProfileSubmit(event) {
-    event.preventDefault();
-    showNotification(
-        "Profile Diperbarui",
-        "Data profile pembina berhasil diperbarui",
-        "success"
-    );
-    closeModal("editProfileModal");
-}
-
 function handleStudentSubmit(event) {
     event.preventDefault();
     showNotification(
@@ -1298,6 +1332,109 @@ function handleQuickAnnouncementSubmit(event) {
         "success"
     );
     closeModal("createAnnouncementModal");
+}
+
+async function handleFormSubmit(id, form, url, method, handleNotification) {
+    if (!form) return;
+
+    if (id) url += `/${id}`;
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+
+    try {
+        const formData = new FormData(form);
+        const keyOfData = [...formData.keys()];
+        const valueOfData = [...formData].map((item) => item[1]);
+
+        updatePembinaFromForm(formData, pembina);
+        if (["PUT", "PATCH", "DELETE"].includes(method)) {
+            formData.append("_method", method);
+            formData.append("id", id);
+            formData.append("status", "aktif");
+            method = "POST";
+        }
+
+        updateLocalData(keyOfData, valueOfData);
+        closeModal(form.id.replace("Form", "Modal"));
+        showNotification(
+            "Berhasil",
+            "selamat pembina berhasil diperbarui",
+            "success"
+        );
+
+        const res = await fetch(url, {
+            method,
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                ).content,
+            },
+            body: formData,
+        });
+
+        const data = await res.json();
+
+        console.log(data);
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+// fungsi set nested path (ga bikin object baru kalau udah ada)
+function setNested(obj, path, value) {
+    const keys = path.split(".");
+    let current = obj;
+
+    for (let i = 0; i < keys.length - 1; i++) {
+        const k = keys[i];
+        if (!(k in current)) current[k] = {};
+        current = current[k];
+    }
+
+    current[keys[keys.length - 1]] = value;
+}
+
+// update pembina langsung dari FormData
+function updatePembinaFromForm(formData, pembina) {
+    for (const [key, value] of formData.entries()) {
+        if (keyMap[key]) {
+            setNested(pembina, keyMap[key], value);
+        }
+    }
+    return pembina;
+}
+
+function getElementValue(nameId, value) {
+    for (let i = 0; i < nameId.length; i++) {
+        const el = document.getElementById(nameId[i]);
+        if (!el) continue;
+
+        if ("value" in el) {
+            el.value = value[i];
+        } else {
+            el.textContent = value[i];
+        }
+    }
+}
+
+function getElementValueByClass(classNames, value) {
+    for (let i = 0; i < classNames.length; i++) {
+        const element = document.querySelectorAll(`.${classNames[i]}`);
+        if (!element) continue;
+
+        element.forEach((el) => {
+            if ("value" in el) {
+                el.value = value[i];
+            } else {
+                el.textContent = value[i];
+            }
+        });
+    }
+}
+
+function updateLocalData(key, value) {
+    getElementValueByClass(key, value);
 }
 
 function markAttendance(studentIndex, status) {
