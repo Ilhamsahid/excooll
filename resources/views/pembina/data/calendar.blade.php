@@ -12,7 +12,7 @@
                     <button class="btn btn-secondary btn-sm" onclick="exportSchedule()">
                         📊 Export Jadwal
                     </button>
-                    <button class="btn btn-primary" onclick="openModal('scheduleModal')">
+                    <button class="btn btn-primary" onclick="addSchedule('scheduleModal')">
                         ➕ Tambah Jadwal
                     </button>
                 </div>

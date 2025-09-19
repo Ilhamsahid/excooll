@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\SchedulesService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class PembinaController extends Controller
 {
 
-    public function index(UserService $userService)
+    public function index(UserService $userService, SchedulesService $schedulesService)
     {
         $path = request()->path();
         $lastSegment = collect(explode('/', $path))->last();
@@ -30,8 +31,9 @@ class PembinaController extends Controller
         }
 
         $pembina = $userService->getUserNow(Auth::user()->id);
+        $ekskulSchedules = $schedulesService->getSchedulesEkskul($pembina->ekskulDibina[0]->id);
 
-        return view('pembina.main', compact('pembina'));
+        return view('pembina.main', compact('pembina', 'ekskulSchedules'));
     }
 
     public function store(UserService $userService, Request $request)

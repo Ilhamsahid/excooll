@@ -66,75 +66,8 @@ const studentsData = {
     },
 };
 
-// Sample schedule data for Klub Basket only
-const basketSchedules = {
-    "2025-03-15": [
-        {
-            id: 1,
-            time: "15:30-17:00",
-            activity: "Latihan Basket Reguler",
-            location: "Lapangan Basket Utama",
-            participants: 85,
-            present: 78,
-            type: "latihan",
-        },
-    ],
-    "2025-03-17": [
-        {
-            id: 2,
-            time: "15:30-17:00",
-            activity: "Latihan Shooting Drill",
-            location: "Lapangan Basket Utama",
-            participants: 85,
-            present: 80,
-            type: "latihan",
-        },
-    ],
-    "2025-03-18": [
-        {
-            id: 3,
-            time: "15:30-18:00",
-            activity: "Latihan Intensif Persiapan",
-            location: "Lapangan Basket Utama",
-            participants: 85,
-            present: 82,
-            type: "latihan_intensif",
-        },
-    ],
-    "2025-03-20": [
-        {
-            id: 4,
-            time: "08:00-17:00",
-            activity: "Turnamen Basket Regional",
-            location: "GOR Sekolah",
-            participants: 85,
-            present: 85,
-            type: "kompetisi",
-        },
-    ],
-    "2025-03-22": [
-        {
-            id: 5,
-            time: "15:30-18:00",
-            activity: "Seleksi Tim Inti",
-            location: "Lapangan Basket",
-            participants: 85,
-            present: 85,
-            type: "seleksi",
-        },
-    ],
-    "2025-03-25": [
-        {
-            id: 6,
-            time: "14:00-17:00",
-            activity: "Workshop Basic Skills",
-            location: "Lapangan Basket",
-            participants: 25,
-            present: 0,
-            type: "workshop",
-        },
-    ],
-};
+
+console.log(ekskulSchedules)
 
 // ===== UTILITY FUNCTIONS =====
 function formatDate(dateString) {
@@ -608,7 +541,7 @@ function generateCalendar(month, year) {
         }
 
         // Check if there are schedules for this date
-        if (basketSchedules[dateString]) {
+        if (ekskulSchedules[dateString]) {
             dayElement.classList.add("has-schedule");
         }
 
@@ -643,7 +576,7 @@ function selectDate(dateString, dayElement) {
 }
 
 function showSchedulesForDate(dateString) {
-    const schedules = basketSchedules[dateString];
+    const schedules = ekskulSchedules[dateString];
     const scheduleContainer = document.getElementById("selectedDateSchedule");
 
     if (schedules) {
@@ -661,10 +594,10 @@ function showSchedulesForDate(dateString) {
                             .map(
                                 (schedule) => `
                             <div class="schedule-card">
-                                <div class="schedule-time">${schedule.time}</div>
-                                <div class="schedule-activity">${schedule.activity}</div>
-                                <div class="schedule-location">📍 ${schedule.location}</div>
-                                <div class="schedule-participants">👥 ${schedule.participants} siswa terdaftar • ${schedule.present} hadir</div>
+                                <div class="schedule-time">${schedule.jam_mulai} - ${schedule.jam_selesai}</div>
+                                <div class="schedule-activity">${schedule.judul}</div>
+                                <div class="schedule-location">📍 ${schedule.lokasi}</div>
+                                <div class="schedule-participants">👥 ${pembina.ekskul_dibina[0].siswa_count} siswa terdaftar • ${schedule.present} hadir</div>
                                 <div class="schedule-actions">
                                     <button class="btn btn-ghost btn-sm" onclick="editSchedule(${schedule.id})" title="Edit Jadwal">✏️</button>
                                     <button class="btn btn-ghost btn-sm" onclick="takeAttendance(${schedule.id})" title="Catat Absensi">✅</button>
@@ -691,7 +624,7 @@ function showSchedulesForDate(dateString) {
                         <div style="font-size: var(--font-size-6xl); margin-bottom: var(--space-4);">📅</div>
                         <h3 style="margin-bottom: var(--space-2);">Tidak Ada Jadwal</h3>
                         <p>Belum ada kegiatan yang dijadwalkan untuk tanggal ini.</p>
-                        <button class="btn btn-primary" style="margin-top: var(--space-4);" onclick="openModal('scheduleModal')">
+                        <button class="btn btn-primary" style="margin-top: var(--space-4);" onclick="addSchedule('scheduleModal')">
                             ➕ Tambah Jadwal
                         </button>
                     </div>
@@ -1271,6 +1204,14 @@ function editProfileModal(modalName) {
         e.preventDefault();
         handleFormSubmit(pembina.id, form, `/pembina`, "PUT");
     };
+}
+
+function addSchedule(modalName){
+    const today = new Date().toISOString().split("T")[0]; // "2025-09-18"
+    const date = selectedDate ? selectedDate : today;
+    getElementValue(["tanggal"], [date]);
+
+    openModal(modalName)
 }
 
 // ===== FORM HANDLERS =====

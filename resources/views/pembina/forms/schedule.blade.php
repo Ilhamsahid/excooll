@@ -16,7 +16,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Tanggal</label>
-                    <input type="date" class="form-input" required />
+                    <input type="date" class="form-input" required id="tanggal"/>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Waktu Mulai</label>
@@ -26,13 +26,12 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Durasi (menit)</label>
-                    <input type="number" class="form-input" min="30" value="120" required />
+                    <label class="form-label">Waktu Selesai</label>
+                    <input type="time" class="form-input" required />
                 </div>
                 <div class="form-group">
                     <label class="form-label">Lokasi</label>
-                    <input type="text" class="form-input" required placeholder="Lokasi kegiatan"
-                        value="Lapangan Basket" />
+                    <input type="text" class="form-input" required placeholder="Lokasi kegiatan"/>
                 </div>
             </div>
 

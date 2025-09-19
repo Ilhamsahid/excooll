@@ -19,7 +19,7 @@
     <div class="pembina-layouts">
         @include('pembina.layouts.sidebar')
         <main class="main-content">
-                @include('pembina.layouts.header')
+            @include('pembina.layouts.header')
 
             <div class="content">
                 @yield('content')
@@ -33,6 +33,39 @@
 
     <script>
         let pembina = @json($pembina);
+        // Sample schedule data for Klub Basket only
+        const ekskulSchTemp = @json($ekskulSchedules);
+        const ekskulSch = {
+            "2025-09-10": [{
+                id: 1,
+                time: "15:30-17:00",
+                activity: "Latihan Basket Reguler",
+                location: "Lapangan Basket Utama",
+                participants: 85,
+                present: 78,
+                type: "latihan",
+            }, ],
+
+            "2025-09-17": [{
+                id: 1,
+                time: "15:30-17:00",
+                activity: "Latihan Basket Premium",
+                location: "Lapangan Basket Secondary",
+                participants: 85,
+                present: 78,
+                type: "latihan",
+            }, ],
+        };
+
+        let ekskulSchedules = ekskulSchTemp.reduce((acc, item) => {
+            if(!acc[item.tanggal]){
+                acc[item.tanggal] = [];
+            }
+
+            acc[item.tanggal].push(item);
+            return acc;
+        }, {});
+
     </script>
     <script src="{{ asset('scripts/pembina.js') }}"></script>
 </body>
