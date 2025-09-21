@@ -16,4 +16,11 @@ class SchedulesRepository implements SchedulesRepositoryInterface
     {
         return ClubSchedule::create($arr);
     }
+
+    public function updateSchedules($id, $arr)
+    {
+        $schedule = ClubSchedule::where('id', $id)->first();
+        $schedule->update($arr);
+        return $schedule;
+    }
 }

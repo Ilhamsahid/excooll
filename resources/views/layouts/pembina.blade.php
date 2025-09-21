@@ -65,6 +65,16 @@
             acc[item.tanggal].push(item);
             return acc;
         }, {});
+        console.log(ekskulSchedules);
+        let latestId = Object.values(ekskulSchedules)
+        .flat()
+        .reduce((max, item) => {
+            if(item.id > max) {
+                max = item.id
+            }
+            return max;
+        }, 0);
+        console.log(latestId)
 
     </script>
     <script src="{{ asset('scripts/pembina.js') }}"></script>

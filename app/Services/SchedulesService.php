@@ -24,4 +24,10 @@ class SchedulesService
         $data['hari'] = Carbon::parse($data['tanggal'])->locale('id')->translatedFormat('l');
         return $this->repository->createSchedules($data);
     }
+
+    public function updateClubSchedule($tanggal, $data)
+    {
+        $data['hari'] = Carbon::parse($data['tanggal'])->locale('id')->translatedFormat('l');
+        return $this->repository->updateSchedules($tanggal, $data);
+    }
 }

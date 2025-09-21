@@ -1289,8 +1289,15 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
         const keyOfData = [...formData.keys()];
         const valueOfData = [...formData].map((item) => item[1]);
         const fullForm = Object.fromEntries(formData.entries());
+        const dataObj = {
+            id: id,
+            keys: keyOfData,
+            value: valueOfData,
+            entries: fullForm,
+        };
 
         if(type == "profile") updatePembinaFromForm(formData, pembina);
+        let originalMethod = method;
         if (["PUT", "PATCH", "DELETE"].includes(method)) {
             formData.append("_method", method);
             formData.append("id", id);
@@ -1298,8 +1305,8 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
             method = "POST";
         }
 
-        updateLocalData(keyOfData, valueOfData, type, obj, fullForm);
-        closeModal(form.id.replace("Form", "Modal"));
+        updateLocalData(dataObj, type, obj, originalMethod);
+        closeModal(form.getAttribute("id").replace("Form", "Modal"));
         loadCalendar();
         showNotification(
             "Berhasil",
@@ -1332,7 +1339,6 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
 
         const data = await res.json();
 
-        console.log(data);
     } catch (e) {
         console.log(e);
     }
@@ -1390,16 +1396,28 @@ function getElementValueByClass(classNames, value) {
     }
 }
 
-function updateLocalData(key, value, type, obj, fullForm) {
+function updateLocalData(dataObj, type, obj, method) {
     if(type == "profile"){
-        getElementValueByClass(key, value);
+        getElementValueByClass(dataObj.key, dataObj.value);
     }else{
-        if(!obj[fullForm['tanggal']]){
-            obj[fullForm['tanggal']] = [];
-        }
+        if(method == "POST"){
+            if(!obj[dataObj.entries['tanggal']]){
+                obj[dataObj.entries['tanggal']] = [];
+            }
 
-        obj[fullForm['tanggal']].push(fullForm);
-        console.log(obj);
+            dataObj.entries.id = latestId + 1;
+            obj[dataObj.entries['tanggal']].push(dataObj.entries);
+            console.log(obj)
+        }else if(method == "PUT"){
+            let schedule;
+            for(let tanggal in obj){
+                let idx = obj[tanggal].findIndex((s) => s.id == dataObj.id);
+                if(idx != -1){
+                    obj[tanggal][idx] = dataObj.entries;
+                    return;
+                }
+            }
+        }
     }
 }
 
@@ -1476,11 +1494,32 @@ function closeNotification(id) {
 
 // ===== ACTION FUNCTIONS =====
 function editSchedule(scheduleId) {
-    showNotification(
-        "Edit Jadwal",
-        `Mengedit jadwal ID: ${scheduleId}`,
-        "info"
-    );
+    let schedule;
+    for(let tanggal in ekskulSchedules){
+        schedule = ekskulSchedules[tanggal].find((s) => s.id == scheduleId);
+        if(schedule) break;
+    }
+
+    getElementValue([
+        'schedule_id', 'judul', 'tanggal', 'jam_mulai', 'jam_selesai', 'lokasi', 'deskripsi_jadwal'
+    ], [
+        scheduleId, schedule.judul, schedule.tanggal, schedule.jam_mulai, schedule.jam_selesai, schedule.lokasi, schedule.deskripsi
+    ]);
+
+    openModal("scheduleModal");
+
+    const form = document.getElementById('scheduleForm');
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            scheduleId,
+            form,
+            `/jadwal`,
+            'PUT',
+            ekskulSchedules,
+            "schedules",
+        );
+    };
 }
 
 function takeAttendance(scheduleId) {

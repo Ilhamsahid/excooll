@@ -18,4 +18,13 @@ class SchedulesController extends Controller
             'item' => $schedule,
         ]);
     }
+
+    public function update(Request $request, SchedulesService $schedulesService)
+    {
+        $schedule = $schedulesService->updateClubSchedule($request->only('id'), $request->only([
+            'ekskul_id', 'judul', 'tanggal', 'jam_mulai', 'jam_selesai', 'lokasi', 'deskripsi'
+        ]));
+
+        return response()->json($schedule);
+    }
 }
