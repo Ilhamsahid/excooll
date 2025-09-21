@@ -22,9 +22,17 @@ class SchedulesController extends Controller
     public function update(Request $request, SchedulesService $schedulesService)
     {
         $schedule = $schedulesService->updateClubSchedule($request->only('id'), $request->only([
-            'ekskul_id', 'judul', 'tanggal', 'jam_mulai', 'jam_selesai', 'lokasi', 'deskripsi'
+            'id', 'ekskul_id', 'judul', 'tanggal', 'jam_mulai', 'jam_selesai', 'lokasi', 'deskripsi'
         ]));
 
         return response()->json($schedule);
+    }
+
+    public function destroy(Request $request, SchedulesService $schedulesService)
+    {
+        $schedule = $schedulesService->deleteClubSchedule($request->only('id'));
+        return response()->json([
+            'status' => 'success',
+        ]);
     }
 }

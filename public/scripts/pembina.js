@@ -1339,6 +1339,7 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
 
         const data = await res.json();
 
+        console.log(data);
     } catch (e) {
         console.log(e);
     }
@@ -1405,17 +1406,27 @@ function updateLocalData(dataObj, type, obj, method) {
                 obj[dataObj.entries['tanggal']] = [];
             }
 
-            dataObj.entries.id = latestId + 1;
+            dataObj.entries.id = latestId+=1;
             obj[dataObj.entries['tanggal']].push(dataObj.entries);
             console.log(obj)
         }else if(method == "PUT"){
-            let schedule;
             for(let tanggal in obj){
                 let idx = obj[tanggal].findIndex((s) => s.id == dataObj.id);
                 if(idx != -1){
                     obj[tanggal][idx] = dataObj.entries;
                     return;
                 }
+            }
+        }else if(method == "DELETE"){
+            for(let tanggal in obj){
+                if (Array.isArray(obj[tanggal])) {
+                    obj[tanggal] = obj[tanggal].filter((s) => s.id != dataObj.id);
+
+                    if(obj[tanggal].length == 0){
+                        delete obj[tanggal];
+                    }
+                }
+                console.log(obj);
             }
         }
     }
@@ -1540,14 +1551,27 @@ function viewScheduleDetails(scheduleId) {
 }
 
 function deleteSchedule(scheduleId) {
-    if (confirm("Apakah Anda yakin ingin menghapus jadwal ini?")) {
-        showNotification(
-            "Jadwal Dihapus",
-            `Jadwal ID: ${scheduleId} telah dihapus`,
-            "success"
-        );
-        loadCalendar();
+    let schedule;
+    for(let tanggal in ekskulSchedules){
+        schedule = ekskulSchedules[tanggal].find((s) => s.id == scheduleId);
+        if(schedule) break;
     }
+
+    getElementValue(['nameObject', 'deleteObjectName'], ['Apakah Anda yakin ingin menghapus jadwal ini?', schedule.judul]);
+
+    const form = document.getElementById("deleteForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            scheduleId,
+            form,
+            `/jadwal`,
+            'DELETE',
+            ekskulSchedules,
+            "schedules",
+        );
+    };
+    openModal("deleteModal");
 }
 
 function editActivity(activityId) {

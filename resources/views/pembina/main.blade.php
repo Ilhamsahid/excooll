@@ -39,4 +39,6 @@
     @include('pembina.data.modal.attendance-profile')
 
     @include('pembina.forms.edit-attendance')
+
+    @include('pembina.data.modal.delete')
 @endsection

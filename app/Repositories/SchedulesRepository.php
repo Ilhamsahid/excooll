@@ -23,4 +23,11 @@ class SchedulesRepository implements SchedulesRepositoryInterface
         $schedule->update($arr);
         return $schedule;
     }
+
+    public function deleteSchedules($id)
+    {
+        $schedule = ClubSchedule::where('id', $id)->first();
+        $schedule->delete();
+        return $schedule;
+    }
 }

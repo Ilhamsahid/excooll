@@ -6,5 +6,6 @@ interface SchedulesRepositoryInterface
 {
     function getSchedulesEkskul($id);
     function createSchedules($arr);
-    function updateSchedules($tanggal, $arr);
+    function updateSchedules($id, $arr);
+    function deleteSchedules($id);
 }
