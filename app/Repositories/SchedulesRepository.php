@@ -11,4 +11,9 @@ class SchedulesRepository implements SchedulesRepositoryInterface
     {
         return ClubSchedule::where('ekskul_id', $id)->get();
     }
+
+    public function createSchedules($arr)
+    {
+        return ClubSchedule::create($arr);
+    }
 }

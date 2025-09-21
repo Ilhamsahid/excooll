@@ -3,6 +3,7 @@ let currentTheme = localStorage.getItem("theme") || "light";
 let currentSection = "dashboard";
 let notificationId = 0;
 let charts = {};
+let currentDate = null;
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let selectedDate = null;
@@ -65,9 +66,6 @@ const studentsData = {
         ],
     },
 };
-
-
-console.log(ekskulSchedules)
 
 // ===== UTILITY FUNCTIONS =====
 function formatDate(dateString) {
@@ -471,7 +469,8 @@ function updateChartsTheme() {
 function loadCalendar() {
     generateCalendar(currentMonth, currentYear);
 
-    showSchedulesForDate(new Date().toISOString().split("T")[0]);
+    currentDate = currentDate ? currentDate : new Date().toISOString().split("T")[0];
+    showSchedulesForDate(currentDate);
 }
 
 function generateCalendar(month, year) {
@@ -569,7 +568,7 @@ function selectDate(dateString, dayElement) {
     // Add selection to clicked date
     dayElement.classList.add("selected");
     selectedDate = dateString;
-    console.log(selectedDate);
+    currentDate = selectedDate;
 
     // Show schedules for selected date
     showSchedulesForDate(dateString);
@@ -1202,28 +1201,29 @@ function editProfileModal(modalName) {
     const form = document.getElementById("profileForm");
     form.onsubmit = (e) => {
         e.preventDefault();
-        handleFormSubmit(pembina.id, form, `/pembina`, "PUT");
+        handleFormSubmit(pembina.id, form, `/pembina`, "PUT", null,"profile");
     };
 }
 
-function addSchedule(modalName){
+function addSchedule(modalName) {
     const today = new Date().toISOString().split("T")[0]; // "2025-09-18"
     const date = selectedDate ? selectedDate : today;
     getElementValue(["tanggal"], [date]);
 
-    openModal(modalName)
-}
+    openModal(modalName);
 
-// ===== FORM HANDLERS =====
-function handleScheduleSubmit(event) {
-    event.preventDefault();
-    showNotification(
-        "Jadwal Disimpan",
-        "Jadwal baru berhasil ditambahkan ke klub basket",
-        "success"
-    );
-    closeModal("scheduleModal");
-    loadCalendar();
+    const form = document.getElementById("scheduleForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            null,
+            form,
+            `/jadwal`,
+            "POST",
+            ekskulSchedules,
+            "schedule",
+        );
+    };
 }
 
 function handleAnnouncementSubmit(event) {
@@ -1276,7 +1276,7 @@ function handleQuickAnnouncementSubmit(event) {
     closeModal("createAnnouncementModal");
 }
 
-async function handleFormSubmit(id, form, url, method, handleNotification) {
+async function handleFormSubmit(id, form, url, method, obj, type) {
     if (!form) return;
 
     if (id) url += `/${id}`;
@@ -1288,17 +1288,19 @@ async function handleFormSubmit(id, form, url, method, handleNotification) {
         const formData = new FormData(form);
         const keyOfData = [...formData.keys()];
         const valueOfData = [...formData].map((item) => item[1]);
+        const fullForm = Object.fromEntries(formData.entries());
 
-        updatePembinaFromForm(formData, pembina);
+        if(type == "profile") updatePembinaFromForm(formData, pembina);
         if (["PUT", "PATCH", "DELETE"].includes(method)) {
             formData.append("_method", method);
             formData.append("id", id);
-            formData.append("status", "aktif");
+            if (type == "profile") formData.append("status", "aktif");
             method = "POST";
         }
 
-        updateLocalData(keyOfData, valueOfData);
+        updateLocalData(keyOfData, valueOfData, type, obj, fullForm);
         closeModal(form.id.replace("Form", "Modal"));
+        loadCalendar();
         showNotification(
             "Berhasil",
             "selamat pembina berhasil diperbarui",
@@ -1311,9 +1313,22 @@ async function handleFormSubmit(id, form, url, method, handleNotification) {
                 "X-CSRF-TOKEN": document.querySelector(
                     'meta[name="csrf-token"]'
                 ).content,
+                "Accept": "application/json", // <-- tambahin ini
             },
             body: formData,
         });
+
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            // tampilkan error lebih rapi
+            console.group("🚨 Error dari Laravel");
+            console.error("Pesan :", errorData.message || "Tidak ada pesan");
+            console.error("Exception :", errorData.exception || "-");
+            console.error("File :", errorData.file || "-");
+            console.error("Line :", errorData.line || "-");
+            console.groupEnd();
+            return;
+        }
 
         const data = await res.json();
 
@@ -1375,8 +1390,17 @@ function getElementValueByClass(classNames, value) {
     }
 }
 
-function updateLocalData(key, value) {
-    getElementValueByClass(key, value);
+function updateLocalData(key, value, type, obj, fullForm) {
+    if(type == "profile"){
+        getElementValueByClass(key, value);
+    }else{
+        if(!obj[fullForm['tanggal']]){
+            obj[fullForm['tanggal']] = [];
+        }
+
+        obj[fullForm['tanggal']].push(fullForm);
+        console.log(obj);
+    }
 }
 
 function markAttendance(studentIndex, status) {

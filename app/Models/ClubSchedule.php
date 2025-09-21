@@ -8,10 +8,13 @@ class ClubSchedule extends Model
 {
     protected $fillable = [
         'ekskul_id',
+        'judul',
         'hari',
         'jam_mulai',
         'jam_selesai',
         'lokasi',
+        'tanggal',
+        'deskripsi',
     ];
 
     public function club()

@@ -7,37 +7,39 @@
             </button>
         </div>
 
-        <form id="scheduleForm" onsubmit="handleScheduleSubmit(event)">
+        <form id="scheduleForm" >
+            <input type="hidden" name="ekskul_id" value="{{ $pembina->ekskulDibina[0]->id }}">
+
             <div class="form-group">
                 <label class="form-label">Nama Kegiatan</label>
-                <input type="text" class="form-input" required placeholder="Masukkan nama kegiatan" />
+                <input type="text" class="form-input" required placeholder="Masukkan nama kegiatan" name="judul"/>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Tanggal</label>
-                    <input type="date" class="form-input" required id="tanggal"/>
+                    <input type="date" class="form-input" required id="tanggal" name="tanggal"/>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Waktu Mulai</label>
-                    <input type="time" class="form-input" required />
+                    <input type="time" class="form-input" required name="jam_mulai"/>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Waktu Selesai</label>
-                    <input type="time" class="form-input" required />
+                    <input type="time" class="form-input" required name="jam_selesai"/>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Lokasi</label>
-                    <input type="text" class="form-input" required placeholder="Lokasi kegiatan"/>
+                    <input type="text" class="form-input" required placeholder="Lokasi kegiatan" name="lokasi"/>
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Deskripsi/Catatan</label>
-                <textarea class="form-textarea" placeholder="Deskripsi kegiatan atau catatan khusus"></textarea>
+                <textarea class="form-textarea" placeholder="Deskripsi kegiatan atau catatan khusus" name="deskripsi"></textarea>
             </div>
 
             <div

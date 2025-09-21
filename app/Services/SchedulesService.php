@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\Contracts\SchedulesRepositoryInterface;
+use Carbon\Carbon;
 
 class SchedulesService
 {
@@ -16,5 +17,11 @@ class SchedulesService
     public function getSchedulesEkskul($id)
     {
         return $this->repository->getSchedulesEkskul($id);
+    }
+
+    public function createClubSchedules($data)
+    {
+        $data['hari'] = Carbon::parse($data['tanggal'])->locale('id')->translatedFormat('l');
+        return $this->repository->createSchedules($data);
     }
 }
