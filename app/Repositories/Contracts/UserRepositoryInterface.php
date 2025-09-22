@@ -13,6 +13,7 @@ interface UserRepositoryInterface
     public function getUserWithEkskulApproved();
     public function getAllUserWithEkskul();
     public function getAllUser();
+    public function getAllSiswaEkskul($id);
     public function getUserNow($id);
     public function cekUserStudentWithEmail($request, $id);
     public function cekUserWithEmail($request);

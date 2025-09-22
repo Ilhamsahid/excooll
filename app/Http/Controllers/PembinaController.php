@@ -32,8 +32,10 @@ class PembinaController extends Controller
 
         $pembina = $userService->getUserNow(Auth::user()->id);
         $ekskulSchedules = $schedulesService->getSchedulesEkskul($pembina->ekskulDibina[0]->id);
+        $siswa = $userService->getAllSiswaEkskul($pembina->ekskulDibina[0]->id);
+        $getKelas = $userService->getKelas();
 
-        return view('pembina.main', compact('pembina', 'ekskulSchedules'));
+        return view('pembina.main', compact('pembina', 'ekskulSchedules', 'siswa', 'getKelas'));
     }
 
     public function store(UserService $userService, Request $request)

@@ -54,6 +54,11 @@ class UserService
         return $this->repository->getAllUser();
     }
 
+    public function getAllSiswaEkskul($id)
+    {
+        return $this->repository->getAllSiswaEkskul($id);
+    }
+
     public function getUserNow($id)
     {
         return $this->repository->getUserNow($id);

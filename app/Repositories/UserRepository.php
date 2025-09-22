@@ -60,6 +60,13 @@ class UserRepository implements UserRepositoryInterface
         ->get();
     }
 
+    public function getAllSiswaEkskul($id)
+    {
+        return User::whereHas('ekskuls', function ($q) use ($id) {
+            $q->where('ekskul_id', $id);
+        })->with('siswaProfile', 'ekskuls')->get();
+    }
+
     public function getUserNow($id)
     {
         return User::with([

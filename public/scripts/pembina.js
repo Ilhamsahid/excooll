@@ -3,6 +3,11 @@ let currentTheme = localStorage.getItem("theme") || "light";
 let currentSection = "dashboard";
 let notificationId = 0;
 let charts = {};
+let currentPage = {
+    students: 1,
+};
+let filteredData = {};
+let itemsPerPage = 10;
 let currentDate = null;
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
@@ -257,6 +262,8 @@ function loadSectionData(sectionName) {
         case "attendance":
             loadAttendanceChart();
             break;
+        case "students":
+            loadStudentsData();
     }
 }
 
@@ -433,6 +440,174 @@ function loadAttendanceChart() {
     }
 }
 
+function loadStudentsData() {
+    const body = document.getElementById("loadStudentsGrid");
+    const data = filteredData.students ? filteredData.students : siswa;
+    itemsPerPage = 8;
+    body.innerHTML = "";
+
+    //hitung range data
+    const start = (currentPage.students - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedData = data.slice(start, end);
+
+    if (paginatedData.length === 0) {
+        body.innerHTML = `
+                    <div>
+                        <div colspan="7" style="text-align: center; padding: var(--space-8); color: var(--text-tertiary);">
+                            <div style="padding: var(--space-8);">
+                                <div style="font-size: var(--font-size-4xl); margin-bottom: var(--space-4); opacity: 0.5;">👥</div>
+                                <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-2);">Tidak ada data siswa</div>
+                                <div style="font-size: var(--font-size-sm);">Cobalah mengubah filter pencarian atau tambah siswa baru</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+        renderPagination("students", paginatedData.length);
+        return;
+    }
+
+    paginatedData.forEach((student, index) => {
+        let studentCard = `
+            <div class="student-card">
+                <div class="student-header">
+                    <div class="student-avatar">AV</div>
+                    <div class="student-info">
+                        <div class="student-name">${student.name}</div>
+                        <div class="student-meta">
+                            <span>📚 ${student.siswa_profile.kelas}</span>
+                            <span>🆔 ${student.siswa_profile.nisn}</span>
+                            ${
+                                student.status == "aktif"
+                                    ? `<span class="badge badge-success">Aktif</span>`
+                                    : `<span class="badge badge-danger">Nonaktif</span>`
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div style="margin: var(--space-4) 0; font-size: var(--font-size-sm); color: var(--text-secondary);">
+                    📧 ${student.email}<br />
+                    📞 ${student.siswa_profile.no_telephone ?? "-"}<br />
+                    ${student.siswa_profile.jenis_kelamin == "laki-laki"
+                            ?"👨 laki-laki"
+                            :"👩 perempuan"
+                    }<br />
+                    📍 ${student.siswa_profile.alamat ?? "-"}
+                </div>
+                <div class="student-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="viewStudentDetail('${
+                        student.id
+                    }')">
+                        👁️ Detail
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="editStudent('${
+                        student.id
+                    }')">
+                        ✏️ Edit
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="contactStudent('${
+                        student.id
+                    }')">
+                        💬 Kontak
+                    </button>
+                </div>
+            </div>
+
+        `;
+
+        body.innerHTML += studentCard;
+    });
+
+    renderPagination("students", data.length);
+}
+
+function renderPagination(type, totalItems) {
+    const pagination = document.getElementById(`${type}Pagination`);
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const current = currentPage[type];
+
+    if (totalPages <= 1) {
+        pagination.innerHTML = "";
+        return;
+    }
+
+    let paginationHTML = "";
+
+    paginationHTML += `
+        <button class="pagination-btn hover-lift" ${
+            current === 1 ? "disabled" : ""
+        } onclick="changePage('${type}', ${current - 1})">
+            ‹ Sebelumnya
+        </button>
+    `;
+
+    const startPage = Math.max(1, current - 2);
+    const endPage = Math.min(totalPages, current + 2);
+
+    if (startPage > 1) {
+        paginationHTML += `<button class="pagination-btn hover-scale" onclick="changePage('${type}', 1)">1</button>`;
+        if (startPage > 2) {
+            paginationHTML += `<span class="pagination-info">...</span>`;
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        paginationHTML += `
+            <button class="pagination-btn hover-scale ${
+                i === current ? "active" : ""
+            }" onclick="changePage('${type}', ${i})">
+                ${i}
+            </button>
+        `;
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            paginationHTML += `<span class="pagination-info">...</span>`;
+        }
+        paginationHTML += `<button class="pagination-btn hover-scale" onclick="changePage('${type}', ${totalPages})">${totalPages}</button>`;
+    }
+
+    paginationHTML += `
+        <button class="pagination-btn hover-lift" ${
+            current === totalPages ? "disabled" : ""
+        } onclick="changePage('${type}', ${current + 1})">
+            Selanjutnya ›
+        </button>
+    `;
+
+    const startItem = (current - 1) * itemsPerPage + 1;
+    const endItem = Math.min(current * itemsPerPage, totalItems);
+    paginationHTML += `
+            <div class="pagination-info">
+                Menampilkan ${formatNumber(startItem)}-${formatNumber(
+        endItem
+    )} dari ${formatNumber(totalItems)} data
+            </div>
+    `;
+
+    pagination.innerHTML = paginationHTML;
+}
+
+function formatNumber(num) {
+    return new Intl.NumberFormat("id-ID").format(num);
+}
+
+function changePage(type, page) {
+    currentPage[type] = page;
+    // INSTANT PAGE CHANGE - NO LOADING
+    loadSectionData(type);
+
+    // Smooth scroll to top of table
+    const section = document.getElementById(type);
+    if (section) {
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+    }
+}
+
 function updateChartsTheme() {
     Object.values(charts).forEach((chart) => {
         if (chart && chart.options) {
@@ -469,7 +644,9 @@ function updateChartsTheme() {
 function loadCalendar() {
     generateCalendar(currentMonth, currentYear);
 
-    currentDate = currentDate ? currentDate : new Date().toISOString().split("T")[0];
+    currentDate = currentDate
+        ? currentDate
+        : new Date().toISOString().split("T")[0];
     showSchedulesForDate(currentDate);
 }
 
@@ -1097,11 +1274,23 @@ function filterStudents() {
         .getElementById("studentSearchInput")
         .value.toLowerCase();
 
-    showNotification(
-        "Filter Diterapkan",
-        "Filter siswa telah diterapkan",
-        "info"
-    );
+    filteredData.students = siswa.filter((student) => {
+        const matchClass =
+            classFilter === "" || student.siswa_profile.kelas === classFilter;
+
+        const matchStatus =
+            statusFilter === "" || student.status === statusFilter;
+
+        const matchSearch =
+            searchTerm === "" ||
+            student.name.toLowerCase().includes(searchTerm) ||
+            student.siswa_profile.nisn.includes(searchTerm);
+
+        return matchClass && matchStatus && matchSearch;
+    });
+
+    currentPage.students = 1;
+    loadStudentsData();
 }
 
 function filterApplications(status) {
@@ -1201,7 +1390,7 @@ function editProfileModal(modalName) {
     const form = document.getElementById("profileForm");
     form.onsubmit = (e) => {
         e.preventDefault();
-        handleFormSubmit(pembina.id, form, `/pembina`, "PUT", null,"profile");
+        handleFormSubmit(pembina.id, form, `/pembina`, "PUT", null, "profile");
     };
 }
 
@@ -1221,7 +1410,7 @@ function addSchedule(modalName) {
             `/jadwal`,
             "POST",
             ekskulSchedules,
-            "schedule",
+            "schedule"
         );
     };
 }
@@ -1296,7 +1485,7 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
             entries: fullForm,
         };
 
-        if(type == "profile") updatePembinaFromForm(formData, pembina);
+        if (type == "profile") updatePembinaFromForm(formData, pembina);
         let originalMethod = method;
         if (["PUT", "PATCH", "DELETE"].includes(method)) {
             formData.append("_method", method);
@@ -1320,7 +1509,7 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
                 "X-CSRF-TOKEN": document.querySelector(
                     'meta[name="csrf-token"]'
                 ).content,
-                "Accept": "application/json", // <-- tambahin ini
+                Accept: "application/json", // <-- tambahin ini
             },
             body: formData,
         });
@@ -1398,31 +1587,33 @@ function getElementValueByClass(classNames, value) {
 }
 
 function updateLocalData(dataObj, type, obj, method) {
-    if(type == "profile"){
-        getElementValueByClass(dataObj.key, dataObj.value);
-    }else{
-        if(method == "POST"){
-            if(!obj[dataObj.entries['tanggal']]){
-                obj[dataObj.entries['tanggal']] = [];
+    if (type == "profile") {
+        getElementValueByClass(dataObj.keys, dataObj.value);
+    } else {
+        if (method == "POST") {
+            if (!obj[dataObj.entries["tanggal"]]) {
+                obj[dataObj.entries["tanggal"]] = [];
             }
 
-            dataObj.entries.id = latestId+=1;
-            obj[dataObj.entries['tanggal']].push(dataObj.entries);
-            console.log(obj)
-        }else if(method == "PUT"){
-            for(let tanggal in obj){
+            dataObj.entries.id = latestId += 1;
+            obj[dataObj.entries["tanggal"]].push(dataObj.entries);
+            console.log(obj);
+        } else if (method == "PUT") {
+            for (let tanggal in obj) {
                 let idx = obj[tanggal].findIndex((s) => s.id == dataObj.id);
-                if(idx != -1){
+                if (idx != -1) {
                     obj[tanggal][idx] = dataObj.entries;
                     return;
                 }
             }
-        }else if(method == "DELETE"){
-            for(let tanggal in obj){
+        } else if (method == "DELETE") {
+            for (let tanggal in obj) {
                 if (Array.isArray(obj[tanggal])) {
-                    obj[tanggal] = obj[tanggal].filter((s) => s.id != dataObj.id);
+                    obj[tanggal] = obj[tanggal].filter(
+                        (s) => s.id != dataObj.id
+                    );
 
-                    if(obj[tanggal].length == 0){
+                    if (obj[tanggal].length == 0) {
                         delete obj[tanggal];
                     }
                 }
@@ -1506,29 +1697,44 @@ function closeNotification(id) {
 // ===== ACTION FUNCTIONS =====
 function editSchedule(scheduleId) {
     let schedule;
-    for(let tanggal in ekskulSchedules){
+    for (let tanggal in ekskulSchedules) {
         schedule = ekskulSchedules[tanggal].find((s) => s.id == scheduleId);
-        if(schedule) break;
+        if (schedule) break;
     }
 
-    getElementValue([
-        'schedule_id', 'judul', 'tanggal', 'jam_mulai', 'jam_selesai', 'lokasi', 'deskripsi_jadwal'
-    ], [
-        scheduleId, schedule.judul, schedule.tanggal, schedule.jam_mulai, schedule.jam_selesai, schedule.lokasi, schedule.deskripsi
-    ]);
+    getElementValue(
+        [
+            "schedule_id",
+            "judul",
+            "tanggal",
+            "jam_mulai",
+            "jam_selesai",
+            "lokasi",
+            "deskripsi_jadwal",
+        ],
+        [
+            scheduleId,
+            schedule.judul,
+            schedule.tanggal,
+            schedule.jam_mulai,
+            schedule.jam_selesai,
+            schedule.lokasi,
+            schedule.deskripsi,
+        ]
+    );
 
     openModal("scheduleModal");
 
-    const form = document.getElementById('scheduleForm');
+    const form = document.getElementById("scheduleForm");
     form.onsubmit = (e) => {
         e.preventDefault();
         handleFormSubmit(
             scheduleId,
             form,
             `/jadwal`,
-            'PUT',
+            "PUT",
             ekskulSchedules,
-            "schedules",
+            "schedules"
         );
     };
 }
@@ -1552,12 +1758,15 @@ function viewScheduleDetails(scheduleId) {
 
 function deleteSchedule(scheduleId) {
     let schedule;
-    for(let tanggal in ekskulSchedules){
+    for (let tanggal in ekskulSchedules) {
         schedule = ekskulSchedules[tanggal].find((s) => s.id == scheduleId);
-        if(schedule) break;
+        if (schedule) break;
     }
 
-    getElementValue(['nameObject', 'deleteObjectName'], ['Apakah Anda yakin ingin menghapus jadwal ini?', schedule.judul]);
+    getElementValue(
+        ["nameObject", "deleteObjectName"],
+        ["Apakah Anda yakin ingin menghapus jadwal ini?", schedule.judul]
+    );
 
     const form = document.getElementById("deleteForm");
     form.onsubmit = (e) => {
@@ -1566,9 +1775,9 @@ function deleteSchedule(scheduleId) {
             scheduleId,
             form,
             `/jadwal`,
-            'DELETE',
+            "DELETE",
             ekskulSchedules,
-            "schedules",
+            "schedules"
         );
     };
     openModal("deleteModal");
