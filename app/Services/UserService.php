@@ -187,6 +187,10 @@ class UserService
             'no_telephone' => $request->no_tel,
         ]);
 
+        if($request->ekskulId){
+            $siswa->ekskuls()->attach($request->ekskulId);
+        }
+
         return $siswa;
     }
 

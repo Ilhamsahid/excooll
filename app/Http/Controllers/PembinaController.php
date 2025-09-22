@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Services\SchedulesService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PembinaController extends Controller
 {
@@ -33,9 +35,10 @@ class PembinaController extends Controller
         $pembina = $userService->getUserNow(Auth::user()->id);
         $ekskulSchedules = $schedulesService->getSchedulesEkskul($pembina->ekskulDibina[0]->id);
         $siswa = $userService->getAllSiswaEkskul($pembina->ekskulDibina[0]->id);
+        $latestIdUser = User::max('id');
         $getKelas = $userService->getKelas();
 
-        return view('pembina.main', compact('pembina', 'ekskulSchedules', 'siswa', 'getKelas'));
+        return view('pembina.main', compact('pembina', 'ekskulSchedules', 'siswa', 'getKelas', 'latestIdUser'));
     }
 
     public function store(UserService $userService, Request $request)

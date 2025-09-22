@@ -1,13 +1,16 @@
-<div id="addStudentModal" class="modal">
+<div id="studentModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
             <h3 class="modal-title">Tambah Siswa ke Klub Basket</h3>
-            <button class="close-btn" onclick="closeModal('addStudentModal')" aria-label="Close">
+            <button class="close-btn" onclick="closeModal('studentModal')" aria-label="Close">
                 &times;
             </button>
         </div>
 
-        <form id="studentForm" onsubmit="handleStudentSubmit(event)">
+        <form id="studentForm">
+
+            <input type="hidden" name="ekskulId" value="{{ $pembina->ekskulDibina[0]->id }}">
+
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Nama Lengkap</label>
@@ -67,7 +70,7 @@
               justify-content: flex-end;
               margin-top: var(--space-8);
             ">
-                <button type="button" class="btn btn-secondary hover-scale" onclick="closeModal('addStudentModal')">
+                <button type="button" class="btn btn-secondary hover-scale" onclick="closeModal('studentModal')">
                     <span>❌</span>
                     <span>Batal</span>
                 </button>

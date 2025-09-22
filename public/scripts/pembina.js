@@ -6,6 +6,7 @@ let charts = {};
 let currentPage = {
     students: 1,
 };
+let objT = {}
 let filteredData = {};
 let itemsPerPage = 10;
 let currentDate = null;
@@ -488,9 +489,10 @@ function loadStudentsData() {
                 <div style="margin: var(--space-4) 0; font-size: var(--font-size-sm); color: var(--text-secondary);">
                     📧 ${student.email}<br />
                     📞 ${student.siswa_profile.no_telephone ?? "-"}<br />
-                    ${student.siswa_profile.jenis_kelamin == "laki-laki"
-                            ?"👨 laki-laki"
-                            :"👩 perempuan"
+                    ${
+                        student.siswa_profile.jenis_kelamin == "laki-laki"
+                            ? "👨 laki-laki"
+                            : "👩 perempuan"
                     }<br />
                     📍 ${student.siswa_profile.alamat ?? "-"}
                 </div>
@@ -1365,6 +1367,16 @@ function closeModal(modalId) {
     }
 }
 
+function addStudent(modalName) {
+    openModal(modalName);
+
+    const form = document.getElementById("studentForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(null, form, `/siswa`, "POST", siswa, "siswa");
+    };
+}
+
 function editProfileModal(modalName) {
     getElementValue(
         [
@@ -1496,7 +1508,7 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
 
         updateLocalData(dataObj, type, obj, originalMethod);
         closeModal(form.getAttribute("id").replace("Form", "Modal"));
-        loadCalendar();
+        loadSectionData(currentSection);
         showNotification(
             "Berhasil",
             "selamat pembina berhasil diperbarui",
@@ -1528,9 +1540,19 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
 
         const data = await res.json();
 
-        console.log(data);
+        if(data.status == 'success'){
+            sync(obj, data.item, type);
+        }
     } catch (e) {
         console.log(e);
+    }
+}
+
+function sync(obj, data, type){
+    if(type != "schedule"){
+        idx = obj.findIndex((o) => o.id == objT.id);
+        obj[idx] = data;
+        loadSectionData(currentSection);
     }
 }
 
@@ -1586,38 +1608,92 @@ function getElementValueByClass(classNames, value) {
     }
 }
 
+function getTempData(key, value) {
+    obj = {};
+    for (let i = 0; i < key.length; i++) {
+        let parts = key[i].split(".");
+        let current = obj;
+
+        for(let j = 0; j < parts.length; j++){
+            let part = parts[j];
+
+            if(j === parts.length - 1){
+                current[part] = value[i];
+            }else{
+                if (!current[part]) current[part] = {};
+                current = current[part]
+            }
+        }
+    }
+
+    return obj;
+}
+
 function updateLocalData(dataObj, type, obj, method) {
     if (type == "profile") {
         getElementValueByClass(dataObj.keys, dataObj.value);
     } else {
         if (method == "POST") {
-            if (!obj[dataObj.entries["tanggal"]]) {
-                obj[dataObj.entries["tanggal"]] = [];
-            }
+            if (type == "schedules") {
+                if (!obj[dataObj.entries["tanggal"]]) {
+                    obj[dataObj.entries["tanggal"]] = [];
+                }
 
-            dataObj.entries.id = latestId += 1;
-            obj[dataObj.entries["tanggal"]].push(dataObj.entries);
-            console.log(obj);
+                dataObj.entries.id = latestId += 1;
+                obj[dataObj.entries["tanggal"]].push(dataObj.entries);
+            }else if(type == "siswa") {
+                latestIdUser++;
+
+                objT = getTempData([
+                    'id', 'name', 'email', 'status', 'siswa_profile.jenis_kelamin', 'siswa_profile.nisn', 'siswa_profile.no_telephone',
+                    'siswa_profile.kelas', 'siswa_profile.alamat'
+                ], [
+                    latestIdUser, dataObj.entries.nama, dataObj.entries.email, "aktif", dataObj.entries.j_kel, dataObj.entries.nisn,
+                    dataObj.entries.no_tel, dataObj.entries.kelas, dataObj.entries.alamat
+                ]);
+
+                obj.unshift(objT);
+            }
         } else if (method == "PUT") {
-            for (let tanggal in obj) {
-                let idx = obj[tanggal].findIndex((s) => s.id == dataObj.id);
-                if (idx != -1) {
-                    obj[tanggal][idx] = dataObj.entries;
+            if (type == "schedules") {
+                for (let tanggal in obj) {
+                    let idx = obj[tanggal].findIndex((s) => s.id == dataObj.id);
+                    if (idx != -1) {
+                        obj[tanggal][idx] = dataObj.entries;
+                        return;
+                    }
+                }
+            }else if(type == "siswa"){
+
+                console.log(dataObj.id);
+
+                objT = getTempData([
+                    'id', 'name', 'email', 'status', 'siswa_profile.jenis_kelamin', 'siswa_profile.nisn', 'siswa_profile.no_telephone',
+                    'siswa_profile.kelas', 'siswa_profile.alamat'
+                ], [
+                    dataObj.id, dataObj.entries.nama, dataObj.entries.email, "aktif", dataObj.entries.j_kel, dataObj.entries.nisn,
+                    dataObj.entries.no_tel, dataObj.entries.kelas, dataObj.entries.alamat
+                ]);
+
+                let idx = obj.findIndex((s) => s.id == dataObj.id);
+                if(idx != -1){
+                    obj[idx] = objT;
                     return;
                 }
             }
         } else if (method == "DELETE") {
             for (let tanggal in obj) {
-                if (Array.isArray(obj[tanggal])) {
-                    obj[tanggal] = obj[tanggal].filter(
-                        (s) => s.id != dataObj.id
-                    );
+                if (type == "schedules") {
+                    if (Array.isArray(obj[tanggal])) {
+                        obj[tanggal] = obj[tanggal].filter(
+                            (s) => s.id != dataObj.id
+                        );
 
-                    if (obj[tanggal].length == 0) {
-                        delete obj[tanggal];
+                        if (obj[tanggal].length == 0) {
+                            delete obj[tanggal];
+                        }
                     }
                 }
-                console.log(obj);
             }
         }
     }
@@ -1854,7 +1930,28 @@ function viewStudentDetail(studentId) {
 }
 
 function editStudent(studentId) {
-    showNotification("Edit Siswa", `Mengedit data siswa: ${studentId}`, "info");
+    const student = siswa.find((s) => s.id == studentId);
+
+    getElementValue([
+        'name', 'email', 'class', 'notel', 'nisn', 'j_kel', 'alamat'
+    ],[
+        student.name, student.email, student.siswa_profile.kelas, student.siswa_profile.no_telephone, student.siswa_profile.nisn, student.siswa_profile.jenis_kelamin, student.siswa_profile.alamat
+    ]);
+
+    openModal("studentModal");
+
+    const form = document.getElementById("studentForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            studentId,
+            form,
+            `/siswa`,
+            "PUT",
+            siswa,
+            "siswa",
+        );
+    };
 }
 
 function editAttendanceStatus(studentId) {

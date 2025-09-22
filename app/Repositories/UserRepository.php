@@ -64,7 +64,7 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::whereHas('ekskuls', function ($q) use ($id) {
             $q->where('ekskul_id', $id);
-        })->with('siswaProfile', 'ekskuls')->get();
+        })->with('siswaProfile', 'ekskuls')->orderBy('id', 'desc')->get();
     }
 
     public function getUserNow($id)

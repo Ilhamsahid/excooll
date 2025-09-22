@@ -55,7 +55,7 @@
         }, 0);
 
         const siswa = @json($siswa);
-        console.log(siswa);
+        let latestIdUser = @json($latestIdUser);
     </script>
     <script src="{{ asset('scripts/pembina.js') }}"></script>
 </body>

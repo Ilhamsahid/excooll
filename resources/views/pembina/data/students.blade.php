@@ -12,7 +12,7 @@
                     <button class="btn btn-secondary btn-sm" onclick="exportStudents()">
                         📊 Export Data
                     </button>
-                    <button class="btn btn-primary" onclick="openModal('addStudentModal')">
+                    <button class="btn btn-primary" onclick="addStudent('studentModal')">
                         ➕ Tambah Siswa
                     </button>
                 </div>
