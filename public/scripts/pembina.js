@@ -5,8 +5,9 @@ let notificationId = 0;
 let charts = {};
 let currentPage = {
     students: 1,
+    announcements: 1,
 };
-let objT = {}
+let objT = {};
 let filteredData = {};
 let itemsPerPage = 10;
 let currentDate = null;
@@ -263,8 +264,12 @@ function loadSectionData(sectionName) {
         case "attendance":
             loadAttendanceChart();
             break;
+        case "announcements":
+            loadAnnouncementsData();
+            break;
         case "students":
             loadStudentsData();
+            break;
     }
 }
 
@@ -521,6 +526,81 @@ function loadStudentsData() {
     });
 
     renderPagination("students", data.length);
+}
+
+function loadAnnouncementsData() {
+    const body = document.getElementById("loadAnnouncements");
+    const data = filteredData.announcements
+        ? filteredData.announcements
+        : announc;
+    itemsPerPage = 9;
+    body.innerHTML = "";
+
+    const start = (currentPage.announcements - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedData = data.slice(start, end);
+
+    if(paginatedData.length == 0){
+        body.innerHTML = `
+            <div style="text-align: center; padding: var(--space-8); color: var(--text-tertiary); grid-column: 1 / -1;">
+                <div style="padding: var(--space-8);">
+                    <div style="font-size: var(--font-size-4xl); margin-bottom: var(--space-4); opacity: 0.5;">📢</div>
+                    <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-2);">Tidak ada pengumuman</div>
+                    <div style="font-size: var(--font-size-sm);">Belum ada pengumuman yang dipublikasi</div>
+                </div>
+            </div>
+        `;
+        renderPagination("announcements", data.length);
+        return;
+    }
+
+    paginatedData.forEach((announc, index) => {
+        let announcCard = `
+            <div class="application-card">
+                <div class="application-header">
+                    <div>
+                        <h4 class="application-student">
+                            ${announc.judul}
+                        </h4>
+                        <div class="application-meta">
+                            <span>📅 ${formatDate(announc.tanggal_pengumuman)}</span>
+                            <span>🏀 ${pembina.ekskul_dibina[0].nama}</span>
+                        </div>
+                    </div>
+                    <span class="badge badge-success">📢 ${announc.tipe}</span>
+                </div>
+                <div class="application-content">
+                    <p>
+                        ${announc.isi}
+                    </p>
+                </div>
+                <div class="application-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="editAnnouncement(${announc.id})">
+                        ✏️ Edit
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="viewAnnouncementStats(${announc.id})">
+                        📊 Detail
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="deleteAnnouncement(${announc.id})">
+                        🗑️ Delete
+                    </button>
+                </div>
+            </div>
+        `;
+
+        body.innerHTML += announcCard;
+    });
+
+    renderPagination("announcements", data.length);
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("id-ID", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
 }
 
 function renderPagination(type, totalItems) {
@@ -1367,16 +1447,6 @@ function closeModal(modalId) {
     }
 }
 
-function addStudent(modalName) {
-    openModal(modalName);
-
-    const form = document.getElementById("studentForm");
-    form.onsubmit = (e) => {
-        e.preventDefault();
-        handleFormSubmit(null, form, `/siswa`, "POST", siswa, "siswa");
-    };
-}
-
 function editProfileModal(modalName) {
     getElementValue(
         [
@@ -1423,6 +1493,33 @@ function addSchedule(modalName) {
             "POST",
             ekskulSchedules,
             "schedule"
+        );
+    };
+}
+
+function addStudent(modalName) {
+    openModal(modalName);
+
+    const form = document.getElementById("studentForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(null, form, `/siswa`, "POST", siswa, "siswa");
+    };
+}
+
+function addAnnouncement(modalName) {
+    openModal(modalName);
+
+    const form = document.getElementById("announcementForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            null,
+            form,
+            `/pengumuman`,
+            "POST",
+            announc,
+            "pengumuman"
         );
     };
 }
@@ -1540,20 +1637,20 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
 
         const data = await res.json();
 
-        if(data.status == 'success'){
-            sync(obj, data.item, type);
+        if (data.status == "success") {
+            if(originalMethod != "DELETE"){
+                sync(obj, data.item, type)
+            }
         }
     } catch (e) {
         console.log(e);
     }
 }
 
-function sync(obj, data, type){
-    if(type != "schedule"){
-        idx = obj.findIndex((o) => o.id == objT.id);
-        obj[idx] = data;
-        loadSectionData(currentSection);
-    }
+function sync(obj, data, type) {
+    idx = obj.findIndex((o) => o.id == objT.id);
+    obj[idx] = data;
+    loadSectionData(currentSection);
 }
 
 // fungsi set nested path (ga bikin object baru kalau udah ada)
@@ -1614,14 +1711,14 @@ function getTempData(key, value) {
         let parts = key[i].split(".");
         let current = obj;
 
-        for(let j = 0; j < parts.length; j++){
+        for (let j = 0; j < parts.length; j++) {
             let part = parts[j];
 
-            if(j === parts.length - 1){
+            if (j === parts.length - 1) {
                 current[part] = value[i];
-            }else{
+            } else {
                 if (!current[part]) current[part] = {};
-                current = current[part]
+                current = current[part];
             }
         }
     }
@@ -1634,28 +1731,49 @@ function updateLocalData(dataObj, type, obj, method) {
         getElementValueByClass(dataObj.keys, dataObj.value);
     } else {
         if (method == "POST") {
-            if (type == "schedules") {
+            if (type == "schedule") {
                 if (!obj[dataObj.entries["tanggal"]]) {
                     obj[dataObj.entries["tanggal"]] = [];
                 }
 
                 dataObj.entries.id = latestId += 1;
                 obj[dataObj.entries["tanggal"]].push(dataObj.entries);
-            }else if(type == "siswa") {
+            } else if (type == "siswa") {
                 latestIdUser++;
 
-                objT = getTempData([
-                    'id', 'name', 'email', 'status', 'siswa_profile.jenis_kelamin', 'siswa_profile.nisn', 'siswa_profile.no_telephone',
-                    'siswa_profile.kelas', 'siswa_profile.alamat'
-                ], [
-                    latestIdUser, dataObj.entries.nama, dataObj.entries.email, "aktif", dataObj.entries.j_kel, dataObj.entries.nisn,
-                    dataObj.entries.no_tel, dataObj.entries.kelas, dataObj.entries.alamat
-                ]);
+                objT = getTempData(
+                    [
+                        "id",
+                        "name",
+                        "email",
+                        "status",
+                        "siswa_profile.jenis_kelamin",
+                        "siswa_profile.nisn",
+                        "siswa_profile.no_telephone",
+                        "siswa_profile.kelas",
+                        "siswa_profile.alamat",
+                    ],
+                    [
+                        latestIdUser,
+                        dataObj.entries.nama,
+                        dataObj.entries.email,
+                        "aktif",
+                        dataObj.entries.j_kel,
+                        dataObj.entries.nisn,
+                        dataObj.entries.no_tel,
+                        dataObj.entries.kelas,
+                        dataObj.entries.alamat,
+                    ]
+                );
 
                 obj.unshift(objT);
+            }else{
+                if(type == "pengumuman") dataObj.entries['tanggal_pengumuman'] = dataObj.entries.tanggal;
+
+                obj.unshift(dataObj.entries);
             }
         } else if (method == "PUT") {
-            if (type == "schedules") {
+            if (type == "schedule") {
                 for (let tanggal in obj) {
                     let idx = obj[tanggal].findIndex((s) => s.id == dataObj.id);
                     if (idx != -1) {
@@ -1663,27 +1781,50 @@ function updateLocalData(dataObj, type, obj, method) {
                         return;
                     }
                 }
-            }else if(type == "siswa"){
-
+            } else if (type == "siswa") {
                 console.log(dataObj.id);
 
-                objT = getTempData([
-                    'id', 'name', 'email', 'status', 'siswa_profile.jenis_kelamin', 'siswa_profile.nisn', 'siswa_profile.no_telephone',
-                    'siswa_profile.kelas', 'siswa_profile.alamat'
-                ], [
-                    dataObj.id, dataObj.entries.nama, dataObj.entries.email, "aktif", dataObj.entries.j_kel, dataObj.entries.nisn,
-                    dataObj.entries.no_tel, dataObj.entries.kelas, dataObj.entries.alamat
-                ]);
+                objT = getTempData(
+                    [
+                        "id",
+                        "name",
+                        "email",
+                        "status",
+                        "siswa_profile.jenis_kelamin",
+                        "siswa_profile.nisn",
+                        "siswa_profile.no_telephone",
+                        "siswa_profile.kelas",
+                        "siswa_profile.alamat",
+                    ],
+                    [
+                        dataObj.id,
+                        dataObj.entries.nama,
+                        dataObj.entries.email,
+                        "aktif",
+                        dataObj.entries.j_kel,
+                        dataObj.entries.nisn,
+                        dataObj.entries.no_tel,
+                        dataObj.entries.kelas,
+                        dataObj.entries.alamat,
+                    ]
+                );
 
                 let idx = obj.findIndex((s) => s.id == dataObj.id);
-                if(idx != -1){
+                if (idx != -1) {
                     obj[idx] = objT;
                     return;
                 }
+            }else{
+                let idx = obj.findIndex((o) => o.id == dataObj.id);
+                if (idx != -1){
+                    if (type == "pengumuman") dataObj.entries['tanggal_pengumuman'] = dataObj.entries.tanggal;
+                    obj[idx] = dataObj.entries;
+                }
             }
         } else if (method == "DELETE") {
-            for (let tanggal in obj) {
-                if (type == "schedules") {
+            console.log(method)
+            if (type == "schedule") {
+                for (let tanggal in obj) {
                     if (Array.isArray(obj[tanggal])) {
                         obj[tanggal] = obj[tanggal].filter(
                             (s) => s.id != dataObj.id
@@ -1693,6 +1834,11 @@ function updateLocalData(dataObj, type, obj, method) {
                             delete obj[tanggal];
                         }
                     }
+                }
+            }else{
+                let idx = obj.findIndex(o => o.id == dataObj.id);
+                if (idx !== -1) {
+                    obj.splice(idx, 1); // hapus item di tempat
                 }
             }
         }
@@ -1891,30 +2037,28 @@ function endActivity(activityId) {
     );
 }
 
-function editAnnouncement(announcementId) {
-    showNotification(
-        "Edit Pengumuman",
-        `Mengedit pengumuman: ${announcementId}`,
-        "info"
-    );
-}
-
-function publishAnnouncement(announcementId) {
-    showNotification(
-        "Pengumuman Dipublikasi",
-        `Pengumuman ${announcementId} telah dipublikasi`,
-        "success"
-    );
-}
-
 function deleteAnnouncement(announcementId) {
-    if (confirm("Apakah Anda yakin ingin menghapus pengumuman ini?")) {
-        showNotification(
-            "Pengumuman Dihapus",
-            `Pengumuman ${announcementId} telah dihapus`,
-            "success"
+    const announcement = announc.find((a) => a.id == announcementId);
+
+    getElementValue(
+        ["nameObject", "deleteObjectName"],
+        ["Apakah Anda yakin ingin menghapus Pengumuman ini?", announcement.judul]
+    );
+
+    openModal("deleteModal");
+
+    const form = document.getElementById("deleteForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            announcementId,
+            form,
+            `/pengumuman`,
+            "DELETE",
+            announc,
+            "pengumuman"
         );
-    }
+    };
 }
 
 function viewStudentProfile(studentId) {
@@ -1932,24 +2076,49 @@ function viewStudentDetail(studentId) {
 function editStudent(studentId) {
     const student = siswa.find((s) => s.id == studentId);
 
-    getElementValue([
-        'name', 'email', 'class', 'notel', 'nisn', 'j_kel', 'alamat'
-    ],[
-        student.name, student.email, student.siswa_profile.kelas, student.siswa_profile.no_telephone, student.siswa_profile.nisn, student.siswa_profile.jenis_kelamin, student.siswa_profile.alamat
-    ]);
+    getElementValue(
+        ["name", "email", "class", "notel", "nisn", "j_kel", "alamat"],
+        [
+            student.name,
+            student.email,
+            student.siswa_profile.kelas,
+            student.siswa_profile.no_telephone,
+            student.siswa_profile.nisn,
+            student.siswa_profile.jenis_kelamin,
+            student.siswa_profile.alamat,
+        ]
+    );
 
     openModal("studentModal");
 
     const form = document.getElementById("studentForm");
     form.onsubmit = (e) => {
         e.preventDefault();
+        handleFormSubmit(studentId, form, `/siswa`, "PUT", siswa, "siswa");
+    };
+}
+
+function editAnnouncement(announcementId) {
+    const announcement = announc.find((s) => s.id == announcementId);
+
+    getElementValue([
+        "judulPengumuman", "isi", "tipe", "tanggalPengumuman", "lokasiPengumuman"
+    ],[
+        announcement.judul, announcement.isi, announcement.tipe, announcement.tanggal_pengumuman, announcement.lokasi
+    ]);
+
+    openModal("announcementModal");
+
+    const form = document.getElementById("announcementForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
         handleFormSubmit(
-            studentId,
+            announcementId,
             form,
-            `/siswa`,
+            `/pengumuman`,
             "PUT",
-            siswa,
-            "siswa",
+            announc,
+            "pengumuman"
         );
     };
 }

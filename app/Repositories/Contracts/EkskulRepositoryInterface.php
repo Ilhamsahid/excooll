@@ -10,6 +10,7 @@ interface EkskulRepositoryInterface
     public function getAllWithPembinaAndCount(): collection;
     public function getAllStudentWithPending();
     public function getEkskulByEkskulIdFromUser($ekskulId): collection;
+    public function getStudentRegistrationEkskul($ekskulId);
     public function findEkskulById($id);
     public function createEkskul($arr);
     public function updateEkskul($ekskul, $arr);

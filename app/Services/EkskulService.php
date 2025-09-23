@@ -33,6 +33,11 @@ class EkskulService
         return $this->repository->getAllEkskulWithRelation();
     }
 
+    public function getSiswaRegistrationWithEkskul($id)
+    {
+        return $this->repository->getStudentRegistrationEkskul($id);
+    }
+
     public function createEkskul(Request $request)
     {
         $ekskul = $this->repository->createEkskul([

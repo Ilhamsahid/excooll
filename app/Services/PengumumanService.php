@@ -18,6 +18,11 @@ class PengumumanService
         return $this->repository->getAllWithEkskul();
     }
 
+    public function getAnnouncEkskul($id)
+    {
+        return $this->repository->getAnnouncEkskul($id);
+    }
+
     public function addPengumuman($data)
     {
         $announcement =  $this->repository->createAnnouncement([

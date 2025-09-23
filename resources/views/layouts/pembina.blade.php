@@ -55,7 +55,10 @@
         }, 0);
 
         const siswa = @json($siswa);
+        const announc = @json($announc);
+        const pendaftaran = @json($pendaftaran);
         let latestIdUser = @json($latestIdUser);
+        console.log(pendaftaran);
     </script>
     <script src="{{ asset('scripts/pembina.js') }}"></script>
 </body>

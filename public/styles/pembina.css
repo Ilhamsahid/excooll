@@ -2473,6 +2473,12 @@ body {
     font-size: var(--font-size-sm);
 }
 
+.application-content p {
+  white-space: pre-line;     /* biar \n terbaca sebagai baris baru */
+  word-wrap: break-word;     /* biar kata panjang bisa pecah */
+  overflow-wrap: anywhere;   /* tambahan modern, pasti bisa pecah */
+}
+
 .application-actions {
     display: flex;
     gap: var(--space-2);

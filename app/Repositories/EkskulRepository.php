@@ -31,6 +31,24 @@ class EkskulRepository implements EkskulRepositoryInterface
         ->get();
     }
 
+    public function getStudentRegistrationEkskul($ekskulId)
+    {
+        $ekskul = Ekskul::with([
+            'siswa' => function ($q) {
+                $q->with('siswaProfile')
+                ->orderByRaw("CASE WHEN ekskul_user.status = 'pending' THEN 0 ELSE 1 END")
+                ->orderBy('id', 'desc');
+            }
+        ])
+        ->where('id', $ekskulId)
+        ->first();
+
+
+        $siswa = $ekskul->siswa;
+
+        return $siswa;
+    }
+
     public function getAllEkskulWithRelation(): collection
     {
         return Ekskul::with(['pembina.pembinaProfile', 'pembina.ekskulDibina', 'schedules'])->withCount(['siswa', 'achievements'])->orderBy('id', 'desc')->get();

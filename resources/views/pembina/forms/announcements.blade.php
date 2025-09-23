@@ -7,46 +7,36 @@
             </button>
         </div>
 
-        <form id="announcementForm" onsubmit="handleAnnouncementSubmit(event)">
+        <form id="announcementForm">
             <div class="form-group">
                 <label class="form-label">Judul Pengumuman</label>
-                <input type="text" class="form-input" required placeholder="Judul pengumuman" />
+                <input type="text" class="form-input" required placeholder="Judul pengumuman" id="judulPengumuman" name="judul" />
             </div>
 
             <div class="form-group">
                 <label class="form-label">Isi Pengumuman</label>
-                <textarea class="form-textarea" rows="6" required placeholder="Tulis pengumuman untuk klub basket..."></textarea>
+                <textarea class="form-textarea" rows="6" required placeholder="Tulis pengumuman untuk klub basket..." id="isi" name="isi"></textarea>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Target Audience</label>
-                    <select class="form-select" required>
-                        <option value="all">Semua Anggota Klub Basket</option>
-                        <option value="core">Tim Inti</option>
-                        <option value="reserve">Tim Reserve</option>
-                        <option value="new">Anggota Baru</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Prioritas</label>
-                    <select class="form-select" required>
-                        <option value="normal">📌 Normal</option>
-                        <option value="high">⚡ Tinggi</option>
-                        <option value="urgent">🚨 Urgent</option>
-                    </select>
-                </div>
+            <div class="form-group">
+                <label class="form-label">Tipe Pengumuman</label>
+                <select class="form-select" required name="tipe" id="tipe">
+                    <option value="wajib">Wajib</option>
+                    <option value="opsional">Opsional</option>
+                </select>
             </div>
+
+            <input type="hidden" name="ekskul_id" value="{{ $pembina->ekskulDibina[0]->id }}">
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Tanggal Publikasi</label>
-                    <input type="date" class="form-input" required name="tanggal" id="tanggal" />
+                    <input type="date" class="form-input" required name="tanggal" id="tanggalPengumuman" />
                 </div>
                 <div class="form-group">
                     <label class="form-label">Lokasi Pengumuman</label>
                     <input type="text" class="form-input" required placeholder="Lokasi pengumuman" name="lokasi"
-                        id="lokasi" />
+                        id="lokasiPengumuman" />
                 </div>
             </div>
 
@@ -59,9 +49,6 @@
             ">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('announcementModal')">
                     ❌ Batal
-                </button>
-                <button type="button" class="btn btn-ghost" onclick="saveDraft()">
-                    💾 Simpan Draft
                 </button>
                 <button type="submit" class="btn btn-primary">📢 Publikasi</button>
             </div>

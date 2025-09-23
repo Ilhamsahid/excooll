@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 interface PengumumanRepositoryInterface
 {
     public function getAllWithEkskul(): collection;
+    public function getAnnouncEkskul($id);
     public function createAnnouncement($arr);
     public function updateAnnouncement($announc, $arr);
     public function deleteAnnouncement($announc);

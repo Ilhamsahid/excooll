@@ -189,6 +189,10 @@ class UserService
 
         if($request->ekskulId){
             $siswa->ekskuls()->attach($request->ekskulId);
+            $siswa->ekskuls()->updateExistingPivot(
+                $request->ekskulId,
+                ['status' => 'diterima']
+            );
         }
 
         return $siswa;

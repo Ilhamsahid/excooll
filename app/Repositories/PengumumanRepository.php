@@ -32,4 +32,8 @@ class PengumumanRepository implements PengumumanRepositoryInterface
         return Pengumuman::find($id);
     }
 
+    public function getAnnouncEkskul($id)
+    {
+        return Pengumuman::where('ekskul_id', $id)->orderBy('id', 'desc')->get();
+    }
 }
