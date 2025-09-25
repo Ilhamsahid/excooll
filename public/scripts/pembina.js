@@ -6,7 +6,9 @@ let charts = {};
 let currentPage = {
     students: 1,
     announcements: 1,
+    applications: 1,
 };
+let currentStatus = "all";
 let objT = {};
 let filteredData = {};
 let itemsPerPage = 10;
@@ -270,6 +272,9 @@ function loadSectionData(sectionName) {
         case "students":
             loadStudentsData();
             break;
+        case "applications":
+            loadApplicationsData();
+            break;
     }
 }
 
@@ -528,6 +533,86 @@ function loadStudentsData() {
     renderPagination("students", data.length);
 }
 
+function loadApplicationsData(status = 'all') {
+    const body = document.getElementById("applicationsGrid");
+    let data = filteredData.applications
+        ? filteredData.applications
+        : pendaftaran;
+    itemsPerPage = 9;
+    body.innerHTML = "";
+
+    realData = data;
+    if(status !== 'all'){
+        data = data.filter(app => app.pivot.status === status);
+    }
+
+    const start = (currentPage.applications - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedData = data.slice(start, end);
+    console.log(data);
+
+    if(paginatedData.length == 0){
+        body.innerHTML = `
+            <div colspan="6" style="text-align: center; padding: var(--space-8); color: var(--text-tertiary);">
+                <div style="padding: var(--space-8);">
+                    <div style="font-size: var(--font-size-4xl); margin-bottom: var(--space-4); opacity: 0.5;">📝</div>
+                    <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-2);">Tidak ada data pendaftaran</div>
+                    <div style="font-size: var(--font-size-sm);">Belum ada pendaftaran yang sesuai dengan filter</div>
+                </div>
+            </div>
+        `;
+    }
+
+    paginatedData.forEach((application, index) => {
+        let status = application.pivot.status;
+        let setStatus = status == "pending" ? "pending" : status == "diterima" ? "approved" : "rejected";
+        let setBadge = status == "pending" ? "warning" : status == "diterima" ? "success" : "danger";
+
+        let applicationCard = `
+            <div class="application-card ${setStatus}">
+                <div class="application-header">
+                    <div>
+                        <h4 class="application-student">${application.name}</h4>
+                        <div class="application-meta">
+                            <span>📧 ${application.email}</span>
+                            <span>🎓 Kelas ${application.siswa_profile.kelas}</span>
+                            <span>🏀 ${pembina.ekskul_dibina[0].nama ?? "-"}</span>
+                            <span>📅 ${application.pivot.created_at.substr(0, 10)}</span>
+                        </div>
+                    </div>
+                    <span class="badge badge-${setBadge}">⏳ ${setStatus}</span>
+                </div>
+                <div class="application-content">
+                    <div style="margin-bottom: var(--space-3)">
+                        <strong>Alasan bergabung:</strong><br />
+                        <p>${application.pivot.alasan ?? 'Tidak ada alasan bergabung'}</p>
+                    </div>
+                    <div>
+                        <strong>Pengalaman sebelumnya:</strong><br />
+                        <p>${application.pivot.exp_before ?? 'Tidak ada pengalaman sebelumnya'}</p>
+                    </div>
+                </div>
+                <div class="application-actions">
+                    <button style="display: ${status == "pending" ? 'flex' : 'none'}" class="btn btn-success btn-sm" onclick="handleApplication(${application.id}, 'diterima')">
+                        ✅ Setujui
+                    </button>
+                    <button style="display: ${status == "pending" ? 'flex' : 'none'}" class="btn btn-danger btn-sm" onclick="handleApplication(${application.id}, 'ditolak')">
+                        ❌ Tolak
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="contactStudent('ahmad_rizki')">
+                        💬 Kontak
+                    </button>
+                </div>
+            </div>
+        `;
+
+        body.innerHTML += applicationCard;
+    });
+
+    updateRegistrationTabs(realData);
+    renderPagination("applications", data.length);
+}
+
 function loadAnnouncementsData() {
     const body = document.getElementById("loadAnnouncements");
     const data = filteredData.announcements
@@ -540,7 +625,7 @@ function loadAnnouncementsData() {
     const end = start + itemsPerPage;
     const paginatedData = data.slice(start, end);
 
-    if(paginatedData.length == 0){
+    if (paginatedData.length == 0) {
         body.innerHTML = `
             <div style="text-align: center; padding: var(--space-8); color: var(--text-tertiary); grid-column: 1 / -1;">
                 <div style="padding: var(--space-8);">
@@ -563,7 +648,9 @@ function loadAnnouncementsData() {
                             ${announc.judul}
                         </h4>
                         <div class="application-meta">
-                            <span>📅 ${formatDate(announc.tanggal_pengumuman)}</span>
+                            <span>📅 ${formatDate(
+                                announc.tanggal_pengumuman
+                            )}</span>
                             <span>🏀 ${pembina.ekskul_dibina[0].nama}</span>
                         </div>
                     </div>
@@ -575,13 +662,19 @@ function loadAnnouncementsData() {
                     </p>
                 </div>
                 <div class="application-actions">
-                    <button class="btn btn-ghost btn-sm" onclick="editAnnouncement(${announc.id})">
+                    <button class="btn btn-ghost btn-sm" onclick="editAnnouncement(${
+                        announc.id
+                    })">
                         ✏️ Edit
                     </button>
-                    <button class="btn btn-ghost btn-sm" onclick="viewAnnouncementStats(${announc.id})">
+                    <button class="btn btn-ghost btn-sm" onclick="viewAnnouncementStats(${
+                        announc.id
+                    })">
                         📊 Detail
                     </button>
-                    <button class="btn btn-ghost btn-sm" onclick="deleteAnnouncement(${announc.id})">
+                    <button class="btn btn-ghost btn-sm" onclick="deleteAnnouncement(${
+                        announc.id
+                    })">
                         🗑️ Delete
                     </button>
                 </div>
@@ -669,6 +762,32 @@ function renderPagination(type, totalItems) {
     `;
 
     pagination.innerHTML = paginationHTML;
+}
+
+async function handleApplication(id, status){
+    const idx = pendaftaran.findIndex((p) => p.id === id);
+    let siswaDaftar = pendaftaran[idx];
+
+    // perubahan front end
+    siswaDaftar.pivot.status = status;
+    showNotification('Pendaftaran Berhasil', 'Pendaftaran telah disetujui', 'success');
+    loadApplicationsData(currentStatus);
+    if (status === "diterima") siswa.unshift(siswaDaftar);
+
+    // perubahan back end
+    await fetch(`/pendaftaran/${status}`, {
+        method: "PUT", // pakai PUT karena update
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector(
+                'meta[name="csrf-token"]'
+            ).content,
+        },
+        body: JSON.stringify({
+            idUser: id,
+            idEkskul: pembina.ekskul_dibina[0].id,
+        }),
+    });
 }
 
 function formatNumber(num) {
@@ -1376,6 +1495,7 @@ function filterStudents() {
 }
 
 function filterApplications(status) {
+    let tempStatus = status == "diterima" ? "approved" : status == "ditolak" ? "rejected" : status;
     // Remove active class from all buttons
     document.querySelectorAll('#applications [id^="app"]').forEach((btn) => {
         btn.classList.remove("active");
@@ -1384,20 +1504,35 @@ function filterApplications(status) {
     // Add active class to clicked button
     document
         .getElementById(
-            "app" + status.charAt(0).toUpperCase() + status.slice(1)
+            "app" + tempStatus.charAt(0).toUpperCase() + tempStatus.slice(1)
         )
         .classList.add("active");
 
     // Filter application cards
-    const cards = document.querySelectorAll(".application-card");
-    cards.forEach((card) => {
-        if (status === "all") {
-            card.style.display = "block";
-        } else {
-            const hasStatus = card.classList.contains(status);
-            card.style.display = hasStatus ? "block" : "none";
-        }
-    });
+    currentPage.applications = 1;
+    currentStatus = status;
+
+    loadApplicationsData(status);
+}
+
+function updateRegistrationTabs(registrations) {
+    const all = registrations.length;
+    const pending = registrations.filter((r) => r.pivot.status === "pending").length;
+    const approved = registrations.filter((r) => r.pivot.status === "diterima").length;
+    const rejected = registrations.filter((r) => r.pivot.status === "ditolak").length;
+
+    document.getElementById("appAll").textContent = `Semua (${all})`;
+    document.getElementById(
+        "appPending"
+    ).textContent = `Pending (${pending})`;
+    document.getElementById(
+        "appApproved"
+    ).textContent = `Disetujui (${approved})`;
+    document.getElementById(
+        "appRejected"
+    ).textContent = `Ditolak (${rejected})`;
+
+    getElementValue(['statusAll', 'statusPending', 'statusApproved', 'statusRejected'], [all, pending, approved, rejected]);
 }
 
 // ===== MODAL FUNCTIONS =====
@@ -1638,8 +1773,8 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
         const data = await res.json();
 
         if (data.status == "success") {
-            if(originalMethod != "DELETE"){
-                sync(obj, data.item, type)
+            if (originalMethod != "DELETE") {
+                sync(obj, data.item, type);
             }
         }
     } catch (e) {
@@ -1767,8 +1902,10 @@ function updateLocalData(dataObj, type, obj, method) {
                 );
 
                 obj.unshift(objT);
-            }else{
-                if(type == "pengumuman") dataObj.entries['tanggal_pengumuman'] = dataObj.entries.tanggal;
+            } else {
+                if (type == "pengumuman")
+                    dataObj.entries["tanggal_pengumuman"] =
+                        dataObj.entries.tanggal;
 
                 obj.unshift(dataObj.entries);
             }
@@ -1814,15 +1951,17 @@ function updateLocalData(dataObj, type, obj, method) {
                     obj[idx] = objT;
                     return;
                 }
-            }else{
+            } else {
                 let idx = obj.findIndex((o) => o.id == dataObj.id);
-                if (idx != -1){
-                    if (type == "pengumuman") dataObj.entries['tanggal_pengumuman'] = dataObj.entries.tanggal;
+                if (idx != -1) {
+                    if (type == "pengumuman")
+                        dataObj.entries["tanggal_pengumuman"] =
+                            dataObj.entries.tanggal;
                     obj[idx] = dataObj.entries;
                 }
             }
         } else if (method == "DELETE") {
-            console.log(method)
+            console.log(method);
             if (type == "schedule") {
                 for (let tanggal in obj) {
                     if (Array.isArray(obj[tanggal])) {
@@ -1835,8 +1974,8 @@ function updateLocalData(dataObj, type, obj, method) {
                         }
                     }
                 }
-            }else{
-                let idx = obj.findIndex(o => o.id == dataObj.id);
+            } else {
+                let idx = obj.findIndex((o) => o.id == dataObj.id);
                 if (idx !== -1) {
                     obj.splice(idx, 1); // hapus item di tempat
                 }
@@ -2042,7 +2181,10 @@ function deleteAnnouncement(announcementId) {
 
     getElementValue(
         ["nameObject", "deleteObjectName"],
-        ["Apakah Anda yakin ingin menghapus Pengumuman ini?", announcement.judul]
+        [
+            "Apakah Anda yakin ingin menghapus Pengumuman ini?",
+            announcement.judul,
+        ]
     );
 
     openModal("deleteModal");
@@ -2101,11 +2243,22 @@ function editStudent(studentId) {
 function editAnnouncement(announcementId) {
     const announcement = announc.find((s) => s.id == announcementId);
 
-    getElementValue([
-        "judulPengumuman", "isi", "tipe", "tanggalPengumuman", "lokasiPengumuman"
-    ],[
-        announcement.judul, announcement.isi, announcement.tipe, announcement.tanggal_pengumuman, announcement.lokasi
-    ]);
+    getElementValue(
+        [
+            "judulPengumuman",
+            "isi",
+            "tipe",
+            "tanggalPengumuman",
+            "lokasiPengumuman",
+        ],
+        [
+            announcement.judul,
+            announcement.isi,
+            announcement.tipe,
+            announcement.tanggal_pengumuman,
+            announcement.lokasi,
+        ]
+    );
 
     openModal("announcementModal");
 

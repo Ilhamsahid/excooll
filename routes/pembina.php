@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PembinaController;
+use App\Http\Controllers\PendaftaranController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\SchedulesController;
 use App\Http\Controllers\SiswaController;
@@ -13,4 +14,6 @@ Route::middleware(['auth.custom', 'role:pembina'])->group(function(){
     Route::resource('jadwal', SchedulesController::class);
     Route::resource('siswa', SiswaController::class);
     Route::resource('pengumuman', PengumumanController::class);
+
+    Route::put('/pendaftaran/{status}', [PendaftaranController::class, 'handleRegistration']);
 });

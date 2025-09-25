@@ -8,28 +8,34 @@ use Illuminate\Http\Request;
 
 class PendaftaranController extends Controller
 {
-    public function approveRegistration(Request $request)
+    public function handleRegistration(Request $request, $status)
     {
         $user = User::find($request->idUser);
 
         $user->ekskuls()->updateExistingPivot(
             $request->idEkskul,
-            ['status' => 'diterima']
+            ['status' => $status],
         );
 
-        return response()->json(['status' => 'success']);
+        return response()->json(data: [
+            'data' => $user,
+            'status' => $status,
+            'request' => $request->all(),
+        ]);
     }
 
-    public function rejectRegistration(Request $request)
+        public function approveRegistration(Request $request)
     {
         $user = User::find($request->idUser);
 
         $user->ekskuls()->updateExistingPivot(
             $request->idEkskul,
-            ['status' => 'ditolak'],
+            ['status' => 'diterima'],
         );
 
-        return response()->json(['status' => 'success']);
+        return response()->json([
+            'data' => $user,
+        ]);
     }
 
     public function approveAll(Request $request)
