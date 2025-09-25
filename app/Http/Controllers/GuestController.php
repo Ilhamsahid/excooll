@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Services\EkskulService;
 use App\Services\PengumumanService;
-use App\Services\RecentActivitiesService;
+use App\Services\ActivitiesService;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,10 +13,10 @@ class GuestController extends Controller
 {
     protected EkskulService $ekskulService;
     protected PengumumanService $pengumumanService;
-    protected RecentActivitiesService $recentActivitiesService;
+    protected ActivitiesService $recentActivitiesService;
     protected UserService $userService;
 
-    public function __construct(EkskulService $ekskulService, PengumumanService $pengumumanService, RecentActivitiesService $recentActivitiesService, UserService $userService){
+    public function __construct(EkskulService $ekskulService, PengumumanService $pengumumanService, ActivitiesService $recentActivitiesService, UserService $userService){
         $this->ekskulService = $ekskulService;
         $this->pengumumanService = $pengumumanService;
         $this->recentActivitiesService = $recentActivitiesService;

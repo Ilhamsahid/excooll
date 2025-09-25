@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Services\EkskulService;
 use App\Services\PengumumanService;
+use App\Services\ActivitiesService;
 use App\Services\SchedulesService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 class PembinaController extends Controller
 {
 
-    public function index(UserService $userService, SchedulesService $schedulesService, PengumumanService $pengumumanService, EkskulService $ekskulService)
+    public function index(UserService $userService, SchedulesService $schedulesService, PengumumanService $pengumumanService, EkskulService $ekskulService, ActivitiesService $kegiatanService)
     {
         $path = request()->path();
         $lastSegment = collect(explode('/', $path))->last();
@@ -39,10 +40,11 @@ class PembinaController extends Controller
         $siswa = $userService->getAllSiswaEkskul($pembina->ekskulDibina[0]->id);
         $announc = $pengumumanService->getAnnouncEkskul($pembina->ekskulDibina[0]->id);
         $pendaftaran = $ekskulService->getSiswaRegistrationWithEkskul($pembina->ekskulDibina[0]->id);
+        $kegiatan = $kegiatanService->getActivitiesByEkskul($pembina->ekskulDibina[0]->id);
         $latestIdUser = User::max('id');
         $getKelas = $userService->getKelas();
 
-        return view('pembina.main', compact('pembina', 'ekskulSchedules', 'siswa', 'getKelas', 'latestIdUser', 'announc', 'pendaftaran'));
+        return view('pembina.main', compact('pembina', 'ekskulSchedules', 'siswa', 'getKelas', 'latestIdUser', 'announc', 'pendaftaran', 'kegiatan'));
     }
 
     public function store(UserService $userService, Request $request)

@@ -24,7 +24,7 @@ class PendaftaranController extends Controller
         ]);
     }
 
-        public function approveRegistration(Request $request)
+    public function approveRegistration(Request $request)
     {
         $user = User::find($request->idUser);
 

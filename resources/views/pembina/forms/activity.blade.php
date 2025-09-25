@@ -7,91 +7,43 @@
             </button>
         </div>
 
-        <form id="activityForm" onsubmit="handleActivitySubmit(event)">
+        <form id="activityForm">
+            <input type="hidden" name="ekskul_id" value="{{ $pembina->ekskulDibina[0]->id }}" />
+
             <div class="form-group">
                 <label class="form-label">Nama Kegiatan</label>
-                <input type="text" class="form-input" required placeholder="Nama kegiatan basket" />
+                <input type="text" class="form-input" required name="judul" id="judulActivity" placeholder="Nama kegiatan" />
             </div>
 
             <div class="form-group">
                 <label class="form-label">Deskripsi Kegiatan</label>
-                <textarea class="form-textarea" required placeholder="Deskripsi detail kegiatan"></textarea>
+                <textarea class="form-textarea" required name="deskripsi" id="deskripsi" placeholder="Deskripsi detail kegiatan"></textarea>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Kategori Kegiatan</label>
-                    <select class="form-select" required>
-                        <option value="">Pilih Kategori</option>
-                        <option value="kompetisi">🏆 Kompetisi/Lomba</option>
-                        <option value="workshop">🎯 Workshop/Pelatihan</option>
-                        <option value="pertandingan">🏀 Pertandingan</option>
-                        <option value="latihan">💪 Latihan Intensif</option>
-                        <option value="seminar">📚 Seminar/Kuliah</option>
-                    </select>
+                    <label class="form-label">Waktu Mulai</label>
+                    <input type="time" class="form-input" name="jam_mulai" id="jam_mulaiActivity" required />
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Level Kegiatan</label>
-                    <select class="form-select" required>
-                        <option value="">Pilih Level</option>
-                        <option value="internal">Internal Sekolah</option>
-                        <option value="regional">Regional</option>
-                        <option value="nasional">Nasional</option>
-                        <option value="friendly">Pertandingan Persahabatan</option>
-                    </select>
+                    <label class="form-label">Waktu Selesai</label>
+                    <input type="time" class="form-input" name="jam_selesai" id="jam_selesaiActivity" required />
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Tanggal Mulai</label>
-                    <input type="date" class="form-input" required />
+                    <input type="date" class="form-input" name="tanggal" id="tanggalActivity" required />
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Tanggal Selesai</label>
-                    <input type="date" class="form-input" required />
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Waktu Mulai</label>
-                    <input type="time" class="form-input" required />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Waktu Selesai</label>
-                    <input type="time" class="form-input" required />
-                </div>
-            </div>
-
-            <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Lokasi</label>
                     <input type="text" class="form-input" required placeholder="Lokasi kegiatan"
-                        value="Lapangan Basket" />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Target Peserta</label>
-                    <input type="number" class="form-input" min="1" placeholder="Jumlah target peserta"
-                        value="85" />
+                        name="lokasi" id="lokasiActivity"/>
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Budget (Rp)</label>
-                    <input type="number" class="form-input" min="0" placeholder="Budget kegiatan" />
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Penanggung Jawab</label>
-                    <input type="text" class="form-input" required placeholder="Nama PIC" value="Ahmad Surya" />
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Catatan Tambahan</label>
-                <textarea class="form-textarea" placeholder="Catatan khusus atau persyaratan"></textarea>
-            </div>
+            <input type="hidden" name="status" value="upcoming" />
 
             <div
                 style="

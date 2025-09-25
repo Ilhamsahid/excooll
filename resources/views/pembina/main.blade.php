@@ -12,6 +12,8 @@
     <!-- Attendance Section -->
     @include('pembina.data.attendance')
 
+    @include('pembina.data.activities')
+
     <!-- Announcements Section -->
     @include('pembina.data.announcements')
 

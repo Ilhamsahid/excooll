@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('club_schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ekskul_id')->constrained('ekskuls')->onDelete('cascade');
-            $table->string('deskripjsi')->nullable();
+            $table->string('judul')->nullable();
+            $table->string('deskripsi')->nullable();
             $table->date('tanggal')->nullable();
             $table->string('hari')->nullable();
             $table->string('jam_mulai');

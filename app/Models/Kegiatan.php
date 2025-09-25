@@ -15,16 +15,15 @@ class Kegiatan extends Model
         'tanggal',
         'judul',
         'deskripsi',
+        'lokasi',
+        'jam_mulai',
+        'jam_selesai',
+        'status',
         'bukti',
     ];
 
     # Relasi: kegiatan milik ekskul
     public function ekskul(){
         return $this->belongsTo(Ekskul::class);
-    }
-
-    # Relasi: kegiatan di upload oleh uploader dari user
-    public function uploader(){
-        return $this->belongsTo(Ekskul::class, 'uploaded_by');
     }
 }

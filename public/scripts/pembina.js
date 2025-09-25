@@ -7,6 +7,7 @@ let currentPage = {
     students: 1,
     announcements: 1,
     applications: 1,
+    activities: 1,
 };
 let currentStatus = "all";
 let objT = {};
@@ -266,6 +267,9 @@ function loadSectionData(sectionName) {
         case "attendance":
             loadAttendanceChart();
             break;
+        case "activities":
+            loadActivitiesData();
+            break;
         case "announcements":
             loadAnnouncementsData();
             break;
@@ -453,7 +457,7 @@ function loadAttendanceChart() {
 
 function loadStudentsData() {
     const body = document.getElementById("loadStudentsGrid");
-    const data = filteredData.students ? filteredData.students : siswa;
+    const data = filteredData.students != null ? filteredData.students : siswa;
     itemsPerPage = 8;
     body.innerHTML = "";
 
@@ -687,12 +691,97 @@ function loadAnnouncementsData() {
     renderPagination("announcements", data.length);
 }
 
+function loadActivitiesData() {
+    const body = document.getElementById("loadActivitiesGrid");
+    const data = filteredData.activities ? filteredData.activities : kegiatan;
+
+    itemsPerPage = 9
+    body.innerHTML = "";
+
+    const start = (currentPage.activities - 1) * itemsPerPage; 
+    const end = start + itemsPerPage;
+    const paginatedData = data.slice(start, end);
+
+    if (paginatedData.length == 0) {
+        body.innerHTML = `
+            <div style="text-align: center; padding: var(--space-8); color: var(--text-tertiary); grid-column: 1 / -1;">
+                <div style="padding: var(--space-8);">
+                    <div style="font-size: var(--font-size-4xl); margin-bottom: var(--space-4); opacity: 0.5;">🎪</div>
+                    <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-2);">Tidak ada kegiatan</div>
+                    <div style="font-size: var(--font-size-sm);">Belum ada kegiatan yang dipublikasi</div>
+                </div>
+            </div>
+        `;
+        renderPagination("activities", data.length);
+        return;
+    }
+
+    paginatedData.forEach((activity, index) => {
+        const setStatus = activity.status == "upcoming" ? "Akan Datang" : activity.status == "ongoing" ? "Sedang Berlangsung" : "Selesai";
+
+        let activityCard = `
+            <div class="application-card">
+                <div class="application-header">
+                    <div>
+                        <h4 class="application-student">
+                            ${activity.judul}
+                        </h4>
+                        <div class="application-meta">
+                            <span>🎯 ${pembina.ekskul_dibina[0].nama}</span>
+                            <span>📅 ${formatDate(activity.tanggal)}</span>
+                            <span>⏰ ${activity.jam_mulai} - ${activity.jam_selesai}</span>
+                            <span>📍 ${activity.lokasi}</span>
+                        </div>
+                    </div>
+                    <span class="badge badge-warning">📅 ${setStatus}</span>
+                </div>
+                <div class="application-content">
+                    <p>
+                        ${activity.deskripsi}
+                    </p>
+                </div>
+                <div class="application-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="editActivity(${activity.id})">
+                        ✏️ Edit
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="viewActivityDetails(${activity.id})">
+                        👁️ Detail
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="deleteActivity(${activity.id})">
+                        🗑️ Hapus
+                    </button>
+                    <button class="btn btn-success btn-sm" onclick="startActivity(${activity.id})">
+                        ▶️ Mulai
+                    </button>
+                </div>
+            </div>
+        `
+
+        body.innerHTML += activityCard;
+    });
+
+    renderPagination("activities", data.length);
+}
+
 function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleDateString("id-ID", {
         year: "numeric",
         month: "long",
         day: "numeric",
+    });
+}
+
+function formatDateTime(dateString) {
+    const safeDateString = dateString.replace(" ", "T");
+    const date = new Date(safeDateString);
+
+    return date.toLocaleString("id-ID", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
     });
 }
 
@@ -1455,17 +1544,49 @@ function viewActivityDetails(activityId) {
     openModal("activityDetailsModal");
 }
 
+function deleteActivity(activityId) {
+    const activity = kegiatan.find((k) => k.id === activityId);
+
+    getElementValue(
+        ["nameObject", "deleteObjectName"],
+        ["Apakah Anda yakin ingin menghapus kegiatan ini?", activity.judul]
+    );
+
+    openModal("deleteModal");
+
+    const form = document.getElementById("deleteForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            activityId,
+            form,
+            `/kegiatan`,
+            "DELETE",
+            kegiatan,
+            "activities",
+        );
+    }
+}
+
 function filterActivities() {
-    const statusFilter = document.getElementById("activityStatusFilter").value;
+    const statusFilterActivity = document.getElementById("activityStatusFilter").value;
     const searchTerm = document
         .getElementById("activitySearchInput")
         .value.toLowerCase();
 
-    showNotification(
-        "Filter Diterapkan",
-        "Filter kegiatan telah diterapkan",
-        "info"
-    );
+    filteredData.activities = kegiatan.filter((activity) => {
+        const statusFilter =
+            statusFilterActivity === "" || activity.status === statusFilterActivity;
+
+        const matchSearch =
+            searchTerm === "" ||
+            activity.judul.toLowerCase().includes(searchTerm);
+
+        return statusFilter && matchSearch;
+    });
+
+    currentPage.activities = 1;
+    loadActivitiesData();
 }
 
 function filterStudents() {
@@ -1627,7 +1748,7 @@ function addSchedule(modalName) {
             `/jadwal`,
             "POST",
             ekskulSchedules,
-            "schedule"
+            "schedules"
         );
     };
 }
@@ -1657,6 +1778,23 @@ function addAnnouncement(modalName) {
             "pengumuman"
         );
     };
+}
+
+function addActivity(modalName) {
+    openModal(modalName);
+
+    const form = document.getElementById("activityForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        handleFormSubmit(
+            null,
+            form,
+            `/kegiatan`,
+            "POST",
+            kegiatan,
+            "kegiatan",
+        );
+    }
 }
 
 function handleAnnouncementSubmit(event) {
@@ -1773,8 +1911,8 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
         const data = await res.json();
 
         if (data.status == "success") {
-            if (originalMethod != "DELETE") {
-                sync(obj, data.item, type);
+            if (originalMethod != "DELETE" && type != "schedules") {
+                sync(obj, data.item, originalMethod);
             }
         }
     } catch (e) {
@@ -1782,9 +1920,13 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
     }
 }
 
-function sync(obj, data, type) {
-    idx = obj.findIndex((o) => o.id == objT.id);
-    obj[idx] = data;
+function sync(obj, data, method) {
+    if(method == "PUT"){
+        idx = obj.findIndex((o) => o.id == objT.id);
+        obj[idx] = data;
+    }else if(method == "POST"){
+        obj[0] = data;
+    }
     loadSectionData(currentSection);
 }
 
@@ -1866,14 +2008,14 @@ function updateLocalData(dataObj, type, obj, method) {
         getElementValueByClass(dataObj.keys, dataObj.value);
     } else {
         if (method == "POST") {
-            if (type == "schedule") {
+            if (type == "schedules") {
                 if (!obj[dataObj.entries["tanggal"]]) {
                     obj[dataObj.entries["tanggal"]] = [];
                 }
 
                 dataObj.entries.id = latestId += 1;
                 obj[dataObj.entries["tanggal"]].push(dataObj.entries);
-            } else if (type == "siswa") {
+            } else if (type == "students") {
                 latestIdUser++;
 
                 objT = getTempData(
@@ -1903,14 +2045,12 @@ function updateLocalData(dataObj, type, obj, method) {
 
                 obj.unshift(objT);
             } else {
-                if (type == "pengumuman")
-                    dataObj.entries["tanggal_pengumuman"] =
-                        dataObj.entries.tanggal;
+                if (type == "pengumuman") dataObj.entries["tanggal_pengumuman"] = dataObj.entries.tanggal;
 
                 obj.unshift(dataObj.entries);
             }
         } else if (method == "PUT") {
-            if (type == "schedule") {
+            if (type == "schedules") {
                 for (let tanggal in obj) {
                     let idx = obj[tanggal].findIndex((s) => s.id == dataObj.id);
                     if (idx != -1) {
@@ -1918,7 +2058,7 @@ function updateLocalData(dataObj, type, obj, method) {
                         return;
                     }
                 }
-            } else if (type == "siswa") {
+            } else if (type == "students") {
                 console.log(dataObj.id);
 
                 objT = getTempData(
@@ -1949,20 +2089,28 @@ function updateLocalData(dataObj, type, obj, method) {
                 let idx = obj.findIndex((s) => s.id == dataObj.id);
                 if (idx != -1) {
                     obj[idx] = objT;
+                    if(filteredData[type].length > 0){
+                        let idxf = filteredData[type].findIndex((s) => s.id == dataObj.id);
+                        if (idxf != -1) filteredData[type][idxf] = objT;
+                    }
                     return;
                 }
             } else {
                 let idx = obj.findIndex((o) => o.id == dataObj.id);
+                dataObj.entries['id'] = dataObj.id;
                 if (idx != -1) {
-                    if (type == "pengumuman")
-                        dataObj.entries["tanggal_pengumuman"] =
-                            dataObj.entries.tanggal;
+                    if (type == "pengumuman") dataObj.entries["tanggal_pengumuman"] = dataObj.entries.tanggal;
                     obj[idx] = dataObj.entries;
+                    if (filteredData[type] && filteredData[type].length > 0) {
+                        let idxf = filteredData[type].findIndex((s) => s.id == dataObj.id);
+                        if (idxf != -1) filteredData[type][idxf] = obj[idx];
+                    }
+                    return;
                 }
             }
         } else if (method == "DELETE") {
             console.log(method);
-            if (type == "schedule") {
+            if (type == "schedules") {
                 for (let tanggal in obj) {
                     if (Array.isArray(obj[tanggal])) {
                         obj[tanggal] = obj[tanggal].filter(
@@ -2145,11 +2293,29 @@ function deleteSchedule(scheduleId) {
 }
 
 function editActivity(activityId) {
-    showNotification(
-        "Edit Kegiatan",
-        `Mengedit kegiatan: ${activityId}`,
-        "info"
-    );
+    const activity = kegiatan.find((a) => a.id == activityId);
+
+    getElementValue([
+        'judulActivity', 'deskripsi', 'jam_mulaiActivity', 'jam_selesaiActivity', 'tanggalActivity', 'lokasiActivity'
+    ], [
+        activity.judul, activity.deskripsi, activity.jam_mulai, activity.jam_selesai, activity.tanggal, activity.lokasi
+    ]);
+
+    openModal("activityModal");
+
+    const form = document.getElementById("activityForm");
+    form.onsubmit = (e) => {
+        e.preventDefault();
+
+        handleFormSubmit(
+            activityId,
+            form,
+            `/kegiatan`,
+            "PUT",
+            kegiatan,
+            "activities",
+        );
+    }
 }
 
 function viewActivityDetails(activityId) {
@@ -2157,14 +2323,6 @@ function viewActivityDetails(activityId) {
         "Detail Kegiatan",
         `Melihat detail: ${activityId}`,
         "info"
-    );
-}
-
-function startActivity(activityId) {
-    showNotification(
-        "Kegiatan Dimulai",
-        `Kegiatan ${activityId} telah dimulai`,
-        "success"
     );
 }
 
@@ -2236,7 +2394,7 @@ function editStudent(studentId) {
     const form = document.getElementById("studentForm");
     form.onsubmit = (e) => {
         e.preventDefault();
-        handleFormSubmit(studentId, form, `/siswa`, "PUT", siswa, "siswa");
+        handleFormSubmit(studentId, form, `/siswa`, "PUT", siswa, "students");
     };
 }
 

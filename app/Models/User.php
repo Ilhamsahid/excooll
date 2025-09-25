@@ -41,8 +41,4 @@ class User extends Authenticatable
         return $this->hasMany(Absensi::class);
     }
 
-    # Relasi: User(siswa) memiliki banyak kegiatan
-    public function kegiatans(){
-        return $this->hasMany(Kegiatan::class, 'uploaded_by');
-    }
 }

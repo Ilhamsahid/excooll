@@ -14,11 +14,13 @@ return new class extends Migration
         Schema::create('kegiatans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ekskul_id')->constrained('ekskuls')->onDelete('cascade');
-            $table->foreignId('uploaded_by')->constrained('users')->onDelete('cascade');
             $table->date('tanggal');
             $table->string('judul');
             $table->text('deskripsi')->nullable();
-            $table->string('bukti')->nullable();
+            $table->string('lokasi')->nullable();
+            $table->string('jam_mulai')->nullable();
+            $table->string('jam_selesai')->nullable();
+            $table->enum('status', ['upcoming', 'ongoing', 'done'])->nullable();
             $table->timestamps();
         });
     }
