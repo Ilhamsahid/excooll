@@ -717,10 +717,13 @@ function loadActivitiesData() {
     }
 
     paginatedData.forEach((activity, index) => {
-        const setStatus = activity.status == "upcoming" ? "Akan Datang" : activity.status == "ongoing" ? "Sedang Berlangsung" : "Selesai";
+        const setStatus = activity.status == "upcoming" ? "📅 Akan Datang" : activity.status == "ongoing" ? "🔄 Sedang Berlangsung" : "✅ Selesai";
+        const setBadge = activity.status == "upcoming" ? "warning" : activity.status == "ongoing" ? "info" : "success";
+        const setButton = activity.status == "upcoming" ? "▶️ Mulai" : activity.status == "ongoing" ? "⏹️ Selesai" : "🔗 Bagikan";
+        const setButtonCss = activity.status == "upcoming" ? "success" : activity.status == "ongoing" ? "warning" : "ghost";
 
         let activityCard = `
-            <div class="application-card">
+            <div class="application-card ${activity.status == "done" ? "approved" : ""}">
                 <div class="application-header">
                     <div>
                         <h4 class="application-student">
@@ -733,7 +736,7 @@ function loadActivitiesData() {
                             <span>📍 ${activity.lokasi}</span>
                         </div>
                     </div>
-                    <span class="badge badge-warning">📅 ${setStatus}</span>
+                    <span class="badge badge-${setBadge}">${setStatus}</span>
                 </div>
                 <div class="application-content">
                     <p>
@@ -741,17 +744,20 @@ function loadActivitiesData() {
                     </p>
                 </div>
                 <div class="application-actions">
-                    <button class="btn btn-ghost btn-sm" onclick="editActivity(${activity.id})">
+                    <button style="display: ${activity.status == "ongoing" || activity.status == "done" ? "none" : "block"}" class="btn btn-ghost btn-sm" onclick="editActivity(${activity.id})">
                         ✏️ Edit
                     </button>
                     <button class="btn btn-ghost btn-sm" onclick="viewActivityDetails(${activity.id})">
                         👁️ Detail
                     </button>
-                    <button class="btn btn-ghost btn-sm" onclick="deleteActivity(${activity.id})">
+                    <button style="display: ${activity.status == "done" ? "block" : "none"}" class="btn btn-ghost btn-sm" onclick="viewActivityDetails(${activity.id})">
+                        📷 Galeri
+                    </button>
+                    <button style="display: ${activity.status == "ongoing" || activity.status == "done" ? "none" : "block"}" class="btn btn-ghost btn-sm" onclick="deleteActivity(${activity.id})">
                         🗑️ Hapus
                     </button>
-                    <button class="btn btn-success btn-sm" onclick="startActivity(${activity.id})">
-                        ▶️ Mulai
+                    <button class="btn btn-${setButtonCss} btn-sm" onclick="handleActivity(${activity.id})">
+                        ${setButton}
                     </button>
                 </div>
             </div>
@@ -1568,6 +1574,40 @@ function deleteActivity(activityId) {
     }
 }
 
+async function handleActivity(activityId){
+    const activity = kegiatan.find((a) => a.id == activityId);
+
+    // perubahan front end
+    if(activity.status == "upcoming"){
+        activity.status = "ongoing";
+    }else if(activity.status == "ongoing"){
+        activity.status = "done";
+    }
+
+    showNotification(
+        `Kegiatan ${activity.status == "ongoing" ? "Dimulai" : "Selesai"}`,
+        `Kegiatan dengan nama ${activity.status == "ongoing" ? `${activity.judul} telah dimulai` : `${activity.judul} telah selesai`}`,
+        'info'
+    );
+
+    loadActivitiesData();
+
+    // Perubahan Backend
+    await fetch(`/kegiatan/${activity.status}`, {
+        method: "PUT", // pakai PUT karena update
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector(
+                'meta[name="csrf-token"]'
+            ).content,
+        },
+        body: JSON.stringify({
+            id: activityId,
+            status: activity.status
+        }),
+    });
+}
+
 function filterActivities() {
     const statusFilterActivity = document.getElementById("activityStatusFilter").value;
     const searchTerm = document
@@ -2089,7 +2129,7 @@ function updateLocalData(dataObj, type, obj, method) {
                 let idx = obj.findIndex((s) => s.id == dataObj.id);
                 if (idx != -1) {
                     obj[idx] = objT;
-                    if(filteredData[type].length > 0){
+                    if(filteredData[type] && filteredData[type].length > 0){
                         let idxf = filteredData[type].findIndex((s) => s.id == dataObj.id);
                         if (idxf != -1) filteredData[type][idxf] = objT;
                     }
