@@ -26,4 +26,9 @@ class Kegiatan extends Model
     public function ekskul(){
         return $this->belongsTo(Ekskul::class);
     }
+
+    public function galleries()
+    {
+        return $this->hasMany(Gallery::class);
+    }
 }

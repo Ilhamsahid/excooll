@@ -9,6 +9,65 @@ let currentPage = {
     applications: 1,
     activities: 1,
 };
+
+let selectedFiles = [];
+
+let galleryData = [
+    {
+        type: "image",
+        src: "https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg",
+        title: "Latihan Shooting Drill",
+        description:
+            "Sesi latihan intensif untuk meningkatkan akurasi shooting para anggota klub basket. Latihan dilakukan dengan berbagai variasi posisi dan jarak.",
+        date: "15 Mar 2025",
+        author: "Ahmad Surya",
+    },
+    {
+        type: "image",
+        src: "https://images.pexels.com/photos/1544966/pexels-photo-1544966.jpeg",
+        title: "Team Building Exercise",
+        description:
+            "Kegiatan team building untuk mempererat kerja sama antar anggota tim. Dilakukan sebelum memulai latihan inti.",
+        date: "14 Mar 2025",
+        author: "Ahmad Surya",
+    },
+    {
+        type: "video",
+        src: "https://images.pexels.com/photos/1752775/pexels-photo-1752775.jpeg",
+        title: "Highlight Pertandingan",
+        description:
+            "Video highlight dari pertandingan friendly match melawan SMAN 8. Tim berhasil menang dengan skor 78-65.",
+        date: "13 Mar 2025",
+        author: "Ahmad Surya",
+    },
+    {
+        type: "image",
+        src: "https://images.pexels.com/photos/1884574/pexels-photo-1884574.jpeg",
+        title: "Penyerahan Trophy",
+        description:
+            "Momen penyerahan trophy juara 1 turnamen basket regional. Kebanggaan untuk seluruh anggota klub basket.",
+        date: "10 Mar 2025",
+        author: "Ahmad Surya",
+    },
+    {
+        type: "image",
+        src: "https://images.pexels.com/photos/2834914/pexels-photo-2834914.jpeg",
+        title: "Latihan Defense",
+        description:
+            "Sesi latihan khusus untuk meningkatkan kemampuan defense. Focus pada positioning dan timing untuk intercept.",
+        date: "08 Mar 2025",
+        author: "Ahmad Surya",
+    },
+    {
+        type: "image",
+        src: "https://images.pexels.com/photos/1510106/pexels-photo-1510106.jpeg",
+        title: "Foto Tim Lengkap",
+        description:
+            "Foto bersama seluruh anggota klub basket beserta para pelatih. Diambil setelah pencapaian juara regional.",
+        date: "05 Mar 2025",
+        author: "Ahmad Surya",
+    },
+];
 let currentStatus = "all";
 let objT = {};
 let filteredData = {};
@@ -227,6 +286,7 @@ function showSection(sectionName) {
         calendar: "Calendar - " + pembina.ekskul_dibina[0].nama,
         attendance: "Attendance - " + pembina.ekskul_dibina[0].nama,
         activities: "Activities - " + pembina.ekskul_dibina[0].nama,
+        gallery: "Galleries - " + pembina.ekskul_dibina[0].nama,
         announcements: "Announcements - " + pembina.ekskul_dibina[0].nama,
         students: "Students - " + pembina.ekskul_dibina[0].nama,
         applications: "Aplikasi Siswa",
@@ -537,7 +597,7 @@ function loadStudentsData() {
     renderPagination("students", data.length);
 }
 
-function loadApplicationsData(status = 'all') {
+function loadApplicationsData(status = "all") {
     const body = document.getElementById("applicationsGrid");
     let data = filteredData.applications
         ? filteredData.applications
@@ -546,8 +606,8 @@ function loadApplicationsData(status = 'all') {
     body.innerHTML = "";
 
     realData = data;
-    if(status !== 'all'){
-        data = data.filter(app => app.pivot.status === status);
+    if (status !== "all") {
+        data = data.filter((app) => app.pivot.status === status);
     }
 
     const start = (currentPage.applications - 1) * itemsPerPage;
@@ -555,7 +615,7 @@ function loadApplicationsData(status = 'all') {
     const paginatedData = data.slice(start, end);
     console.log(data);
 
-    if(paginatedData.length == 0){
+    if (paginatedData.length == 0) {
         body.innerHTML = `
             <div colspan="6" style="text-align: center; padding: var(--space-8); color: var(--text-tertiary);">
                 <div style="padding: var(--space-8);">
@@ -569,8 +629,18 @@ function loadApplicationsData(status = 'all') {
 
     paginatedData.forEach((application, index) => {
         let status = application.pivot.status;
-        let setStatus = status == "pending" ? "pending" : status == "diterima" ? "approved" : "rejected";
-        let setBadge = status == "pending" ? "warning" : status == "diterima" ? "success" : "danger";
+        let setStatus =
+            status == "pending"
+                ? "pending"
+                : status == "diterima"
+                ? "approved"
+                : "rejected";
+        let setBadge =
+            status == "pending"
+                ? "warning"
+                : status == "diterima"
+                ? "success"
+                : "danger";
 
         let applicationCard = `
             <div class="application-card ${setStatus}">
@@ -579,9 +649,16 @@ function loadApplicationsData(status = 'all') {
                         <h4 class="application-student">${application.name}</h4>
                         <div class="application-meta">
                             <span>📧 ${application.email}</span>
-                            <span>🎓 Kelas ${application.siswa_profile.kelas}</span>
-                            <span>🏀 ${pembina.ekskul_dibina[0].nama ?? "-"}</span>
-                            <span>📅 ${application.pivot.created_at.substr(0, 10)}</span>
+                            <span>🎓 Kelas ${
+                                application.siswa_profile.kelas
+                            }</span>
+                            <span>🏀 ${
+                                pembina.ekskul_dibina[0].nama ?? "-"
+                            }</span>
+                            <span>📅 ${application.pivot.created_at.substr(
+                                0,
+                                10
+                            )}</span>
                         </div>
                     </div>
                     <span class="badge badge-${setBadge}">⏳ ${setStatus}</span>
@@ -589,18 +666,32 @@ function loadApplicationsData(status = 'all') {
                 <div class="application-content">
                     <div style="margin-bottom: var(--space-3)">
                         <strong>Alasan bergabung:</strong><br />
-                        <p>${application.pivot.alasan ?? 'Tidak ada alasan bergabung'}</p>
+                        <p>${
+                            application.pivot.alasan ??
+                            "Tidak ada alasan bergabung"
+                        }</p>
                     </div>
                     <div>
                         <strong>Pengalaman sebelumnya:</strong><br />
-                        <p>${application.pivot.exp_before ?? 'Tidak ada pengalaman sebelumnya'}</p>
+                        <p>${
+                            application.pivot.exp_before ??
+                            "Tidak ada pengalaman sebelumnya"
+                        }</p>
                     </div>
                 </div>
                 <div class="application-actions">
-                    <button style="display: ${status == "pending" ? 'flex' : 'none'}" class="btn btn-success btn-sm" onclick="handleApplication(${application.id}, 'diterima')">
+                    <button style="display: ${
+                        status == "pending" ? "flex" : "none"
+                    }" class="btn btn-success btn-sm" onclick="handleApplication(${
+            application.id
+        }, 'diterima')">
                         ✅ Setujui
                     </button>
-                    <button style="display: ${status == "pending" ? 'flex' : 'none'}" class="btn btn-danger btn-sm" onclick="handleApplication(${application.id}, 'ditolak')">
+                    <button style="display: ${
+                        status == "pending" ? "flex" : "none"
+                    }" class="btn btn-danger btn-sm" onclick="handleApplication(${
+            application.id
+        }, 'ditolak')">
                         ❌ Tolak
                     </button>
                     <button class="btn btn-ghost btn-sm" onclick="contactStudent('ahmad_rizki')">
@@ -695,10 +786,10 @@ function loadActivitiesData() {
     const body = document.getElementById("loadActivitiesGrid");
     const data = filteredData.activities ? filteredData.activities : kegiatan;
 
-    itemsPerPage = 9
+    itemsPerPage = 9;
     body.innerHTML = "";
 
-    const start = (currentPage.activities - 1) * itemsPerPage; 
+    const start = (currentPage.activities - 1) * itemsPerPage;
     const end = start + itemsPerPage;
     const paginatedData = data.slice(start, end);
 
@@ -717,13 +808,35 @@ function loadActivitiesData() {
     }
 
     paginatedData.forEach((activity, index) => {
-        const setStatus = activity.status == "upcoming" ? "📅 Akan Datang" : activity.status == "ongoing" ? "🔄 Sedang Berlangsung" : "✅ Selesai";
-        const setBadge = activity.status == "upcoming" ? "warning" : activity.status == "ongoing" ? "info" : "success";
-        const setButton = activity.status == "upcoming" ? "▶️ Mulai" : activity.status == "ongoing" ? "⏹️ Selesai" : "🔗 Bagikan";
-        const setButtonCss = activity.status == "upcoming" ? "success" : activity.status == "ongoing" ? "warning" : "ghost";
+        const setStatus =
+            activity.status == "upcoming"
+                ? "📅 Akan Datang"
+                : activity.status == "ongoing"
+                ? "🔄 Sedang Berlangsung"
+                : "✅ Selesai";
+        const setBadge =
+            activity.status == "upcoming"
+                ? "warning"
+                : activity.status == "ongoing"
+                ? "info"
+                : "success";
+        const setButton =
+            activity.status == "upcoming"
+                ? "▶️ Mulai"
+                : activity.status == "ongoing"
+                ? "⏹️ Selesai"
+                : "🔗 Bagikan";
+        const setButtonCss =
+            activity.status == "upcoming"
+                ? "success"
+                : activity.status == "ongoing"
+                ? "warning"
+                : "ghost";
 
         let activityCard = `
-            <div class="application-card ${activity.status == "done" ? "approved" : ""}">
+            <div class="application-card ${
+                activity.status == "done" ? "approved" : ""
+            }">
                 <div class="application-header">
                     <div>
                         <h4 class="application-student">
@@ -732,7 +845,9 @@ function loadActivitiesData() {
                         <div class="application-meta">
                             <span>🎯 ${pembina.ekskul_dibina[0].nama}</span>
                             <span>📅 ${formatDate(activity.tanggal)}</span>
-                            <span>⏰ ${activity.jam_mulai} - ${activity.jam_selesai}</span>
+                            <span>⏰ ${activity.jam_mulai} - ${
+            activity.jam_selesai
+        }</span>
                             <span>📍 ${activity.lokasi}</span>
                         </div>
                     </div>
@@ -744,24 +859,46 @@ function loadActivitiesData() {
                     </p>
                 </div>
                 <div class="application-actions">
-                    <button style="display: ${activity.status == "ongoing" || activity.status == "done" ? "none" : "block"}" class="btn btn-ghost btn-sm" onclick="editActivity(${activity.id})">
+                    <button style="display: ${
+                        activity.status == "ongoing" ||
+                        activity.status == "done"
+                            ? "none"
+                            : "block"
+                    }" class="btn btn-ghost btn-sm" onclick="editActivity(${
+            activity.id
+        })">
                         ✏️ Edit
                     </button>
-                    <button class="btn btn-ghost btn-sm" onclick="viewActivityDetails(${activity.id})">
+                    <button class="btn btn-ghost btn-sm" onclick="viewActivityDetails(${
+                        activity.id
+                    })">
                         👁️ Detail
                     </button>
-                    <button style="display: ${activity.status == "done" ? "block" : "none"}" class="btn btn-ghost btn-sm" onclick="viewActivityDetails(${activity.id})">
+                    <button style="display: ${
+                        activity.status == "done" ? "block" : "none"
+                    }" class="btn btn-ghost btn-sm" onclick="viewActivityDetails(${
+            activity.id
+        })">
                         📷 Galeri
                     </button>
-                    <button style="display: ${activity.status == "ongoing" || activity.status == "done" ? "none" : "block"}" class="btn btn-ghost btn-sm" onclick="deleteActivity(${activity.id})">
+                    <button style="display: ${
+                        activity.status == "ongoing" ||
+                        activity.status == "done"
+                            ? "none"
+                            : "block"
+                    }" class="btn btn-ghost btn-sm" onclick="deleteActivity(${
+            activity.id
+        })">
                         🗑️ Hapus
                     </button>
-                    <button class="btn btn-${setButtonCss} btn-sm" onclick="handleActivity(${activity.id})">
+                    <button class="btn btn-${setButtonCss} btn-sm" onclick="handleActivity(${
+            activity.id
+        })">
                         ${setButton}
                     </button>
                 </div>
             </div>
-        `
+        `;
 
         body.innerHTML += activityCard;
     });
@@ -859,13 +996,17 @@ function renderPagination(type, totalItems) {
     pagination.innerHTML = paginationHTML;
 }
 
-async function handleApplication(id, status){
+async function handleApplication(id, status) {
     const idx = pendaftaran.findIndex((p) => p.id === id);
     let siswaDaftar = pendaftaran[idx];
 
     // perubahan front end
     siswaDaftar.pivot.status = status;
-    showNotification('Pendaftaran Berhasil', 'Pendaftaran telah disetujui', 'success');
+    showNotification(
+        "Pendaftaran Berhasil",
+        "Pendaftaran telah disetujui",
+        "success"
+    );
     loadApplicationsData(currentStatus);
     if (status === "diterima") siswa.unshift(siswaDaftar);
 
@@ -874,9 +1015,8 @@ async function handleApplication(id, status){
         method: "PUT", // pakai PUT karena update
         headers: {
             "Content-Type": "application/json",
-            "X-CSRF-TOKEN": document.querySelector(
-                'meta[name="csrf-token"]'
-            ).content,
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
+                .content,
         },
         body: JSON.stringify({
             idUser: id,
@@ -1550,6 +1690,64 @@ function viewActivityDetails(activityId) {
     openModal("activityDetailsModal");
 }
 
+function openLightbox(index) {
+    currentLightboxIndex = index;
+    const modal = document.getElementById("lightboxModal");
+    const data = galleryData[index];
+
+    // Update content
+    document.getElementById("lightboxTitle").textContent = data.title;
+    document.getElementById("lightboxDescription").textContent =
+        data.description;
+    document.getElementById(
+        "lightboxMeta"
+    ).textContent = `📅 ${data.date} • 👤 ${data.author}`;
+    document.getElementById("lightboxCounter").textContent = `${index + 1} / ${
+        galleryData.length
+    }`;
+
+    // Show appropriate media
+    const image = document.getElementById("lightboxImage");
+    const video = document.getElementById("lightboxVideo");
+
+    if (data.type === "image") {
+        image.src = data.src;
+        image.style.display = "block";
+        video.style.display = "none";
+    } else if (data.type === "video") {
+        video.src = data.src;
+        video.style.display = "block";
+        image.style.display = "none";
+    }
+
+    modal.classList.add("active");
+    document.body.style.overflow = "hidden";
+}
+
+function closeLightbox() {
+    const modal = document.getElementById("lightboxModal");
+    modal.classList.remove("active");
+    document.body.style.overflow = "";
+
+    // Pause video if playing
+    const video = document.getElementById("lightboxVideo");
+    if (video.style.display !== "none") {
+        video.pause();
+    }
+}
+
+function previousMedia() {
+    if (currentLightboxIndex > 0) {
+        openLightbox(currentLightboxIndex - 1);
+    }
+}
+
+function nextMedia() {
+    if (currentLightboxIndex < galleryData.length - 1) {
+        openLightbox(currentLightboxIndex + 1);
+    }
+}
+
 function deleteActivity(activityId) {
     const activity = kegiatan.find((k) => k.id === activityId);
 
@@ -1569,25 +1767,29 @@ function deleteActivity(activityId) {
             `/kegiatan`,
             "DELETE",
             kegiatan,
-            "activities",
+            "activities"
         );
-    }
+    };
 }
 
-async function handleActivity(activityId){
+async function handleActivity(activityId) {
     const activity = kegiatan.find((a) => a.id == activityId);
 
     // perubahan front end
-    if(activity.status == "upcoming"){
+    if (activity.status == "upcoming") {
         activity.status = "ongoing";
-    }else if(activity.status == "ongoing"){
+    } else if (activity.status == "ongoing") {
         activity.status = "done";
     }
 
     showNotification(
         `Kegiatan ${activity.status == "ongoing" ? "Dimulai" : "Selesai"}`,
-        `Kegiatan dengan nama ${activity.status == "ongoing" ? `${activity.judul} telah dimulai` : `${activity.judul} telah selesai`}`,
-        'info'
+        `Kegiatan dengan nama ${
+            activity.status == "ongoing"
+                ? `${activity.judul} telah dimulai`
+                : `${activity.judul} telah selesai`
+        }`,
+        "info"
     );
 
     loadActivitiesData();
@@ -1597,26 +1799,28 @@ async function handleActivity(activityId){
         method: "PUT", // pakai PUT karena update
         headers: {
             "Content-Type": "application/json",
-            "X-CSRF-TOKEN": document.querySelector(
-                'meta[name="csrf-token"]'
-            ).content,
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
+                .content,
         },
         body: JSON.stringify({
             id: activityId,
-            status: activity.status
+            status: activity.status,
         }),
     });
 }
 
 function filterActivities() {
-    const statusFilterActivity = document.getElementById("activityStatusFilter").value;
+    const statusFilterActivity = document.getElementById(
+        "activityStatusFilter"
+    ).value;
     const searchTerm = document
         .getElementById("activitySearchInput")
         .value.toLowerCase();
 
     filteredData.activities = kegiatan.filter((activity) => {
         const statusFilter =
-            statusFilterActivity === "" || activity.status === statusFilterActivity;
+            statusFilterActivity === "" ||
+            activity.status === statusFilterActivity;
 
         const matchSearch =
             searchTerm === "" ||
@@ -1656,7 +1860,12 @@ function filterStudents() {
 }
 
 function filterApplications(status) {
-    let tempStatus = status == "diterima" ? "approved" : status == "ditolak" ? "rejected" : status;
+    let tempStatus =
+        status == "diterima"
+            ? "approved"
+            : status == "ditolak"
+            ? "rejected"
+            : status;
     // Remove active class from all buttons
     document.querySelectorAll('#applications [id^="app"]').forEach((btn) => {
         btn.classList.remove("active");
@@ -1678,14 +1887,18 @@ function filterApplications(status) {
 
 function updateRegistrationTabs(registrations) {
     const all = registrations.length;
-    const pending = registrations.filter((r) => r.pivot.status === "pending").length;
-    const approved = registrations.filter((r) => r.pivot.status === "diterima").length;
-    const rejected = registrations.filter((r) => r.pivot.status === "ditolak").length;
+    const pending = registrations.filter(
+        (r) => r.pivot.status === "pending"
+    ).length;
+    const approved = registrations.filter(
+        (r) => r.pivot.status === "diterima"
+    ).length;
+    const rejected = registrations.filter(
+        (r) => r.pivot.status === "ditolak"
+    ).length;
 
     document.getElementById("appAll").textContent = `Semua (${all})`;
-    document.getElementById(
-        "appPending"
-    ).textContent = `Pending (${pending})`;
+    document.getElementById("appPending").textContent = `Pending (${pending})`;
     document.getElementById(
         "appApproved"
     ).textContent = `Disetujui (${approved})`;
@@ -1693,7 +1906,10 @@ function updateRegistrationTabs(registrations) {
         "appRejected"
     ).textContent = `Ditolak (${rejected})`;
 
-    getElementValue(['statusAll', 'statusPending', 'statusApproved', 'statusRejected'], [all, pending, approved, rejected]);
+    getElementValue(
+        ["statusAll", "statusPending", "statusApproved", "statusRejected"],
+        [all, pending, approved, rejected]
+    );
 }
 
 // ===== MODAL FUNCTIONS =====
@@ -1826,15 +2042,8 @@ function addActivity(modalName) {
     const form = document.getElementById("activityForm");
     form.onsubmit = (e) => {
         e.preventDefault();
-        handleFormSubmit(
-            null,
-            form,
-            `/kegiatan`,
-            "POST",
-            kegiatan,
-            "kegiatan",
-        );
-    }
+        handleFormSubmit(null, form, `/kegiatan`, "POST", kegiatan, "kegiatan");
+    };
 }
 
 function handleAnnouncementSubmit(event) {
@@ -1961,10 +2170,10 @@ async function handleFormSubmit(id, form, url, method, obj, type) {
 }
 
 function sync(obj, data, method) {
-    if(method == "PUT"){
+    if (method == "PUT") {
         idx = obj.findIndex((o) => o.id == objT.id);
         obj[idx] = data;
-    }else if(method == "POST"){
+    } else if (method == "POST") {
         obj[0] = data;
     }
     loadSectionData(currentSection);
@@ -2085,7 +2294,9 @@ function updateLocalData(dataObj, type, obj, method) {
 
                 obj.unshift(objT);
             } else {
-                if (type == "pengumuman") dataObj.entries["tanggal_pengumuman"] = dataObj.entries.tanggal;
+                if (type == "pengumuman")
+                    dataObj.entries["tanggal_pengumuman"] =
+                        dataObj.entries.tanggal;
 
                 obj.unshift(dataObj.entries);
             }
@@ -2129,20 +2340,26 @@ function updateLocalData(dataObj, type, obj, method) {
                 let idx = obj.findIndex((s) => s.id == dataObj.id);
                 if (idx != -1) {
                     obj[idx] = objT;
-                    if(filteredData[type] && filteredData[type].length > 0){
-                        let idxf = filteredData[type].findIndex((s) => s.id == dataObj.id);
+                    if (filteredData[type] && filteredData[type].length > 0) {
+                        let idxf = filteredData[type].findIndex(
+                            (s) => s.id == dataObj.id
+                        );
                         if (idxf != -1) filteredData[type][idxf] = objT;
                     }
                     return;
                 }
             } else {
                 let idx = obj.findIndex((o) => o.id == dataObj.id);
-                dataObj.entries['id'] = dataObj.id;
+                dataObj.entries["id"] = dataObj.id;
                 if (idx != -1) {
-                    if (type == "pengumuman") dataObj.entries["tanggal_pengumuman"] = dataObj.entries.tanggal;
+                    if (type == "pengumuman")
+                        dataObj.entries["tanggal_pengumuman"] =
+                            dataObj.entries.tanggal;
                     obj[idx] = dataObj.entries;
                     if (filteredData[type] && filteredData[type].length > 0) {
-                        let idxf = filteredData[type].findIndex((s) => s.id == dataObj.id);
+                        let idxf = filteredData[type].findIndex(
+                            (s) => s.id == dataObj.id
+                        );
                         if (idxf != -1) filteredData[type][idxf] = obj[idx];
                     }
                     return;
@@ -2335,11 +2552,24 @@ function deleteSchedule(scheduleId) {
 function editActivity(activityId) {
     const activity = kegiatan.find((a) => a.id == activityId);
 
-    getElementValue([
-        'judulActivity', 'deskripsi', 'jam_mulaiActivity', 'jam_selesaiActivity', 'tanggalActivity', 'lokasiActivity'
-    ], [
-        activity.judul, activity.deskripsi, activity.jam_mulai, activity.jam_selesai, activity.tanggal, activity.lokasi
-    ]);
+    getElementValue(
+        [
+            "judulActivity",
+            "deskripsi",
+            "jam_mulaiActivity",
+            "jam_selesaiActivity",
+            "tanggalActivity",
+            "lokasiActivity",
+        ],
+        [
+            activity.judul,
+            activity.deskripsi,
+            activity.jam_mulai,
+            activity.jam_selesai,
+            activity.tanggal,
+            activity.lokasi,
+        ]
+    );
 
     openModal("activityModal");
 
@@ -2353,9 +2583,9 @@ function editActivity(activityId) {
             `/kegiatan`,
             "PUT",
             kegiatan,
-            "activities",
+            "activities"
         );
-    }
+    };
 }
 
 function viewActivityDetails(activityId) {
@@ -2600,6 +2830,224 @@ function saveDraft() {
         "Pengumuman telah disimpan sebagai draft",
         "success"
     );
+}
+
+function toggleGalleryForm() {
+    const form = document.getElementById("galleryUploadForm");
+    const content = document.getElementById("galleryFormContent");
+    const toggle = document.getElementById("galleryFormToggle");
+
+    if (content.classList.contains("active")) {
+        content.classList.remove("active");
+        setTimeout(() => {
+            form.style.display = "none";
+        }, 300);
+        toggle.textContent = "📷 Buka Form Upload";
+    } else {
+        form.style.display = "block";
+        setTimeout(() => {
+            content.classList.add("active");
+        }, 10);
+        toggle.textContent = "✕ Tutup Form";
+    }
+}
+
+function handleFileSelect() {
+    const input = document.getElementById("galleryFileInput");
+    const filesContainer = document.getElementById("selectedFiles");
+    const uploadArea = document.querySelector(".gallery-file-upload");
+
+    // tambahin file baru ke array kita (bukan langsung pakai input.files)
+    selectedFiles = [...selectedFiles, ...Array.from(input.files)];
+
+    // reset input biar gak nambah duplikat waktu pilih ulang
+    input.value = "";
+
+    // kalau ada file, kasih class has-files
+    if (selectedFiles.length > 0) {
+        uploadArea.classList.add("has-files");
+    } else {
+        uploadArea.classList.remove("has-files");
+    }
+
+    // render ulang daftar file
+    filesContainer.innerHTML = "";
+    selectedFiles.forEach((file, index) => {
+        const fileElement = document.createElement("div");
+        fileElement.className = "gallery-selected-file";
+
+        const span = document.createElement("span");
+        span.textContent = file.name;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "gallery-selected-file-remove";
+        btn.textContent = "✕";
+
+        // tombol hapus
+        btn.addEventListener("click", () => removeSelectedFile(index));
+
+        fileElement.appendChild(span);
+        fileElement.appendChild(btn);
+        filesContainer.appendChild(fileElement);
+    });
+
+    updateUploadIcon();
+}
+
+function removeSelectedFile(index) {
+    selectedFiles.splice(index, 1);
+    handleFileSelect();
+}
+
+function updateFileInput() {
+    const input = document.getElementById("galleryFileInput");
+    const dataTransfer = new DataTransfer();
+
+    selectedFiles.forEach((file) => {
+        dataTransfer.items.add(file);
+    });
+
+    input.files = dataTransfer.files;
+}
+
+function updateUploadIcon() {
+    const uploadArea = document.getElementById("galleryFileUpload");
+    const icon = uploadArea.querySelector(".gallery-file-upload-icon");
+    const text = uploadArea.querySelector(".gallery-file-upload-text");
+
+    if (selectedFiles.length > 0) {
+        icon.textContent = "📁";
+        text.textContent = `${selectedFiles.length} file${
+            selectedFiles.length > 1 ? "s" : ""
+        } dipilih`;
+        uploadArea.style.borderColor = "var(--primary-400)";
+        uploadArea.style.background = "var(--primary-50)";
+    } else {
+        icon.textContent = "📷";
+        text.textContent = "Klik atau drag & drop untuk upload media";
+        uploadArea.style.borderColor = "";
+        uploadArea.style.background = "";
+    }
+}
+
+function handleGallerySubmit(event) {
+    event.preventDefault();
+
+    if (selectedFiles.length === 0) {
+        showNotification(
+            "Error",
+            "Pilih minimal 1 file untuk diupload",
+            "error"
+        );
+        return;
+    }
+
+    // Simulate upload process
+    showNotification(
+        "Mengupload...",
+        "Media sedang diupload, mohon tunggu",
+        "info"
+    );
+
+    setTimeout(() => {
+        showNotification(
+            "Upload Berhasil",
+            `${selectedFiles.length} file berhasil diupload ke galeri`,
+            "success"
+        );
+        resetGalleryForm();
+        toggleGalleryForm();
+    }, 2000);
+}
+
+function resetGalleryForm() {
+    document.getElementById("galleryForm").reset();
+    selectedFiles = [];
+    document.getElementById("selectedFiles").innerHTML = "";
+    updateUploadIcon();
+}
+
+// ===== ENHANCED LIGHTBOX FUNCTIONS =====
+function openLightbox(index) {
+    currentLightboxIndex = index;
+    const modal = document.getElementById("lightboxModal");
+    const data = galleryData[index];
+
+    // Update content
+    document.getElementById("lightboxTitle").textContent = data.title;
+    document.getElementById("lightboxDescription").textContent =
+        data.description;
+    document.getElementById(
+        "lightboxMeta"
+    ).textContent = `📅 ${data.date} • 👤 ${data.author}`;
+    document.getElementById("lightboxCounter").textContent = `${index + 1} / ${
+        galleryData.length
+    }`;
+
+    // Show appropriate media
+    const image = document.getElementById("lightboxImage");
+    const video = document.getElementById("lightboxVideo");
+
+    if (data.type === "image") {
+        image.src = data.src;
+        image.style.display = "block";
+        video.style.display = "none";
+    } else if (data.type === "video") {
+        video.src = data.src;
+        video.style.display = "block";
+        image.style.display = "none";
+    }
+
+    modal.classList.add("active");
+    document.body.style.overflow = "hidden";
+}
+
+function closeLightbox() {
+    const modal = document.getElementById("lightboxModal");
+    modal.classList.remove("active");
+    document.body.style.overflow = "";
+
+    // Pause video if playing
+    const video = document.getElementById("lightboxVideo");
+    if (video.style.display !== "none") {
+        video.pause();
+    }
+}
+
+function previousMedia() {
+    if (currentLightboxIndex > 0) {
+        openLightbox(currentLightboxIndex - 1);
+    }
+}
+
+function nextMedia() {
+    if (currentLightboxIndex < galleryData.length - 1) {
+        openLightbox(currentLightboxIndex + 1);
+    }
+}
+
+function downloadMedia() {
+    const data = galleryData[currentLightboxIndex];
+    const link = document.createElement("a");
+    link.href = data.src;
+    link.download = data.title;
+    link.click();
+
+    showNotification("Download Dimulai", "Media sedang didownload", "info");
+}
+
+function shareMedia() {
+    const data = galleryData[currentLightboxIndex];
+    if (navigator.share) {
+        navigator.share({
+            title: data.title,
+            text: data.description,
+            url: data.src,
+        });
+    } else {
+        copyAttendanceLink();
+    }
 }
 
 // ===== SEARCH FUNCTIONALITY =====

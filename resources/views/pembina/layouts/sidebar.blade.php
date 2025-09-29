@@ -13,7 +13,8 @@
         <div class="nav-section">
             <div class="nav-section-title">Dashboard</div>
             <div class="nav-item">
-                <a href="#" class="nav-link active" onclick="navigate(event , 'dashboard')" data-section="dashboard">
+                <a href="#" class="nav-link active" onclick="navigate(event , 'dashboard')"
+                    data-section="dashboard">
                     <span class="nav-icon">🏠</span>
                     <span class="nav-text">Dashboard</span>
                 </a>
@@ -49,12 +50,20 @@
                     <span class="nav-badge animate-pulse" id="activitiesBadge">8</span>
                 </a>
             </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="navigate(event, 'gallery')" data-section="gallery">
+                    <span class="nav-icon">🖼️</span>
+                    <span class="nav-text">Gallery</span>
+                    <span class="nav-badge animate-pulse" id="galleryBadge">24</span>
+                </a>
+            </div>
         </div>
 
         <div class="nav-section">
             <div class="nav-section-title">Komunikasi & Data</div>
             <div class="nav-item">
-                <a href="#" class="nav-link" onclick="navigate(event, 'announcements')" data-section="announcements">
+                <a href="#" class="nav-link" onclick="navigate(event, 'announcements')"
+                    data-section="announcements">
                     <span class="nav-icon">📢</span>
                     <span class="nav-text">Announcements</span>
                     <span class="nav-badge animate-pulse" id="announcementsBadge">4</span>
@@ -69,7 +78,8 @@
             </div>
 
             <div class="nav-item">
-                <a href="#" class="nav-link" onclick="navigate(event, 'applications')" data-section="applications">
+                <a href="#" class="nav-link" onclick="navigate(event, 'applications')"
+                    data-section="applications">
                     <span class="nav-icon">📝</span>
                     <span class="nav-text">Aplikasi Siswa</span>
                     <span class="nav-badge animate-pulse" id="applicationsBadge">15</span>

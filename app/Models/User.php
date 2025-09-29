@@ -41,4 +41,8 @@ class User extends Authenticatable
         return $this->hasMany(Absensi::class);
     }
 
+    public function galleries()
+    {
+        return $this->hasMany(Gallery::class, 'uploaded_by');
+    }
 }

@@ -12,7 +12,11 @@
     <!-- Attendance Section -->
     @include('pembina.data.attendance')
 
+    <!-- Activities Section -->
     @include('pembina.data.activities')
+
+    <!-- Gallery Section -->
+    @include('pembina.data.galleries')
 
     <!-- Announcements Section -->
     @include('pembina.data.announcements')
@@ -45,4 +49,6 @@
     @include('pembina.forms.edit-attendance')
 
     @include('pembina.data.modal.delete')
+    
+    @include('pembina.data.modal.lightbox')
 @endsection

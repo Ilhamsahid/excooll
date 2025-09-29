@@ -26,6 +26,7 @@ class PembinaController extends Controller
             "calendar",
             "attendance",
             "activities",
+            "gallery",
             "announcements",
             "students",
             "applications",
